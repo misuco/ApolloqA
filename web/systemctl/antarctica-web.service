@@ -1,0 +1,13 @@
+[Unit]
+Description=antarctica-web
+After=network.target
+
+[Service]
+Environment=
+Type=simple
+User=antarctica
+ExecStart=npm start --prefix /home/antarctica/antarctica/antarctica-web
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

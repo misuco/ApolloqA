@@ -1,0 +1,51 @@
+scene.onBeforeRenderObservable.add(() => {
+  if (!spaceshipMesh) {
+    return;
+  }
+
+  const now=Date.now() / 2000;
+  const orbiterDist=2*Math.PI/nOrbiter;
+
+  for(let j=0;j<16;j++) {
+  for(let i=0;i<nOrbiter;i++) {
+    if (!orbiter[i]) {
+      continue;
+    }
+
+    if(i%4==0) {
+		let radius=8;
+		orbiter[i][j].position.x = spaceshipMesh.position.x+radius*Math.sin(now+i*orbiterDist);
+		orbiter[i][j].position.y = spaceshipMesh.position.y+j%4*0.5;
+		orbiter[i][j].position.z = spaceshipMesh.position.z+radius*Math.cos(now+i*orbiterDist)+j/4*0.5;
+        orbiter[i][j].rotation.x = now%180*2;
+        orbiter[i][j].rotation.y = now%90*4;
+	} else if(i%4==1) {	
+		let radius=8;
+		orbiter[i][j].position.x = spaceshipMesh.position.x+radius*Math.sin(now+i*orbiterDist);
+		orbiter[i][j].position.y = spaceshipMesh.position.y+radius*Math.cos(now+i*orbiterDist)+j/4*0.5;;
+		orbiter[i][j].position.z = spaceshipMesh.position.z+j%4*0.5;
+        orbiter[i][j].rotation.x = now%90*4;
+        orbiter[i][j].rotation.y = now%180*2;
+	} else if(i%4==2) {	
+		let radius=12;
+		orbiter[i][j].position.x = spaceshipMesh.position.x+radius*Math.sin(now+i*orbiterDist)+j/4*0.5;;
+		orbiter[i][j].position.y = spaceshipMesh.position.y+j%4*0.5;
+		orbiter[i][j].position.z = spaceshipMesh.position.z+radius*Math.cos(now+i*orbiterDist);		
+        orbiter[i][j].rotation.y = now%45*8;
+        orbiter[i][j].rotation.z = now%180*2;
+	} else if(i%4==3) {	
+		let radius=12;
+		orbiter[i][j].position.x = spaceshipMesh.position.x+radius*Math.sin(now+i*orbiterDist)+j/4*0.5;;
+		orbiter[i][j].position.y = spaceshipMesh.position.y+radius*Math.cos(now+i*orbiterDist);		
+		orbiter[i][j].position.z = spaceshipMesh.position.z+j%4*0.5;
+        orbiter[i][j].rotation.y = now%180*2;
+        orbiter[i][j].rotation.z = now%45*8;
+	}
+}}
+});
+
+
+// Start a render loop - basically, this will instruct BabylonJS to continuously re-render the scene
+engine.runRenderLoop(() => {
+  scene.render();
+});

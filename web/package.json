@@ -1,0 +1,15 @@
+{
+  "name": "antarctica-web",
+  "private": true,
+  "version": "1.0.0",
+  "description": "A online sound generator",
+  "repository": "-",
+  "license": "GNU/GPL",
+  "dependencies": {
+    "express": "x"
+  },
+  "scripts": {
+    "prestart": "npm install",
+    "start": "node server.js"
+  }
+}

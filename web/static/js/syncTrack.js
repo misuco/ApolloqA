@@ -1,0 +1,20 @@
+//// OBJECTS
+var readyTacks = [];
+
+var syncTrackRunning = false;
+
+var syncTrackTimer = function() {
+    syncTrackRunning = true;
+    let nextSyncInMs = 6e4 * 4 / aqa.tempo;
+    while (readyTacks.length > 0) {
+        let readyTrack = readyTacks.pop();
+        readyTrack.play({
+            loop: true
+        });
+        orbitertrackCalc[readyTrack.trackId] = false;
+        aqa.calcButton[readyTrack.trackId].color = "#FFFFFFFF";
+        console.log("playing track " + readyTrack.trackId);
+    }
+    console.log("next sync in " + nextSyncInMs + " ms");
+    setTimeout(syncTrackTimer, nextSyncInMs);
+};

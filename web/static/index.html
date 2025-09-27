@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+        <title>space trip</title>
+
+        <!-- Babylon.js
+        <script src="https://cdn.jsdelivr.net/npm/babylonjs@6.10.0/babylon.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/babylonjs-loaders@6.10.0/babylonjs.loaders.min.js"></script>
+        -->
+
+        
+
+        <style>
+			* {
+			  box-sizing: border-box;
+			}
+
+			html,
+			body {
+			  margin: 0;
+			  height: 100%;
+			}
+
+			canvas {
+			  width: 100%;
+			  height: 100%;
+			  background-color: magenta;
+			}
+        </style>
+    </head>
+<body>
+
+	<canvas></canvas>
+
+    <script src="js/babylon.js"></script>
+    <script src="js/babylonjs.loaders.min.js"></script>
+    <script src="js/babylon.gui.js"></script>
+	<script src="js/initScene.js"></script>
+	<script src="js/camera.js"></script>
+	<script src="js/syncTrack.js"></script>
+    <script src="js/objects.js"></script>
+    <script src="js/gui.js"></script>
+    <script src="js/starfield.js"></script>
+    <script src="js/animation.js"></script>
+        
+    <script>
+
+
+
+//const slalom1 = BABYLON.MeshBuilder.CreateSphere("slalom1", { diameter:8 }, scene);
+
+
+/*
+let star_mesh = null;
+
+SceneLoader.ImportMeshAsync(
+  null,
+  // This link was copied from the Dropbox "Share" panel, but the domain needs to be changed to dl.dropboxusercontent.com to avoid issues with CORS
+  //"obj/12150_Christmas_Tree_V2_L2.obj",
+  //"obj/Spaceship_BarbaraTheBee.gltf",
+  //"obj/Flakes1_Classic.obj",
+  //"obj/Logo-A_002.obj",
+  "obj/estrellica.obj",
+  null,
+  scene
+).then(({ meshes }) => {
+  // We now have our spaceship loaded into the scene!
+
+  // Set spaceshipMesh to the first mesh in the array: this is correct
+  // for our spaceship, but really depends on the mesh you loaded
+  console.log("Meshes : "+meshes);
+  
+  star_mesh = meshes[0];
+
+  // To allow working with rotationQuaternion, which is
+  // null by default, we need to give it a value
+  star_mesh.rotationQuaternion = Quaternion.Identity();
+
+  star_mesh.position.x = 0;
+  star_mesh.position.y = 0;
+  star_mesh.position.z = -150;
+
+  star_mesh.scaling.x = 0.15;
+  star_mesh.scaling.y = 0.15;
+  star_mesh.scaling.z = 0.15;
+  
+  star_mesh.rotation.x = 90;
+  
+  
+
+
+});
+
+
+var meshesToLoad = ["Flakes1_Classic.obj", "estrellica.obj"];
+
+var toLoad = meshesToLoad.length;
+var whenDoneFunction = function () {
+	toLoad--;
+
+	console.log("imported mesh, to load "+toLoad);
+	if (toLoad === 0) {
+		alert("loading done!");
+	}
+}
+
+for (var index = 0; index < meshesToLoad.length; index++) {
+	// The first parameter can be used to specify which mesh to import. Here we import all meshes
+	BABYLON.SceneLoader.ImportMesh("mesh"+index, "obj/", meshesToLoad[index], scene, function (newMeshes) {
+		// Set the target of the camera to the first imported mesh
+		whenDoneFunction();
+		//kek = scene.getMeshByName("test");
+		//kek.isVisible =true;
+	});
+}
+
+/*
+    
+
+const slalom1 = BABYLON.MeshBuilder.CreateSphere("slalom1", { diameter:8 }, scene);
+const slalom2 = BABYLON.MeshBuilder.CreateSphere("slalom2", { diameter:8 }, scene);
+const slalom3 = BABYLON.MeshBuilder.CreateSphere("slalom3", { diameter:8 }, scene);
+
+slalom1.position.x = 0;
+slalom1.position.y = 0;
+slalom1.position.z = -80;
+
+slalom2.position.x = 0;
+slalom2.position.y = 0;
+slalom2.position.z = -100;
+
+slalom3.position.x = 0;
+slalom3.position.y = 0;
+slalom3.position.z = -150;
+
+
+//// GROUND
+
+//var ground = BABYLON.Mesh.CreatePlane("ground", 40000.0, scene);
+//ground.material = new BABYLON.StandardMaterial("groundMat", scene);
+//ground.material.diffuseColor = new BABYLON.Color3(1, 1, 1);
+//ground.material.backFaceCulling = false;
+
+
+//var url = "https://cdn.rawgit.com/BabylonJS/Extensions/master/DynamicTerrain/dist/babylon.dynamicTerrain.min.js";
+/*
+var url = "js/babylon.dynamicTerrain.min.js";
+var terrainScript = document.createElement("script");
+terrainScript.src = url;
+document.head.appendChild(terrainScript);
+
+var terrainMaterial = new BABYLON.StandardMaterial("materialGround", scene);
+terrainMaterial.diffuseColor = new BABYLON.Color3(0.15, 0.9, 0.25);
+//terrainMaterial.wireframe = true;
+
+var terrainCreated = false;
+var terrain;
+
+terrainScript.onload = function() {
+    var mapSubX = 500;
+    var mapSubZ = 300;
+    var terrainSub = 100;
+
+    // map creation
+    var mapData = new Float32Array(mapSubX * mapSubZ * 3);
+    for (var l = 0; l < mapSubZ; l++) {
+        for (var w = 0; w < mapSubX; w++) {
+            mapData[3 *(l * mapSubX + w)] = (w - mapSubX * 0.5) * 2.0;
+            mapData[3 * (l * mapSubX + w) + 1] = w / (l +1) * Math.sin(l / 2) * Math.cos(w / 2) * 2.0;
+            mapData[3 * (l * mapSubX + w) + 2] = (l - mapSubZ * 0.5) * 2.0;
+       }
+    }
+
+    // terrain creation
+    var params = {
+        mapData: mapData,
+        mapSubX: mapSubX,
+        mapSubZ: mapSubZ,
+        terrainSub: terrainSub
+    };
+    terrain = new BABYLON.DynamicTerrain("terrain", params, scene);
+    terrain.mesh.material = terrainMaterial;
+    terrain.subToleranceX = 8;
+    terrain.subToleranceZ = 8;
+    terrain.LODLimits = [4, 3, 2, 1, 1];
+    terrainCreated = true;
+};
+*/
+
+    </script>
+</body>
+</html>
