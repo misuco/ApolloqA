@@ -82,6 +82,10 @@ scene.debugLayer.show({
 })();
 
 var aqa={};
-aqa.tempo=75;
+aqa.tempo=140;
+aqa.basenote=0;
+aqa.scale=0;
 aqa.sampleRate=48000;
 aqa.calcButton=[];
+aqa.levelBars=[];
+

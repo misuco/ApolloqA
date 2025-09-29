@@ -1,9 +1,9 @@
 /**
- * Antarctica
+ * ApolloqA
  *
  * Piano music composition generator
  *
- * (c) 2022 by claudio zopfi
+ * (c) 2025 by claudio zopfi
  *
  * Licence: GNU/GPL
  *
@@ -23,7 +23,11 @@ inline bool file_exists (const string& name) {
     return f.good();
 }
 
-void createNewSong( string filename, int tempo, int mode ) {
+void createNewSong( string filename, int basenote, int scale, int tempo, int mode ) {
+    cout << "loading Scale map\n";
+    mg.loadScaleMap( "/home/apolloqa/ApolloqA/web/static/js/scales_cleaned_sorted.csv" );
+    cout << "init Scale filter\n";
+    mg.initScaleFilter( scale, basenote );
     mg.setBPM( tempo );
     mg.setMode( mode );
     mg.newMidiFile();
@@ -34,17 +38,25 @@ void createNewSong( string filename, int tempo, int mode ) {
 int main(int argc, char *argv[])
 {
     string target="midigen";
-    int tempo=110;
+    int tempo=140;
     int mode=0;
+    int basenote=0;
+    int scale=0;
     int c;
-    while ((c = getopt (argc, argv, "m:t:o:")) != -1) {
+    while ((c = getopt (argc, argv, "b:m:o:s:t:")) != -1) {
         switch (c)
         {
+        case 'b':
+            basenote = stoi(optarg);
+            break;
         case 'm':
             mode = stoi(optarg);
             break;
         case 'o':
             target = optarg;
+            break;
+        case 's':
+            scale = stoi(optarg);
             break;
         case 't':
             tempo = stoi(optarg);
@@ -53,6 +65,6 @@ int main(int argc, char *argv[])
             abort ();
         }
     }    
-    createNewSong( target, tempo, mode );
+    createNewSong( target, basenote, scale, tempo, mode );
     return 0;
 }

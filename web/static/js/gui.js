@@ -1,8 +1,13 @@
 
 // GUI
-var advancedTexture = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
 
-advancedTexture.parseFromURLAsync("js/guiTexture.json")
+var playbackVisible = true;
+var configVisible = false;
+var menuVisible = true;
+
+var guiGenPlayer = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("Playback");
+
+guiGenPlayer.parseFromURLAsync("js/guiTexture.json")
 .then( (gui)=> {
     console.log("GUI loaded "+gui);
     
@@ -41,31 +46,203 @@ advancedTexture.parseFromURLAsync("js/guiTexture.json")
                 orbitertrack[i].setVolume(value/100);
             }
         });
+        
+        aqa.levelBars[i]=[];
+        for(let j=0;j<16;j++) {
+            aqa.levelBars[i][j] = new BABYLON.GUI.Rectangle();
+            aqa.levelBars[i][j].left = 40+i*240+j*12.5+"px";
+            aqa.levelBars[i][j].top = "960px";
+            //aqa.levelBars[i][j].transformCenterX = 0.5;
+            //aqa.levelBars[i][j].transformCenterY = 0.5;
+            aqa.levelBars[i][j].width = "10px";
+            aqa.levelBars[i][j].height = "0px";
+            aqa.levelBars[i][j].color = "Orange";
+            aqa.levelBars[i][j].thickness = 0;
+            aqa.levelBars[i][j].background = "Orange";
+            aqa.levelBars[i][j].horizontalAlignment = 0,
+            aqa.levelBars[i][j].verticalAlignment = 0,
+            gui.addControl(aqa.levelBars[i][j]);    
+        }
     }
+    gui.rootContainer.isVisible=false;
 })
 .catch((err) => {
     console.log("error loading GUI "+err);
 });
 
-/*
-var buttonFunction="start"
-var button1 = BABYLON.GUI.Button.CreateSimpleButton("but1", buttonFunction);
-button1.width = "450px"
-button1.height = "250px";
-button1.color = "white";
-button1.cornerRadius = 125;
-button1.background = "orange";
-button1.fontSize = "75px";
-button1.onPointerUpObservable.add(function() {
-    if(buttonFunction==="start") {
-        //button1.isVisible=false
-        triggerNewSound(0)
-        syncTrackTimer()
-        buttonFunction="next"
-        button1.textBlock.text=buttonFunction
-    } else {
-        nextSound()
-    }
+var guiGenConfig = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("Config");
+
+/// Basenote Selector 
+
+const basenoteSelect = new BABYLON.GUI.ScrollViewer("Basenote_Select");
+basenoteSelect.isVisible=false;
+let baseNotes=["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"];
+let buttonTop=0;
+baseNotes.forEach((note,i)=>{
+    const btn = BABYLON.GUI.Button.CreateSimpleButton("but", note);
+    btn.horizontalAlignment = 0;
+    btn.verticalAlignment = 0;
+    btn.top=buttonTop+"%";
+    btn.left="0px";
+    btn.height="10%";
+    btn.width="100%";
+    btn.color="#000000FF";
+    btn.background="#FFFFFFEE";
+    btn.fontSize="50px";
+    btn.onPointerUpObservable.add(function() {
+        console.log("Selected Basenote "+note+" id "+i-1);
+        aqa.buttonBasenote.textBlock.text=note;
+        aqa.basenote=i-1;
+        basenoteSelect.isVisible=false;
+    });
+    basenoteSelect.addControl(btn);
+    buttonTop+=10;
+    i++;
 });
-advancedTexture.addControl(button1);
-*/
+
+/// Scales Selector 
+const scaleSelect = new BABYLON.GUI.ScrollViewer("Scales_Select");
+scaleSelect.isVisible=false;
+//scaleSelect.barSize="10%";
+//scaleSelect.width=buttonTop+"100%";
+//scaleSelect.height="100%";
+
+function receiveScalesCsv() {
+    let buttonTop=0;
+        
+    const csv = this.responseText.replace(/\r/g, '');
+    const lines = csv.split('\n');
+    const fieldId = lines[0].split(';');
+
+    for (let i = 1; i < lines.length; i++) {
+      const line = lines[i];
+      const fields = line.split(';');
+      if (fields.length > 1) {
+          //console.log("Adding scale "+fields[0]);
+          const btn = BABYLON.GUI.Button.CreateSimpleButton("but", fields[0]);
+          btn.horizontalAlignment = 0;
+          btn.verticalAlignment = 0;
+          btn.top=buttonTop+"%";
+          btn.left="0px";
+          btn.height="10%";
+          btn.width="100%";
+          btn.color="#000000FF";
+          btn.background="#FFFFFFEE";
+          btn.fontSize="50px";
+          btn.onPointerUpObservable.add(function() {
+              const scaleId=i-1;
+              console.log("Selected scale "+fields[0]+" id "+scaleId);
+              aqa.buttonScales.textBlock.text=fields[0];
+              aqa.scale=scaleId;
+              scaleSelect.isVisible=false;
+          });
+          scaleSelect.addControl(btn);
+          buttonTop+=10;
+      }
+    }
+}
+
+const req = new XMLHttpRequest();
+req.addEventListener("load", receiveScalesCsv);
+req.open("GET", "js/scales_cleaned_sorted.csv");
+req.send();
+
+/// JSON Loader
+guiGenConfig.parseFromURLAsync("js/guiGenConfig.json")
+.then( (gui)=> {
+    console.log("guiGenConfig loaded "+gui);
+    
+    // Fix caption text coordinates
+    const textTempo=gui.getControlByName("Text_Tempo");
+    textTempo.horizontalAlignment = 0;
+    textTempo.verticalAlignment = 0;
+    textTempo.top="40px";
+    textTempo.left="40px";
+    
+    const textBasenote=gui.getControlByName("Text_Basenote");
+    textBasenote.horizontalAlignment = 0;
+    textBasenote.verticalAlignment = 0;
+    textBasenote.top="40px";
+    textBasenote.left="320px";
+    
+    const textScale=gui.getControlByName("Text_Scale");
+    textScale.horizontalAlignment = 0;
+    textScale.verticalAlignment = 0;
+    textScale.top="280px";
+    textScale.left="320px";
+
+    // Handle tempo slider
+    const sliderTempo=gui.getControlByName("Tempo");
+    sliderTempo.onValueChangedObservable.add(function(value) {
+        let newTempo=Math.round(40+value*200/100);
+        textTempo.text=newTempo;
+        aqa.tempo=newTempo;
+    });
+    
+    // Handle basenote button
+    aqa.buttonBasenote=gui.getControlByName("Button_Basenote");
+    aqa.buttonBasenote.onPointerUpObservable.add(function() {
+        console.log("Select Basenote");
+        basenoteSelect.isVisible=true;
+    });
+    
+    // Handle scales button
+    aqa.buttonScales=gui.getControlByName("Button_Scale");
+    aqa.buttonScales.onPointerUpObservable.add(function() {
+        console.log("Select Scale");
+        scaleSelect.isVisible=true;
+    });    
+    
+    guiGenConfig.addControl(basenoteSelect);
+    guiGenConfig.addControl(scaleSelect);
+    //scaleSelect.barSize="10%";
+    //scaleSelect.width="100%";
+    //scaleSelect.height="100%";
+    
+})
+.catch((err) => {
+    console.log("error loading guiGenConfig "+err);
+});
+
+
+var guiMenu = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("Menu");
+
+guiMenu.parseFromURLAsync("js/guiMenu.json")
+.then( (gui)=> {
+    console.log("guiMenu loaded "+gui);
+    
+    const buttonMenu = gui.getControlByName("Button_Menu");
+    const buttonPlayer = gui.getControlByName("Button_Player");
+    const buttonConfig =gui.getControlByName("Button_Config");
+    
+    const configRoot = guiGenConfig.rootContainer;
+    const playerRoot = guiGenPlayer.rootContainer;
+    
+    buttonMenu.onPointerUpObservable.add(function() {
+        const newState=!menuVisible;
+        menuVisible=newState;
+        buttonPlayer.isVisible=newState;
+        buttonConfig.isVisible=newState;
+    });
+    
+    buttonConfig.onPointerUpObservable.add(function() {
+        if(configRoot.isVisible===true) {
+            configRoot.isVisible=false;
+        } else {
+            configRoot.isVisible=true;
+            playerRoot.isVisible=false;
+        }
+    });
+    
+    buttonPlayer.onPointerUpObservable.add(function() {
+        if(playerRoot.isVisible===true) {
+            playerRoot.isVisible=false;
+        } else {
+            playerRoot.isVisible=true;
+            configRoot.isVisible=false;
+        }
+    });    
+})
+.catch((err) => {
+    console.log("error loading guiMenu "+err);
+});

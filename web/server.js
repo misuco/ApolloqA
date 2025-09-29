@@ -17,10 +17,21 @@ app.use(express.json()) // for parsing application/json
 
 app.get('/newclip', function(req, res) {
    console.log("got newclip " + req.query.id);
-   console.log(config.app.bin_path_midigen + ' -m 0 -t '+req.query.tempo+' -p ' + req.query.pitch + ' -b '+req.query.clipId+' -l '+req.query.loopLength+' -r '+req.query.repeat+' -n '+req.query.basenote+' -s '+req.query.scale+' -a '+req.query.arrange+' -o '+config.app.web_path+'/loops/'+req.query.sessionId+'/'+req.query.id);
+   console.log(config.app.bin_path_midigen 
+       + ' -s '+req.query.scale
+       + ' -b '+req.query.basenote
+       + ' -m 0 '
+       + ' -t '+req.query.tempo 
+       + ' -o '+config.app.web_path+'/loops/'+req.query.sessionId+'/'+req.query.id);
+       
    createSessionDir(req.query.sessionId);
    //result=proc.execSync(config.app.bin_path_midigen + ' -t '+req.query.tempo+' -p ' + req.query.pitch + ' -b '+req.query.clipId+' -l '+req.query.loopLength+' -r '+req.query.repeat+' -n '+req.query.basenote+' -s '+req.query.scale+' -a '+req.query.arrange+' -c '+req.query.sound+' -o '+config.app.web_path+'/loops/'+req.query.sessionId+'/'+req.query.id);
-   result=proc.execSync(config.app.bin_path_midigen + ' -m 0 -t '+req.query.tempo +' -o '+config.app.web_path+'/loops/'+req.query.sessionId+'/'+req.query.id);
+   result=proc.execSync(config.app.bin_path_midigen 
+       + ' -s '+req.query.scale
+       + ' -b '+req.query.basenote
+       + ' -m 0 '
+       + ' -t '+req.query.tempo 
+       + ' -o '+config.app.web_path+'/loops/'+req.query.sessionId+'/'+req.query.id);
    console.log("------------------------------------------------------------------------------");
    console.log("request result :");
    console.log("--> "+result);

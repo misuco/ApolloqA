@@ -42,6 +42,18 @@ inline void rtrim(std::string &s) {
     }).base(), s.end());
 }
 
+/*
+void Midigen::setBasenote(int b)
+{
+    basenote = b;
+}
+
+void Midigen::setScale(int s)
+{
+    scale = s;
+}
+*/
+
 void Midigen::setBPM(int b)
 {
     bpm = b;
@@ -66,6 +78,89 @@ Midigen::Midigen() :
     //QDir d;
     //d.mkdir(outputPath+"wav");
     //d.mkdir(outputPath+"mid");
+}
+
+void Midigen::loadScaleMap(string filename)
+{
+    ifstream file(filename);
+    string line;
+
+    if(!file.is_open()) return;
+
+    //ommit first line in csv file
+    getline(file,line);
+    
+    while(getline(file,line)) {
+        vector<string> fields;// = line.split(";");
+        istringstream f(line);
+        string s;
+        while (getline(f, s, ';')) {
+            //cout << s << endl;
+            fields.push_back(s);
+        }
+
+        if(fields.size()>2) {
+            scaleMap[fields.at(2)] = fields.at(0);
+            scalePool.push_back(fields.at(2));
+            //cout << "loaded chord " << fields.at(0) << endl;
+        } else {
+            //cout << "invalid record " << line << endl;
+        }
+    }
+
+}
+
+void Midigen::initScaleFilter(int scale, int basenote)
+{
+    if(scale>=scalePool.size()) scale=scalePool.size()-1;
+
+    cout << "Scale: " << scaleMap[scalePool.at(scale)] << endl;
+    cout << "Basenote: " << midinote2txt(basenote) << endl;
+
+    // clear existing filter
+    scaleFilter.clear();
+    scaleFilterMap.clear();
+    for(int i=0;i<127;i++) {
+        scaleFilter.push_back( false );
+        scaleFilterMap.push_back( -1 );
+    }
+
+    // seek lowest hearable note
+    scaleFilterLowestNote = basenote;
+    while(scaleFilterLowestNote<21) { scaleFilterLowestNote+=12; }
+
+    // get record
+    vector<string> scaleSteps;
+    istringstream f(scalePool.at(scale));
+    string s;
+    while (getline(f, s, '-')) {
+        //cout << s << endl;
+        scaleSteps.push_back(s);
+    }
+
+    int stepI = 0;
+    for(int i=scaleFilterLowestNote;i<127;) {
+        scaleFilter.at(i)=true;
+        scaleFilterHighestNote=i;
+
+        if(scaleSteps.at(stepI)=="H") {
+            i+=1;
+        } else if(scaleSteps.at(stepI)=="W") {
+            i+=2;
+        } else if(scaleSteps.at(stepI)=="2W") {
+            i+=4;
+        } else if(scaleSteps.at(stepI)=="3H") {
+            i+=3;
+        } else if(scaleSteps.at(stepI)=="4H") {
+            i+=4;
+        } else {
+            cout << "WARNING: unknown step token " << scaleSteps.at(stepI) << endl;
+        }
+        stepI++;
+        if(stepI>=scaleSteps.size()) {
+            stepI=0;
+        }
+    }
 }
 
 void Midigen::newMidiFile() {
@@ -100,6 +195,29 @@ void Midigen::newMidiFile() {
 
 }
 
+int Midigen::filterKey(int key) {
+
+    if(key>=scaleFilterHighestNote) {
+        return scaleFilterHighestNote;
+    } else if(key<=scaleFilterLowestNote) {
+        return scaleFilterLowestNote;
+    } else if(scaleFilterMap[key] == -1) {
+        int mapKeyUp=key;
+        int mapKeyDown=key;
+
+        while(scaleFilter.at(mapKeyDown)!=true && scaleFilter.at(mapKeyUp)!=true ) {
+            mapKeyDown--;
+            mapKeyUp++;
+        }
+        if( scaleFilter.at(mapKeyUp)==true) {
+            scaleFilterMap[key] = mapKeyUp;
+        } else if( scaleFilter.at(mapKeyDown)==true ) {
+            scaleFilterMap[key] = mapKeyDown;
+        }
+    }
+    return scaleFilterMap[key];
+}
+
 void Midigen::createRandomTrack() {
     // Random Track
     std::random_device dev;
@@ -117,7 +235,7 @@ void Midigen::createRandomTrack() {
         
         int tick=i*tp16th+1;
         MidiEvent midievent;
-        int randomNote = dist127(rng);
+        int randomNote = filterKey(dist127(rng));
         int randomVelocity = dist127(rng);
 
         midievent.setCommand(0x90,randomNote,randomVelocity);
@@ -225,3 +343,49 @@ void Midigen::saveNewMidiFile(const string &filename)
     //cout << "saved " << filename << endl;
 }
 
+string Midigen::midinote2txt(int note) {
+    int octave=note/12;
+    int v=note%12;
+    std::string txt = "?";
+
+    switch (v) {
+    case 0:
+        txt="C";
+        break;
+    case 1:
+        txt="C#";
+        break;
+    case 2:
+        txt="D";
+        break;
+    case 3:
+        txt="D#";
+        break;
+    case 4:
+        txt="E";
+        break;
+    case 5:
+        txt="F";
+        break;
+    case 6:
+        txt="F#";
+        break;
+    case 7:
+        txt="G";
+        break;
+    case 8:
+        txt="G#";
+        break;
+    case 9:
+        txt="A";
+        break;
+    case 10:
+        txt="A#";
+        break;
+    case 11:
+        txt="B";
+        break;
+    }
+    return txt + std::to_string( octave );
+
+}

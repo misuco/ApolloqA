@@ -17,6 +17,7 @@ mYellow.freeze();
 var nOrbiter = 4;
 var orbiter = [];
 var orbitertrack = [];
+var orbiteranalyzer = [];
 var orbitertrackVolume = [];
 var orbitertrackMute = [];
 var orbitertrackCalc = [];
@@ -59,25 +60,36 @@ var playTrack = function(trackUrl, trackId) {
     BABYLON.CreateSoundAsync(trackUrl, trackUrl, {
         spatialEnabled: true
     }).then(track => {
-        console.log("music 1 ready... play " + trackUrl);
         track.spatial.attach(orbiter[trackId][0]);
-        track.trackId=trackId;
         track.setVolume(orbitertrackVolume[trackId]);
-        readyTacks.push(track);
         orbitertrack[trackId] = track;
+        readyTack[trackId]=true;
+        //console.log("track ready: " + trackUrl);
+    }).catch(err => {
+        console.error("cannot play sound:" + trackUrl + " " + err);
+    });
+    
+    BABYLON.CreateAudioBusAsync(trackUrl, {
+        analyzerEnabled: true
+    }).then(bus => {
+        orbiteranalyzer[trackId] = bus;
+        readyAnalyzer[trackId] = true;
+        //console.log("analyzer bus ready: " + trackUrl);
 
         orbitertrackObserver[trackId] = scene.onBeforeRenderObservable.add(() => {
-            console.log("Analyzer call");
             try {
-                const frequencies = track.analyzer.getFloatFrequencyData();
+                const frequencies = bus.analyzer.getByteFrequencyData();
                 for (let i = 0; i < 16; i++) {
-                    let scaling = frequencies[i];
+                    let scaling = frequencies[i]/255;
                     orbiter[trackId][i].scaling.x = scaling;
                     orbiter[trackId][i].scaling.y = scaling;
                     orbiter[trackId][i].scaling.z = scaling;
+                    
+                    aqa.levelBars[trackId][i].top = 960 - scaling*200 + "px";
+                    aqa.levelBars[trackId][i].height = scaling*200 + "px";
                 }
             } catch(err) {
-                console.log("Analyzer error");
+                console.log("Analyzer error:" + err);
             }
         });
 
@@ -86,7 +98,6 @@ var playTrack = function(trackUrl, trackId) {
     }).catch(err => {
         console.error("cannot play sound:" + trackUrl + " " + err);
     });
-    
 };
 
 var triggerNewSound = function(trackId) {
@@ -106,6 +117,6 @@ var triggerNewSound = function(trackId) {
     var baseUrl = getUrl.protocol + "//" + getUrl.host + "/";
     console.log("trigger new sound trackId " + trackId);
     var queryId = trackId + "_" + aqa.tempo + "_" + Date.now();
-    oReq.open("GET", baseUrl + "newclip?id=" + queryId + "&tempo=" + aqa.tempo + "&sessionId=" + sessionId);
+    oReq.open("GET", baseUrl + "newclip?id=" + queryId + "&tempo=" + aqa.tempo + "&basenote=" + aqa.basenote + "&scale=" + aqa.scale + "&sessionId=" + sessionId);
     oReq.send();
 };
