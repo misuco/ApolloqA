@@ -1,9 +1,9 @@
 
 // GUI
 
-var playbackVisible = true;
-var configVisible = false;
 var menuVisible = true;
+var playerVisible = false;
+var confVisible = true;
 
 var guiGenPlayer = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("Playback");
 
@@ -40,6 +40,8 @@ guiGenPlayer.parseFromURLAsync("js/guiTexture.json")
             }
         });
         var fader=gui.getControlByName("Vol"+(i+1));
+        fader.background=chanColorStr[i];
+        fader.color=chanColorStr[i];
         fader.onValueChangedObservable.add(function(value) {
             orbitertrackVolume[i]=value/100;
             if(orbitertrack[i]) {
@@ -52,13 +54,11 @@ guiGenPlayer.parseFromURLAsync("js/guiTexture.json")
             aqa.levelBars[i][j] = new BABYLON.GUI.Rectangle();
             aqa.levelBars[i][j].left = 40+i*240+j*12.5+"px";
             aqa.levelBars[i][j].top = "960px";
-            //aqa.levelBars[i][j].transformCenterX = 0.5;
-            //aqa.levelBars[i][j].transformCenterY = 0.5;
             aqa.levelBars[i][j].width = "10px";
             aqa.levelBars[i][j].height = "0px";
-            aqa.levelBars[i][j].color = "Orange";
+            aqa.levelBars[i][j].color = chanColorStr[i];
             aqa.levelBars[i][j].thickness = 0;
-            aqa.levelBars[i][j].background = "Orange";
+            aqa.levelBars[i][j].background = chanColorStr[i];
             aqa.levelBars[i][j].horizontalAlignment = 0,
             aqa.levelBars[i][j].verticalAlignment = 0,
             gui.addControl(aqa.levelBars[i][j]);    
@@ -103,9 +103,6 @@ baseNotes.forEach((note,i)=>{
 /// Scales Selector 
 const scaleSelect = new BABYLON.GUI.ScrollViewer("Scales_Select");
 scaleSelect.isVisible=false;
-//scaleSelect.barSize="10%";
-//scaleSelect.width=buttonTop+"100%";
-//scaleSelect.height="100%";
 
 function receiveScalesCsv() {
     let buttonTop=0;
@@ -194,11 +191,7 @@ guiGenConfig.parseFromURLAsync("js/guiGenConfig.json")
     });    
     
     guiGenConfig.addControl(basenoteSelect);
-    guiGenConfig.addControl(scaleSelect);
-    //scaleSelect.barSize="10%";
-    //scaleSelect.width="100%";
-    //scaleSelect.height="100%";
-    
+    guiGenConfig.addControl(scaleSelect);    
 })
 .catch((err) => {
     console.log("error loading guiGenConfig "+err);
@@ -216,7 +209,10 @@ guiMenu.parseFromURLAsync("js/guiMenu.json")
     const buttonConfig =gui.getControlByName("Button_Config");
     
     const configRoot = guiGenConfig.rootContainer;
+    configRoot.isVisible===true;
+    
     const playerRoot = guiGenPlayer.rootContainer;
+    playerRoot.isVisible===true;
     
     buttonMenu.onPointerUpObservable.add(function() {
         const newState=!menuVisible;
@@ -226,18 +222,24 @@ guiMenu.parseFromURLAsync("js/guiMenu.json")
     });
     
     buttonConfig.onPointerUpObservable.add(function() {
-        if(configRoot.isVisible===true) {
+        if(confVisible===true) {
+            confVisible=false;
             configRoot.isVisible=false;
         } else {
+            confVisible=true;
+            playerVisible=false;
             configRoot.isVisible=true;
             playerRoot.isVisible=false;
         }
     });
     
     buttonPlayer.onPointerUpObservable.add(function() {
-        if(playerRoot.isVisible===true) {
+        if(playerVisible===true) {
+            playerVisible=false;
             playerRoot.isVisible=false;
         } else {
+            confVisible=false;
+            playerVisible=true;
             playerRoot.isVisible=true;
             configRoot.isVisible=false;
         }

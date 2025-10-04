@@ -42,18 +42,6 @@ inline void rtrim(std::string &s) {
     }).base(), s.end());
 }
 
-/*
-void Midigen::setBasenote(int b)
-{
-    basenote = b;
-}
-
-void Midigen::setScale(int s)
-{
-    scale = s;
-}
-*/
-
 void Midigen::setBPM(int b)
 {
     bpm = b;
@@ -75,9 +63,6 @@ Midigen::Midigen() :
     nBeats {4},
     mode {0}
 {
-    //QDir d;
-    //d.mkdir(outputPath+"wav");
-    //d.mkdir(outputPath+"mid");
 }
 
 void Midigen::loadScaleMap(string filename)
@@ -143,7 +128,9 @@ void Midigen::initScaleFilter(int scale, int basenote)
         scaleFilter.at(i)=true;
         scaleFilterHighestNote=i;
 
-        if(scaleSteps.at(stepI)=="H") {
+        if(scaleSteps.size()==0) {
+            i+=12;
+        } else if(scaleSteps.at(stepI)=="H") {
             i+=1;
         } else if(scaleSteps.at(stepI)=="W") {
             i+=2;

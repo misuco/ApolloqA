@@ -1,18 +1,3 @@
-/// Colors
-var mRed = new BABYLON.StandardMaterial("m4", scene);
-mRed.diffuseColor = new BABYLON.Color3(1, 0, 0);
-mRed.alpha = .5;
-mRed.freeze();
-
-var mGreen = new BABYLON.StandardMaterial("m5", scene);
-mGreen.diffuseColor = new BABYLON.Color3(0, 1, 0);
-mGreen.freeze();
-
-var mYellow = new BABYLON.StandardMaterial("m3", scene);
-mYellow.diffuseColor = new BABYLON.Color3(1, 1, 0);
-mYellow.alpha = .5;
-mYellow.freeze();
-
 /// Object state variables
 var nOrbiter = 4;
 var orbiter = [];
@@ -33,7 +18,7 @@ for (let i = 0; i < nOrbiter; i++) {
             diameter: 1
         }, scene);
         orbiter[i][j].isVisible = false;
-        orbiter[i][j].material = mGreen;
+        orbiter[i][j].material = chanColor[i];
     }
 }
 
@@ -61,7 +46,11 @@ var playTrack = function(trackUrl, trackId) {
         spatialEnabled: true
     }).then(track => {
         track.spatial.attach(orbiter[trackId][0]);
-        track.setVolume(orbitertrackVolume[trackId]);
+        if(orbitertrackMute[trackId]==true) {
+            track.setVolume(0);
+        } else {
+            track.setVolume(orbitertrackVolume[trackId]);
+        }
         orbitertrack[trackId] = track;
         readyTack[trackId]=true;
         //console.log("track ready: " + trackUrl);
