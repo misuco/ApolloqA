@@ -1,4 +1,5 @@
-let clients = new Map();
+const clients = new Map();
+const clientSockets = [];
 
 const WebSocket = require('ws');
 
@@ -17,7 +18,14 @@ wss.on('connection', (ws,req) => {
       const t=Date.now();
       //console.log('Received: '+message);
       if(m.sessionId) {
-          clients.set(m.sessionId,{"x":m.x,"y":m.y,"z":m.z,"rx":m.rx,"ry":m.ry,"rz":m.rz,"t":t});
+          if(m.trackList) {
+              console.log('Received trackList: '+m.trackList);
+              clientSockets.forEach((socket) => {
+                  socket.send(JSON.stringify(m));
+              });
+          } else {
+              clients.set(m.sessionId,{"x":m.x,"y":m.y,"z":m.z,"rx":m.rx,"ry":m.ry,"rz":m.rz,"t":t});
+          }
       }
       ws.send(JSON.stringify(Array.from(clients.entries())));
   });
@@ -29,11 +37,12 @@ wss.on('connection', (ws,req) => {
   
   // Send a welcome message to the client
   ws.send(JSON.stringify(Array.from(clients.entries())));
+  clientSockets.push(ws);
 }); 
 
 let removeInactiveClients = function() {
     const t=Date.now();
-    console.log("removeInactiveClients @"+t);
+    //console.log("removeInactiveClients @"+t);
     clients.forEach((value, key) => {
         let inactiveSince=t-value.t;
         console.log("- "+key+" "+inactiveSince);

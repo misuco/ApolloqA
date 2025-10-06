@@ -200,7 +200,10 @@ scene.onBeforeRenderObservable.add(() => {
   velocity.scaleInPlace(1 - DragCoefficient * deltaSecs);
   // Apply velocity to position
   spaceshipMesh.position.addInPlace(velocity.scale(deltaSecs));
-
+  scene.audioListenerPositionProvider = () => {
+    // Returns a static position
+    return spaceshipMesh.absolutePosition;
+  };
 });
 
 // Use the onBeforeRenderObservable event to move the

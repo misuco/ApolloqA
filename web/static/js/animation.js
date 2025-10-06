@@ -3,9 +3,9 @@ scene.onBeforeRenderObservable.add(() => {
         return;
     }
     const now = Date.now() / 2e3;
-    const orbiterDist = 2 * Math.PI / nOrbiter;
+    const orbiterDist = 2 * Math.PI / aqa.nTracks;
     for (let j = 0; j < 16; j++) {
-        for (let i = 0; i < nOrbiter; i++) {
+        for (let i = 0; i < aqa.nTracks; i++) {
             if (!orbiter[i]) {
                 continue;
             }

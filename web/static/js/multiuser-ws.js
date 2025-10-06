@@ -14,14 +14,37 @@ ws.onopen = () => {
 // Listen for messages
 ws.onmessage = (event) => {
     
+    console.log("onmessage");
+    //console.log("onmessage: "+event.data);
+    
     if(!spaceshipMesh) {
-        sendMessage();
+        sendPosition();
         return;
     }
     
-    //console.log("onmessage: "+event.data);
+    const m=JSON.parse(event.data);
     
-    allUsers = new Map(JSON.parse(event.data));
+    if(m.trackList) {
+        console.log("onmessage: tracklist "+m.trackList);
+        if(m.sessionId!==aqa.sessionId) {
+            for(let i=0;i<aqa.nTracks;i++) {
+                const trackUrl=m.trackList[i];
+                if(trackUrl) {
+                    if(orbitertrackUrl[i]!==trackUrl) {
+                        orbitertrackUrl[i]=trackUrl;
+                        playTrack(trackUrl,i);
+                        console.log("playTrack: "+trackUrl);
+                    } else {
+                        console.log("already playing: "+trackUrl);
+                    }
+                }
+            }
+        }
+        sendPosition();
+        return;
+    }
+    
+    allUsers = new Map(m);
 
     allUsers.forEach((value, key) => {
         if(key==aqa.sessionId) {
@@ -29,6 +52,7 @@ ws.onmessage = (event) => {
         }
 
         let otherUser=otherUsers.get(key);
+        
         if(otherUser) {
             if(otherUser.position) {
                 otherUser.position.x = value.x;
@@ -57,7 +81,7 @@ ws.onmessage = (event) => {
         }
     });
 
-    sendMessage();
+    sendPosition();
 };
 
 // Handle errors
@@ -71,7 +95,7 @@ ws.onclose = () => {
 };
 
 // Send own position to web socket server
-function sendMessage() {
+function sendPosition() {
     if(spaceshipMesh) {
         let rq=spaceshipMesh.rotationQuaternion.toEulerAngles();
         let x = spaceshipMesh.position.x;
@@ -82,6 +106,12 @@ function sendMessage() {
     } else {
         ws.send("{}");
     }
+}
+
+function sendTrackList(list) {
+    let message=JSON.stringify({"sessionId":aqa.sessionId,"trackList":list});
+    //console.log("sendTrackList "+message);
+    ws.send(message);
 }
 
 let removeInactiveClients = function() {

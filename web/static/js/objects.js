@@ -1,14 +1,14 @@
 /// Object state variables
-var nOrbiter = 4;
 var orbiter = [];
 var orbitertrack = [];
+var orbitertrackUrl = [];
 var orbiteranalyzer = [];
 var orbitertrackVolume = [];
 var orbitertrackMute = [];
 var orbitertrackCalc = [];
 var orbitertrackObserver = [];
 
-for (let i = 0; i < nOrbiter; i++) {
+for (let i = 0; i < aqa.nTracks; i++) {
     orbiter[i] = [];
     orbitertrackVolume[i] = .9;
     orbitertrackMute[i] = false;
@@ -24,6 +24,7 @@ for (let i = 0; i < nOrbiter; i++) {
 
 var playTrack = function(trackUrl, trackId) {
     console.log("play track: " + trackUrl);
+    
     if (syncTrackRunning === false) {
         syncTrackTimer();
     }
@@ -90,7 +91,12 @@ var triggerNewSound = function(trackId) {
             console.log("server error!!!");
             triggerNewSound(trackId);
         } else {
-            playTrack(this.response + ".mp3", trackId);
+            const trackUrl=this.response + ".mp3";
+            orbitertrackUrl[trackId]=trackUrl;
+            playTrack(trackUrl, trackId);
+            if(trackId<aqa.nTracks) {
+                sendTrackList(orbitertrackUrl);
+            }
             for (let i = 0; i < 16; i++) {
                 orbiter[trackId][i].isVisible = true;
             }

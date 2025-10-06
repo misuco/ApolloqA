@@ -92,6 +92,7 @@ function getRandomInt(max) {
 }
 
 var aqa={};
+aqa.nTracks=4;
 aqa.tempo=140;
 aqa.basenote=0;
 aqa.scale=0;
