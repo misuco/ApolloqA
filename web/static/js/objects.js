@@ -22,12 +22,6 @@ for (let i = 0; i < nOrbiter; i++) {
     }
 }
 
-function getRandomInt(max) {
-    return Math.floor(Math.random() * max);
-}
-
-let sessionId = 0;
-
 var playTrack = function(trackUrl, trackId) {
     console.log("play track: " + trackUrl);
     if (syncTrackRunning === false) {
@@ -102,10 +96,8 @@ var triggerNewSound = function(trackId) {
             }
         }
     });
-    var getUrl = window.location;
-    var baseUrl = getUrl.protocol + "//" + getUrl.host + "/";
     console.log("trigger new sound trackId " + trackId);
     var queryId = trackId + "_" + aqa.tempo + "_" + Date.now();
-    oReq.open("GET", baseUrl + "newclip?id=" + queryId + "&tempo=" + aqa.tempo + "&basenote=" + aqa.basenote + "&scale=" + aqa.scale + "&sessionId=" + sessionId);
+    oReq.open("GET", aqa.baseUrl + "newclip?id=" + queryId + "&tempo=" + aqa.tempo + "&basenote=" + aqa.basenote + "&scale=" + aqa.scale + "&sessionId=" + aqa.sessionId);
     oReq.send();
 };

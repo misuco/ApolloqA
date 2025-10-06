@@ -81,6 +81,16 @@ scene.debugLayer.show({
     console.log("audioEngine ready")
 })();
 
+function uuidv4() {
+  return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
+    (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
+  );
+}
+
+function getRandomInt(max) {
+    return Math.floor(Math.random() * max);
+}
+
 var aqa={};
 aqa.tempo=140;
 aqa.basenote=0;
@@ -88,4 +98,8 @@ aqa.scale=0;
 aqa.sampleRate=48000;
 aqa.calcButton=[];
 aqa.levelBars=[];
+aqa.windowUrl = window.location;
+aqa.sessionId = uuidv4();
+aqa.baseUrl = aqa.windowUrl.protocol + "//" + aqa.windowUrl.host + "/";
+aqa.wsUrl = "ws://" + aqa.windowUrl.hostname + ":8080";
 

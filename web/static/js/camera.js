@@ -71,11 +71,6 @@ SceneLoader.ImportMeshAsync(
 });
 
 
-
-
-
-
-
 // We fly the spaceship by dragging the mouse, with the drag direction
 // translating to the Yaw and Pitch changes to the spaceship, and thrust
 // being applied at 100% whenever the mouse is held down.
@@ -206,7 +201,6 @@ scene.onBeforeRenderObservable.add(() => {
   // Apply velocity to position
   spaceshipMesh.position.addInPlace(velocity.scale(deltaSecs));
 
-  //console.log("spaceship "+spaceshipMesh.position);
 });
 
 // Use the onBeforeRenderObservable event to move the

@@ -1,15 +1,15 @@
 {
-  "name": "ApolloqA-Web",
+  "name": "ApolloqA-Websocket",
   "private": true,
   "version": "1.0.0",
   "description": "Collaborative sound platform",
   "repository": "-",
   "license": "GNU/GPL",
   "dependencies": {
-    "express": "x"
+    "ws": "x"
   },
   "scripts": {
     "prestart": "npm install",
-    "start": "node server.js"
+    "start": "node wss.js"
   }
 }
