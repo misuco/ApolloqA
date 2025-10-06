@@ -23,11 +23,14 @@ let spaceshipMesh = null;
 // Note that we are loading a GLTF, which isn't supported by the core BabylonJS runtime, se we need to add the babylonjs.loaders.js script from CDN in the CodePen settings.
 // The mesh comes from Quaternius' excellent Ultimate Space Kit and I've uploaded it to Dropbox:
 // https://quaternius.com/packs/ultimatespacekit.html
+
+let spaceshipUrl=aqa.avatarUrl(aqa.avatarId);
+
 SceneLoader.ImportMeshAsync(
   null,
   // This link was copied from the Dropbox "Share" panel, but the domain needs to be changed to dl.dropboxusercontent.com to avoid issues with CORS
   //"obj/12150_Christmas_Tree_V2_L2.obj",
-  "obj/Spaceship_BarbaraTheBee.gltf",
+  spaceshipUrl,
   //"obj/Flakes1_Classic.obj",
   //"obj/Logo-C_001.obj",
   null,

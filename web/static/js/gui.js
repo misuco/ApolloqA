@@ -3,7 +3,7 @@
 
 var menuVisible = true;
 var playerVisible = false;
-var confVisible = true;
+var confVisible = false;
 
 var guiGenPlayer = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("Playback");
 
@@ -104,6 +104,8 @@ baseNotes.forEach((note,i)=>{
 const scaleSelect = new BABYLON.GUI.ScrollViewer("Scales_Select");
 scaleSelect.isVisible=false;
 
+let buttonScalesInitText;
+
 function receiveScalesCsv() {
     let buttonTop=0;
         
@@ -115,6 +117,10 @@ function receiveScalesCsv() {
       const line = lines[i];
       const fields = line.split(';');
       if (fields.length > 1) {
+          
+          if(i===1) {
+              buttonScalesInitText=fields[0];
+          }
           //console.log("Adding scale "+fields[0]);
           const btn = BABYLON.GUI.Button.CreateSimpleButton("but", fields[0]);
           btn.horizontalAlignment = 0;
@@ -155,6 +161,7 @@ guiGenConfig.parseFromURLAsync("js/guiGenConfig.json")
     textTempo.verticalAlignment = 0;
     textTempo.top="40px";
     textTempo.left="40px";
+    textTempo.text=aqa.tempo;
     
     const textBasenote=gui.getControlByName("Text_Basenote");
     textBasenote.horizontalAlignment = 0;
@@ -167,6 +174,7 @@ guiGenConfig.parseFromURLAsync("js/guiGenConfig.json")
     textScale.verticalAlignment = 0;
     textScale.top="280px";
     textScale.left="320px";
+    textScale.text=buttonScalesInitText;
 
     // Handle tempo slider
     const sliderTempo=gui.getControlByName("Tempo");
@@ -191,60 +199,93 @@ guiGenConfig.parseFromURLAsync("js/guiGenConfig.json")
     });    
     
     guiGenConfig.addControl(basenoteSelect);
-    guiGenConfig.addControl(scaleSelect);    
+    guiGenConfig.addControl(scaleSelect);
+    
+    initGuiMenu();
 })
 .catch((err) => {
     console.log("error loading guiGenConfig "+err);
 });
 
 
-var guiMenu = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("Menu");
+const guiMenu = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("Menu");
+const netActBar = new BABYLON.GUI.Rectangle();
+const netSessionList = [];
 
-guiMenu.parseFromURLAsync("js/guiMenu.json")
-.then( (gui)=> {
-    console.log("guiMenu loaded "+gui);
-    
-    const buttonMenu = gui.getControlByName("Button_Menu");
-    const buttonPlayer = gui.getControlByName("Button_Player");
-    const buttonConfig =gui.getControlByName("Button_Config");
-    
-    const configRoot = guiGenConfig.rootContainer;
-    configRoot.isVisible===true;
-    
-    const playerRoot = guiGenPlayer.rootContainer;
-    playerRoot.isVisible===true;
-    
-    buttonMenu.onPointerUpObservable.add(function() {
-        const newState=!menuVisible;
-        menuVisible=newState;
-        buttonPlayer.isVisible=newState;
-        buttonConfig.isVisible=newState;
-    });
-    
-    buttonConfig.onPointerUpObservable.add(function() {
-        if(confVisible===true) {
-            confVisible=false;
-            configRoot.isVisible=false;
-        } else {
-            confVisible=true;
-            playerVisible=false;
-            configRoot.isVisible=true;
-            playerRoot.isVisible=false;
+function initGuiMenu() {
+    guiMenu.parseFromURLAsync("js/guiMenu.json")
+    .then( (gui)=> {
+        console.log("guiMenu loaded "+gui);
+        
+        const buttonMenu = gui.getControlByName("Button_Menu");
+        const buttonPlayer = gui.getControlByName("Button_Player");
+        const buttonConfig =gui.getControlByName("Button_Config");
+        
+        const configRoot = guiGenConfig.rootContainer;
+        configRoot.isVisible=false;
+        
+        const playerRoot = guiGenPlayer.rootContainer;
+        playerRoot.isVisible=false;
+        
+        buttonMenu.onPointerUpObservable.add(function() {
+            const newState=!menuVisible;
+            menuVisible=newState;
+            buttonPlayer.isVisible=newState;
+            buttonConfig.isVisible=newState;
+        });
+        
+        buttonConfig.onPointerUpObservable.add(function() {
+            if(confVisible===true) {
+                confVisible=false;
+                configRoot.isVisible=false;
+            } else {
+                confVisible=true;
+                playerVisible=false;
+                configRoot.isVisible=true;
+                playerRoot.isVisible=false;
+            }
+        });
+        
+        buttonPlayer.onPointerUpObservable.add(function() {
+            if(playerVisible===true) {
+                playerVisible=false;
+                playerRoot.isVisible=false;
+            } else {
+                confVisible=false;
+                playerVisible=true;
+                playerRoot.isVisible=true;
+                configRoot.isVisible=false;
+            }
+        });
+        
+        netActBar.left = "40px";
+        netActBar.top = "1000px";
+        netActBar.width = "10px";
+        netActBar.height = "30px";
+        netActBar.color = "green";
+        netActBar.thickness = 0;
+        netActBar.background = "green";
+        netActBar.horizontalAlignment = 0;
+        netActBar.verticalAlignment = 0;
+        gui.addControl(netActBar);
+        
+        for(let i=0;i<5;i++) {
+            netSessionList[i] = new BABYLON.GUI.Rectangle();
+            netSessionList[i].left = 100+i*100+"px";
+            netSessionList[i].top = "1000px";
+            netSessionList[i].width = "80px";
+            netSessionList[i].height = "30px";
+            netSessionList[i].color = "green";
+            netSessionList[i].thickness = 0;
+            netSessionList[i].background = "green";
+            netSessionList[i].horizontalAlignment = 0;
+            netSessionList[i].verticalAlignment = 0;
+            netSessionList[i].isVisible = false;
+            gui.addControl(netSessionList[i]);
         }
-    });
-    
-    buttonPlayer.onPointerUpObservable.add(function() {
-        if(playerVisible===true) {
-            playerVisible=false;
-            playerRoot.isVisible=false;
-        } else {
-            confVisible=false;
-            playerVisible=true;
-            playerRoot.isVisible=true;
-            configRoot.isVisible=false;
-        }
+    })
+    .catch((err) => {
+        console.log("error loading guiMenu "+err);
     });    
-})
-.catch((err) => {
-    console.log("error loading guiMenu "+err);
-});
+}
+

@@ -24,7 +24,7 @@ wss.on('connection', (ws,req) => {
                   socket.send(JSON.stringify(m));
               });
           } else {
-              clients.set(m.sessionId,{"x":m.x,"y":m.y,"z":m.z,"rx":m.rx,"ry":m.ry,"rz":m.rz,"t":t});
+              clients.set(m.sessionId,{"x":m.x,"y":m.y,"z":m.z,"rx":m.rx,"ry":m.ry,"rz":m.rz,"avatarId":m.avatarId,"t":t});
           }
       }
       ws.send(JSON.stringify(Array.from(clients.entries())));

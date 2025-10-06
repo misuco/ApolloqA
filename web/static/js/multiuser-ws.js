@@ -1,6 +1,8 @@
 /// Multiuser Websocket Feature
 let otherUsers = new Map();
 var allUsers;
+let messageCount=0;
+let sessionCount=0;
 
 // Connect to the WebSocket server
 console.log("Connecting ws to "+aqa.wsUrl)
@@ -14,7 +16,10 @@ ws.onopen = () => {
 // Listen for messages
 ws.onmessage = (event) => {
     
-    console.log("onmessage");
+    //console.log("onmessage");
+    messageCount++;
+    netActBar.width=messageCount%30+"px";
+    netActBar.height=messageCount%30+"px";
     //console.log("onmessage: "+event.data);
     
     if(!spaceshipMesh) {
@@ -64,9 +69,12 @@ ws.onmessage = (event) => {
             }
         } else {
             otherUsers.set(key,{});
+            
+            let spaceshipUrl=aqa.avatarUrl(value.avatarId);
+            
             SceneLoader.ImportMeshAsync(
               null,
-              "obj/Spaceship_BarbaraTheBee.gltf",
+              spaceshipUrl,
               null,
               scene
             ).then(({ meshes }) => {
@@ -77,6 +85,8 @@ ws.onmessage = (event) => {
               newUser.position.z = value.z;
               newUser.rotation = new BABYLON.Vector3(value.rx,value.ry,value.rz);
               otherUsers.set(key,newUser);
+              netSessionList[sessionCount].isVisible=true;
+              sessionCount++;
             });
         }
     });
@@ -101,7 +111,7 @@ function sendPosition() {
         let x = spaceshipMesh.position.x;
         let y = spaceshipMesh.position.y;
         let z = spaceshipMesh.position.z;
-        let message=JSON.stringify({"sessionId":aqa.sessionId,"x":x,"y":y,"z":z,"rx":rq.x,"ry":rq.y,"rz":rq.z});
+        let message=JSON.stringify({"sessionId":aqa.sessionId,"x":x,"y":y,"z":z,"rx":rq.x,"ry":rq.y,"rz":rq.z,"avatarId":aqa.avatarId});
         ws.send(message);
     } else {
         ws.send("{}");
@@ -123,6 +133,8 @@ let removeInactiveClients = function() {
             console.log("-> delete"+key);
             value.dispose();
             otherUsers.delete(key);
+            sessionCount--;
+            netSessionList[sessionCount].isVisible=false;
         }
     });
     setTimeout(removeInactiveClients, 1000);

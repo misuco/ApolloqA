@@ -104,3 +104,21 @@ aqa.sessionId = uuidv4();
 aqa.baseUrl = aqa.windowUrl.protocol + "//" + aqa.windowUrl.host + "/";
 aqa.wsUrl = "ws://" + aqa.windowUrl.hostname + ":8080";
 
+aqa.avatarId=getRandomInt(3);
+aqa.avatarUrl=function(id) {
+    switch(id) {
+        case 0:
+            return "obj/Spaceship_FinnTheFrog.gltf";
+            break;
+        case 1:
+            return "obj/Spaceship_FernandoTheFlamingo.gltf";
+            break;
+        case 2:
+            return "obj/Spaceship_BarbaraTheBee.gltf";
+            break;
+        default:
+            return "obj/Spaceship_RaeTheRedPanda.gltf";
+            break;
+    }
+}
+
