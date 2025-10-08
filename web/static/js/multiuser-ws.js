@@ -4,6 +4,12 @@ var allUsers;
 let messageCount=0;
 let sessionCount=0;
 
+// holds to be loaded pastClient arrays [path,x,y,z]
+let pastClientLoader = [];
+
+// holds loaded pastClient objects {x:x,y:y....}
+let pastClients = new Map();
+
 // Connect to the WebSocket server
 console.log("Connecting ws to "+aqa.wsUrl)
 const ws = new WebSocket(aqa.wsUrl);
@@ -22,12 +28,31 @@ ws.onmessage = (event) => {
     netActBar.height=messageCount%30+"px";
     //console.log("onmessage: "+event.data);
     
+    const m=JSON.parse(event.data);
+    
+    if(m.pastClients) {
+        console.log("onmessage: "+event.data);
+        m.pastClients.forEach((client)=> {
+            const clientId=client[0];
+            console.log("Received past client i: "+clientId);
+            const x=client[1].x;
+            const y=client[1].y;
+            const z=client[1].z;
+            const a=client[1].avatarId;
+            if( x && y && z && !pastClients.has(clientId) ) {
+                pastClientLoader.push(["obj/Planet_"+(a+1)+".gltf",x,y,z]);
+                pastClients.set(clientId,client[1]);
+            }
+        });
+        loadPastClientMeshes();
+        sendPosition();
+        return;
+    }
+        
     if(!spaceshipMesh) {
         sendPosition();
         return;
     }
-    
-    const m=JSON.parse(event.data);
     
     if(m.trackList) {
         console.log("onmessage: tracklist "+m.trackList);
@@ -104,6 +129,30 @@ ws.onclose = () => {
     console.log("DISConnected from server");
 };
 
+function loadPastClientMeshes() {
+    if(!spaceshipMesh) {
+        console.log("retry loadPastClientMeshes");
+        setTimeout(loadPastClientMeshes,1000);
+        return;
+    }
+    const data=pastClientLoader.pop();
+    if(data) {
+        let planetUrl=data[0];
+        let x=data[1];
+        let y=data[2];
+        let z=data[3];
+        console.log("Loading "+planetUrl + " x:" + x + " y:" + y + " z:" + z);
+        BABYLON.ImportMeshAsync(planetUrl,scene)
+        .then((result) => {
+              console.log("New planet created "+planetUrl);
+              const planet = result.meshes[0];
+              planet.position.x = x;
+              planet.position.y = y;
+              planet.position.z = z;
+              loadPastClientMeshes();
+        });    
+    }
+}
 // Send own position to web socket server
 function sendPosition() {
     if(spaceshipMesh) {

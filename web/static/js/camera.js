@@ -26,6 +26,7 @@ let spaceshipMesh = null;
 
 let spaceshipUrl=aqa.avatarUrl(aqa.avatarId);
 
+/*
 SceneLoader.ImportMeshAsync(
   null,
   // This link was copied from the Dropbox "Share" panel, but the domain needs to be changed to dl.dropboxusercontent.com to avoid issues with CORS
@@ -35,12 +36,16 @@ SceneLoader.ImportMeshAsync(
   //"obj/Logo-C_001.obj",
   null,
   scene
-).then(({ meshes }) => {
+*/
+BABYLON.ImportMeshAsync(
+spaceshipUrl,
+scene
+).then((result) => {
   // We now have our spaceship loaded into the scene!
 
   // Set spaceshipMesh to the first mesh in the array: this is correct
   // for our spaceship, but really depends on the mesh you loaded
-  spaceshipMesh = meshes[0];
+  spaceshipMesh = result.meshes[0];
 
 /*
   spaceshipMesh.scaling.x = 0.1;
