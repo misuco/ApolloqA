@@ -45,8 +45,10 @@ scene
 
   // Set spaceshipMesh to the first mesh in the array: this is correct
   // for our spaceship, but really depends on the mesh you loaded
+  scene.stopAllAnimations();
   spaceshipMesh = result.meshes[0];
-
+  console.log("spaceshipMesh size "+result.meshes.length);
+  console.log("spaceship animationGroup size "+result.animationGroups.length);
 /*
   spaceshipMesh.scaling.x = 0.1;
   spaceshipMesh.scaling.y = 0.1;

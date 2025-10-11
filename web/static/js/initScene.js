@@ -21,6 +21,28 @@ https://doc.babylonjs.com/setup/frameworkPackages/CDN
 
 */
 
+// First identify user
+function getCookie(cname) {
+  let name = cname + "=";
+  let decodedCookie = decodeURIComponent(document.cookie);
+  let ca = decodedCookie.split(';');
+  for(let i = 0; i <ca.length; i++) {
+    let c = ca[i];
+    while (c.charAt(0) == ' ') {
+      c = c.substring(1);
+    }
+    if (c.indexOf(name) == 0) {
+      return c.substring(name.length, c.length);
+    }
+  }
+  return "";
+}
+
+const nickname = getCookie("nickname");
+if (!nickname) {
+    window.location.href = 'checkin';
+}
+
 const {
   Color4,
   DirectionalLight,
@@ -91,7 +113,8 @@ function getRandomInt(max) {
     return Math.floor(Math.random() * max);
 }
 
-var aqa={};
+const aqa={};
+aqa.nickname=nickname;
 aqa.nTracks=4;
 aqa.tempo=140;
 aqa.basenote=0;
@@ -104,7 +127,7 @@ aqa.sessionId = uuidv4();
 aqa.baseUrl = aqa.windowUrl.protocol + "//" + aqa.windowUrl.host + "/";
 aqa.wsUrl = "ws://" + aqa.windowUrl.hostname + ":8080";
 
-aqa.avatarId=getRandomInt(3);
+aqa.avatarId=getRandomInt(9);
 aqa.avatarUrl=function(id) {
     switch(id) {
         case 0:
@@ -115,6 +138,24 @@ aqa.avatarUrl=function(id) {
             break;
         case 2:
             return "obj/Spaceship_BarbaraTheBee.gltf";
+            break;
+        case 3:
+            return "obj/Astronaut_BarbaraTheBee.gltf";
+            break;
+        case 4:
+            return "obj/Astronaut_FernandoTheFlamingo.gltf";
+            break;
+        case 5:
+            return "obj/Astronaut_FinnTheFrog.gltf";
+            break;
+        case 6:
+            return "obj/Astronaut_RaeTheRedPanda.gltf";
+            break;
+        case 7:
+            return "obj/Mech_BarbaraTheBee.gltf";
+            break;
+        case 8:
+            return "obj/Mech_FernandoTheFlamingo.gltf";
             break;
         default:
             return "obj/Spaceship_RaeTheRedPanda.gltf";

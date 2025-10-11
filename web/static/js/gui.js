@@ -210,7 +210,9 @@ guiGenConfig.parseFromURLAsync("js/guiGenConfig.json")
 
 const guiMenu = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("Menu");
 const netActBar = new BABYLON.GUI.Rectangle();
+const netHeaderBar = new BABYLON.GUI.TextBlock();
 const netSessionList = [];
+const netSessionText = [];
 
 function initGuiMenu() {
     guiMenu.parseFromURLAsync("js/guiMenu.json")
@@ -259,7 +261,7 @@ function initGuiMenu() {
         });
         
         netActBar.left = "40px";
-        netActBar.top = "1000px";
+        netActBar.top = "0px";
         netActBar.width = "10px";
         netActBar.height = "30px";
         netActBar.color = "green";
@@ -269,18 +271,32 @@ function initGuiMenu() {
         netActBar.verticalAlignment = 0;
         gui.addControl(netActBar);
         
+        netHeaderBar.left = "80px";
+        netHeaderBar.top = "0px";
+        netHeaderBar.width = "1000px";
+        netHeaderBar.height = "50px";
+        netHeaderBar.color = "white";
+        netHeaderBar.thickness = 0;
+        netHeaderBar.background = "#999999DD";
+        netHeaderBar.horizontalAlignment = 0;
+        netHeaderBar.verticalAlignment = 0;
+        netHeaderBar.fontSize="50px";
+        netHeaderBar.text = aqa.nickname;
+        gui.addControl(netHeaderBar);
+        
         for(let i=0;i<5;i++) {
-            netSessionList[i] = new BABYLON.GUI.Rectangle();
-            netSessionList[i].left = 100+i*100+"px";
-            netSessionList[i].top = "1000px";
-            netSessionList[i].width = "80px";
-            netSessionList[i].height = "30px";
-            netSessionList[i].color = "green";
-            netSessionList[i].thickness = 0;
-            netSessionList[i].background = "green";
+            netSessionList[i] = BABYLON.GUI.Button.CreateSimpleButton("b"+i,"---");
             netSessionList[i].horizontalAlignment = 0;
             netSessionList[i].verticalAlignment = 0;
+            netSessionList[i].left = 100+i*200+"px";
+            netSessionList[i].top = "60px";
+            netSessionList[i].width = "190px";
+            netSessionList[i].height = "100px";
+            netSessionList[i].thickness = 1;
             netSessionList[i].isVisible = false;
+            netSessionList[i].color="#FFFFFFFF";
+            netSessionList[i].background="#999999DD";
+            netSessionList[i].fontSize="50px";
             gui.addControl(netSessionList[i]);
         }
     })

@@ -31,10 +31,10 @@ ws.onmessage = (event) => {
     const m=JSON.parse(event.data);
     
     if(m.pastClients) {
-        console.log("onmessage: "+event.data);
+        //console.log("onmessage: "+event.data);
         m.pastClients.forEach((client)=> {
             const clientId=client[0];
-            console.log("Received past client i: "+clientId);
+            //console.log("Received past client i: "+clientId);
             const x=client[1].x;
             const y=client[1].y;
             const z=client[1].z;
@@ -75,7 +75,8 @@ ws.onmessage = (event) => {
     }
     
     allUsers = new Map(m);
-
+    let iOtherUser=0;
+    
     allUsers.forEach((value, key) => {
         if(key==aqa.sessionId) {
             return;
@@ -91,6 +92,7 @@ ws.onmessage = (event) => {
                 otherUser.rotation.x = value.rx;
                 otherUser.rotation.y = value.ry;
                 otherUser.rotation.z = value.rz;
+                netSessionList[iOtherUser++].textBlock.text=value.nickname;
             }
         } else {
             otherUsers.set(key,{});
@@ -103,7 +105,8 @@ ws.onmessage = (event) => {
               null,
               scene
             ).then(({ meshes }) => {
-              console.log("New user created "+key);
+              console.log("New user created "+value.nickname+" "+key);
+              scene.stopAllAnimations();
               const newUser = meshes[0];
               newUser.position.x = value.x;
               newUser.position.y = value.y;
@@ -111,6 +114,8 @@ ws.onmessage = (event) => {
               newUser.rotation = new BABYLON.Vector3(value.rx,value.ry,value.rz);
               otherUsers.set(key,newUser);
               netSessionList[sessionCount].isVisible=true;
+              //netSessionText[sessionCount].isVisible=true;
+              netSessionList[sessionCount].textBlock.text=value.nickname;
               sessionCount++;
             });
         }
@@ -141,10 +146,10 @@ function loadPastClientMeshes() {
         let x=data[1];
         let y=data[2];
         let z=data[3];
-        console.log("Loading "+planetUrl + " x:" + x + " y:" + y + " z:" + z);
+        //console.log("Loading "+planetUrl + " x:" + x + " y:" + y + " z:" + z);
         BABYLON.ImportMeshAsync(planetUrl,scene)
         .then((result) => {
-              console.log("New planet created "+planetUrl);
+              //console.log("New planet created "+planetUrl);
               const planet = result.meshes[0];
               planet.position.x = x;
               planet.position.y = y;
@@ -160,7 +165,7 @@ function sendPosition() {
         let x = spaceshipMesh.position.x;
         let y = spaceshipMesh.position.y;
         let z = spaceshipMesh.position.z;
-        let message=JSON.stringify({"sessionId":aqa.sessionId,"x":x,"y":y,"z":z,"rx":rq.x,"ry":rq.y,"rz":rq.z,"avatarId":aqa.avatarId});
+        let message=JSON.stringify({"sessionId":aqa.sessionId,"nickname":aqa.nickname,"x":x,"y":y,"z":z,"rx":rq.x,"ry":rq.y,"rz":rq.z,"avatarId":aqa.avatarId});
         ws.send(message);
     } else {
         ws.send("{}");
