@@ -297,6 +297,16 @@ function initGuiMenu() {
             netSessionList[i].color="#FFFFFFFF";
             netSessionList[i].background="#999999DD";
             netSessionList[i].fontSize="50px";
+            
+            netSessionList[i].onPointerUpObservable.add(function() {
+                console.log("teleport "+netSessionList[i].sessionId);
+                var targetUser=otherUsers.get(netSessionList[i].sessionId);
+                console.log("target "+targetUser+" otherUsers "+JSON.stringify(otherUsers));
+                spaceshipMesh.position.x=targetUser.position.x;
+                spaceshipMesh.position.y=targetUser.position.y;
+                spaceshipMesh.position.z=targetUser.position.z;
+            });
+                        
             gui.addControl(netSessionList[i]);
         }
     })

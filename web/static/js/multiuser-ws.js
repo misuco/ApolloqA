@@ -116,6 +116,7 @@ ws.onmessage = (event) => {
               netSessionList[sessionCount].isVisible=true;
               //netSessionText[sessionCount].isVisible=true;
               netSessionList[sessionCount].textBlock.text=value.nickname;
+              netSessionList[sessionCount].sessionId=key;
               sessionCount++;
             });
         }
