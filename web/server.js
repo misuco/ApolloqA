@@ -1,14 +1,15 @@
-const https = require('https')
+//const https = require('https')
 const fs = require('fs')
 const express = require('express')
+const proc = require('child_process');
+var multiparty = require('multiparty');
 const config = require('./config')
 
-var proc = require('child_process');
 
 let clients = new Map();
 
 const app = express()
-const port = process.env.PORT || 3030
+const port = process.env.PORT || 3033
 
 const createSessionDir = function(sessionId) {
    var result=proc.execSync('mkdir -p '+config.app.web_path+'/loops/'+sessionId);
@@ -16,6 +17,32 @@ const createSessionDir = function(sessionId) {
 
 app.use(express.static('static'));
 app.use(express.json()) // for parsing application/json
+
+app.post('/post', function(req, res) {
+    var form = new multiparty.Form();
+    console.log("got post " + req.hostname + " " + JSON.stringify(req.headers));
+    form.parse(req, function(err, fields, files) {
+        // fields fields fields
+        let sessionId=fields.sessionId;
+        let nickname=fields.nickname;
+        let uploadId=fields.uploadId;
+        let upload=files.file[0].path;
+        console.log("file upload "+nickname+" "+upload+" "+sessionId);
+        var result=proc.execSync('mkdir -p '+config.app.web_path+'/loops/'+sessionId);
+        fs.renameSync(upload,config.app.web_path+'/loops/'+sessionId+"/u"+uploadId+".ogg")
+        /*
+        console.log("parse files "+JSON.stringify(files));
+        Object.keys(files).forEach(function(name) {
+          console.log('got file named ' + name);
+        });
+        */
+    });
+    
+    console.log("got post body " + req.body + " " + JSON.stringify(req.body));
+    console.log("got post body " + req.body.file + " " + JSON.stringify(req.body.file));
+    console.log("got post data " + req.data + " " + JSON.stringify(req.data));
+    res.send('{"status":"received"}');
+});
 
 app.get('/newclip', function(req, res) {
    console.log("got newclip " + req.query.id);

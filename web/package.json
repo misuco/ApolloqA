@@ -1,12 +1,15 @@
 {
   "name": "ApolloqA-Web",
   "private": true,
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Collaborative sound platform",
   "repository": "-",
   "license": "GNU/GPL",
   "dependencies": {
-    "express": "x"
+    "child_process": "x",
+    "express": "x",
+    "fs": "0.0.1-security",
+    "multiparty": "^4.2.3"
   },
   "scripts": {
     "prestart": "npm install",

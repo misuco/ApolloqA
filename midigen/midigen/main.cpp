@@ -25,7 +25,7 @@ inline bool file_exists (const string& name) {
 
 void createNewSong( string filename, int basenote, int scale, int tempo, int mode ) {
     cout << "loading Scale map\n";
-    mg.loadScaleMap( "/home/apolloqa/ApolloqA/web/static/js/scales_cleaned_sorted.csv" );
+    mg.loadScaleMap( "/home/apolloqa/live/ApolloqA/web/static/js/scales_cleaned_sorted.csv" );
     cout << "init Scale filter\n";
     mg.initScaleFilter( scale, basenote );
     mg.setBPM( tempo );

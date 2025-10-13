@@ -60,7 +60,7 @@ const {
 } = BABYLON;
 
 // Get a reference to the <canvas>
-const canvas = document.querySelector("canvas");
+const canvas = document.querySelector(".apolloqa");
 // Create a BabylonJS engine
 const engine = new Engine(canvas, true);
 
@@ -115,6 +115,7 @@ function getRandomInt(max) {
 
 const aqa={};
 aqa.nickname=nickname;
+aqa.uploadId=0;
 aqa.nTracks=4;
 aqa.tempo=140;
 aqa.basenote=0;
@@ -125,7 +126,7 @@ aqa.levelBars=[];
 aqa.windowUrl = window.location;
 aqa.sessionId = uuidv4();
 aqa.baseUrl = aqa.windowUrl.protocol + "//" + aqa.windowUrl.host + "/";
-aqa.wsUrl = "ws://" + aqa.windowUrl.hostname + ":8080";
+aqa.wsUrl = "wss://ws.apolloqa.net/"
 
 aqa.avatarId=getRandomInt(9);
 aqa.avatarUrl=function(id) {

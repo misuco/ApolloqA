@@ -1,8 +1,8 @@
 const config = {
    app: {
-      web_path: '/home/apolloqa/ApolloqA/web/static',
-      bin_path_midicalc: '/home/apolloqa/ApolloqA/build/midicalc',
-      bin_path_midigen: '/home/apolloqa/ApolloqA/build/midigen'
+      web_path: '/home/apolloqa/live/ApolloqA/web/static',
+      bin_path_midicalc: '/home/apolloqa/live/ApolloqA/build/midicalc',
+      bin_path_midigen: '/home/apolloqa/live/ApolloqA/build/midigen'
    }
 };
 

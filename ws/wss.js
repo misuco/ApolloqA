@@ -9,9 +9,9 @@ const pastTrackLists = new Map();
 
 const WebSocket = require('ws');
 
-// Create a WebSocket server on port 8080
-const wss = new WebSocket.Server({ port: 8080 });
-console.log('WebSocket server is running on ws://localhost:8080');
+// Create a WebSocket server on port 3038 
+const wss = new WebSocket.Server({ port: 3038 });
+console.log('WebSocket server is running on ws://localhost:3038');
 
 // Prepare session dir
 if(fs.existsSync("sessions")) {console.log("Found sessions dir");}
