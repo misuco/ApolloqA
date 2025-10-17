@@ -66,6 +66,7 @@
               border: none;
               transition: all 0.2s;
               padding: 0.5rem;
+              height:100px;
             }
             
             button:hover,
@@ -189,9 +190,9 @@
         <input id="enter" type="button" value="ENTER!"\>
     </div>
 --->
-    <div class="wrapper" style="height:100px;width:100%;background:black">
+    <div class="wrapper" style="height:200px;width:100%;background:black">
       <section class="main-controls">
-        <canvas class="visualizer" style="display:block;height:50px"></canvas>
+        <canvas class="visualizer" style="display:block;height:100px"></canvas>
         <div id="buttons">
           <button class="record">Record</button>
           <button class="stop">Stop</button>
@@ -203,6 +204,7 @@
     <script src="js/babylon.js"></script>
     <script src="js/babylonjs.loaders.min.js"></script>
     <script src="js/babylon.gui.js"></script>
+    <script src="js/HavokPhysics_umd.js"></script>
     <script src="js/initScene.js"></script>
     <script src="js/colors.js"></script>
 	<script src="js/camera.js"></script>

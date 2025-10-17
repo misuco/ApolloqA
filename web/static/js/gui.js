@@ -174,7 +174,7 @@ guiGenConfig.parseFromURLAsync("js/guiGenConfig.json")
     textScale.verticalAlignment = 0;
     textScale.top="280px";
     textScale.left="320px";
-    textScale.text=buttonScalesInitText;
+    //textScale.text=buttonScalesInitText;
 
     // Handle tempo slider
     const sliderTempo=gui.getControlByName("Tempo");
@@ -213,6 +213,10 @@ const netActBar = new BABYLON.GUI.Rectangle();
 const netHeaderBar = new BABYLON.GUI.TextBlock();
 const netSessionList = [];
 const netSessionText = [];
+
+function updateNetHeaderBar() {
+    netHeaderBar.text = aqa.nickname + " " + aqa.cycleNr;
+}
 
 function initGuiMenu() {
     guiMenu.parseFromURLAsync("js/guiMenu.json")
@@ -281,7 +285,7 @@ function initGuiMenu() {
         netHeaderBar.horizontalAlignment = 0;
         netHeaderBar.verticalAlignment = 0;
         netHeaderBar.fontSize="50px";
-        netHeaderBar.text = aqa.nickname;
+        updateNetHeaderBar();
         gui.addControl(netHeaderBar);
         
         for(let i=0;i<5;i++) {

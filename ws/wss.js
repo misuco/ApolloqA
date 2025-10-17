@@ -22,8 +22,12 @@ var files = fs.readdirSync('sessions/');
 console.log("Reading past clients");
 files.forEach(file => { 
     //console.log(file);
-    const client = JSON.parse(fs.readFileSync("sessions/"+file+"/client.json"));
-    pastClients.set(file,client);
+    const trackList = fs.readFileSync("sessions/"+file+"/trackList.json");
+    if(trackList) {
+        const client = JSON.parse(fs.readFileSync("sessions/"+file+"/client.json"));
+        console.log("active tracklist by "+client.nickname);
+        pastClients.set(file,client);
+    }
 });
 //console.log(pastClients);
 

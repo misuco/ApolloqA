@@ -52,32 +52,32 @@ if (navigator.mediaDevices.getUserMedia) {
   let chunks = [];
 
   let onSuccess = function (stream) {
-    const mediaRecorder = new MediaRecorder(stream);
+    aqa.mediaRecorder = new MediaRecorder(stream);
 
     visualize(stream);
 
     record.onclick = function () {
-      mediaRecorder.start();
-      console.log(mediaRecorder.state);
-      console.log("Recorder started.");
-      record.style.background = "red";
-
+      if(syncTrackRunning===false) {
+        syncTrackTimer();
+      }
+      console.log(aqa.mediaRecorder.state);
+      console.log("Recorder armed.");
+      aqa.recArmed=true;
+      record.style.background = "orange";
       stop.disabled = false;
       record.disabled = true;
     };
 
     stop.onclick = function () {
-      mediaRecorder.stop();
-      console.log(mediaRecorder.state);
-      console.log("Recorder stopped.");
+      aqa.stopArmed=true;
       record.style.background = "";
       record.style.color = "";
-
       stop.disabled = true;
       record.disabled = false;
+      stop.style.background = "orange";
     };
 
-    mediaRecorder.onstop = function (e) {
+    aqa.mediaRecorder.onstop = function (e) {
       console.log("Last data to read (after MediaRecorder.stop() called).");
 
       /*
@@ -124,7 +124,7 @@ if (navigator.mediaDevices.getUserMedia) {
       chunks = [];
     };
 
-    mediaRecorder.ondataavailable = function (e) {
+    aqa.mediaRecorder.ondataavailable = function (e) {
       chunks.push(e.data);
     };
   };

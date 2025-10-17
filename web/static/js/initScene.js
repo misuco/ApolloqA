@@ -56,7 +56,8 @@ const {
   Texture,
   TransformNode,
   UniversalCamera,
-  Vector3
+  Vector3,
+  HavokPlugin
 } = BABYLON;
 
 // Get a reference to the <canvas>
@@ -81,6 +82,20 @@ ambientLight.intensity = 0.25;
 const sunLight = new DirectionalLight("sun light", new Vector3(1, -1, -1));
 sunLight.intensity = 5;
 
+const createPhysics = async function () {
+    // initialize plugin
+    const havokInstance = await HavokPhysics();
+    // pass the engine to the plugin
+    const hk = new BABYLON.HavokPlugin(true, havokInstance);
+    
+    var gravityVector = new BABYLON.Vector3(0, 0, 0);
+    scene.enablePhysics(gravityVector, hk);
+}
+
+createPhysics().then(() => {
+    console.log("physics created");
+    //const spaceshipAggregate = new BABYLON.PhysicsAggregate(spaceshipMesh, BABYLON.PhysicsShapeType.SPHERE, { mass: 0.1, restitution: 0.75 }, scene);
+});
 
 // Bind to the window's resize DOM event, so that we can update the <canvas> dimensions to match;
 // this is needed because the <canvas> render context doesn't automaticaly update itself
@@ -118,6 +133,11 @@ aqa.nickname=nickname;
 aqa.uploadId=0;
 aqa.nTracks=4;
 aqa.tempo=140;
+aqa.cycleNr=1;
+aqa.recArmed=false;
+aqa.stopArmed=false;
+aqa.recording=false;
+aqa.mediaRecorder={};
 aqa.basenote=0;
 aqa.scale=0;
 aqa.sampleRate=48000;

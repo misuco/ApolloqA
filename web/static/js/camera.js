@@ -77,7 +77,7 @@ scene
     // Returns a static position
     return spaceshipMesh.absolutePosition;
   };
-  
+          
 });
 
 
