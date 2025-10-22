@@ -2,11 +2,22 @@
 var readyTack = [false,false,false,false];
 var readyAnalyzer = [false,false,false,false];
 
+const autoplayButton = document.querySelector(".autoplay");
+autoplayButton.onclick = function () {
+    aqa.autoplay=!aqa.autoplay;
+    if(autoplay===true) {
+        autoplayButton.style.background = "orange";
+    } else {
+        autoplayButton.style.background = "gray";
+    }
+}
+
 var syncTrackRunning = false;
 let tTarget=0;
 let tJitter=0;
 let tRec=0;
 let tRecMax=4;
+let nextAutoTriger=0;
 
 var syncTrackTimer = function() {
     let tCycle=6e4 / aqa.tempo;
@@ -15,7 +26,7 @@ var syncTrackTimer = function() {
         tTarget=Date.now();
     } else {
         aqa.cycleNr++;
-        if(aqa.cycleNr>4) {
+        if(aqa.cycleNr>16) {
             aqa.cycleNr=1;
         }
         updateNetHeaderBar();
@@ -69,6 +80,20 @@ var syncTrackTimer = function() {
                 console.log("playing track " + i);
             }
         }
+        
+        // auto trigger next track calc
+        
+        if(aqa.autoplay===true) {
+            nextAutoTriger++;
+            if(nextAutoTriger>3) {
+                nextAutoTriger=0;
+            }
+            if(orbitertrackCalc[nextAutoTriger]===false) {
+                orbitertrackCalc[nextAutoTriger] = true;
+                aqa.calcButton[nextAutoTriger].color="#FF3333FF"
+                triggerNewSound(nextAutoTriger);
+            }
+        } 
     }
     
     //console.log("time:"+tTarget+" next sync in " + nextSyncInMs + " ms jitter: "+tJitter);

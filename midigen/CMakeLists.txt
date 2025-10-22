@@ -47,17 +47,7 @@ add_library(midifile STATIC ${SRCS} ${HDRS})
 
 ##############################
 ##
-## App 1:
-##
-set(SOURCES midicalc/main.cpp midicalc/midicalc.cpp midicalc/midicalc.hpp )
-
-##############################
-add_executable(midicalc ${SOURCES} ${RESOURCES} )
-target_link_libraries(midicalc midifile )
-
-##############################
-##
-## App 2:
+## App: Midigen
 ##
 set(SOURCES2 midigen/main.cpp midigen/midigen.cpp midigen/midigen.hpp )
 

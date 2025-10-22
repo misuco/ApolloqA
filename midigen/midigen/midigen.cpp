@@ -44,12 +44,25 @@ inline void rtrim(std::string &s) {
 
 void Midigen::setBPM(int b)
 {
-    bpm = b;
+    _bpm = b;
 }
 
 void Midigen::setMode(int m)
 {
-    mode = m;
+    _mode = m;
+}
+
+void Midigen::addInstrument(int i) {
+    _instruments.push_back(i);
+}
+
+void Midigen::addChord(string c) {
+    _chords.push_back(c);
+}
+
+void Midigen::setSoundfont(string p)
+{
+    soundfont = p;
 }
 
 //////////////////////////////
@@ -58,10 +71,11 @@ void Midigen::setMode(int m)
 //
 
 Midigen::Midigen() :
-    bpm { 125 },
-    sampleRate {48000},
-    nBeats {4},
-    mode {0}
+    _mode {0},
+    _bpm {125},
+    _sampleRate {48000},
+    _nBeats {4},
+    soundfont {"/home/apolloqa/sf2/Touhou.sf2"}
 {
 }
 
@@ -161,21 +175,22 @@ void Midigen::newMidiFile() {
     midiOut.absoluteTicks();    // time information stored as absolute time
                                 // (will be coverted to delta time when written)
     midiOut.addTrack(2);        // Add another two tracks to the MIDI file
-    midiOut.setTicksPerQuarterNote(tpq);
+    midiOut.setTicksPerQuarterNote(_tpq);
 
-    //tempoEvent.makeTempo(bpm);
-    tempoEvent.setTempo(bpm);
+    //tempoEvent.makeTempo(_bpm);
+    tempoEvent.setTempo(_bpm);
     //tempoEvent.tick = 0;
     midiOut.addEvent( 0, 0, tempoEvent );
     
-    if(mode==1) {
+    if(_mode==1) {
         createDrumTrack();
     } else {
-        createRandomTrack();        
+        createChordsTrack();
+        //createRandomTrack();
     }
     
     // End Of Track
-    int endtick=nBeats*tpq;
+    int endtick=_nBeats*_tpq;
     midiOut.addMetaEvent( 0, endtick, 0x2F, "" );
     midiOut.addCopyright( 0, 0, "c1audio 2025" );
     midiOut.sortTracks();
@@ -212,15 +227,16 @@ void Midigen::createRandomTrack() {
     std::uniform_int_distribution<std::mt19937::result_type> dist127(0,127); // distribution in range [1, 6]
 
     int randomInstrument = dist127(rng);
+    randomInstrument=(randomInstrument%16*5);
     
     MidiEvent pc( 192, randomInstrument );
     midiOut.addEvent( 1, 0, pc );
 
     // number of 16th notes to generate
-    int n16th=nBeats*4;
+    int n16th=_nBeats*4;
     for(int i=0;i<n16th;i++) {
         
-        int tick=i*tp16th+1;
+        int tick=i*_tp16th+1;
         MidiEvent midievent;
         int randomNote = filterKey(dist127(rng));
         int randomVelocity = dist127(rng);
@@ -229,7 +245,7 @@ void Midigen::createRandomTrack() {
         midiOut.addEvent( 0, tick, midievent );
 
         midievent.setCommand(0x80,randomNote,0x00);
-        midiOut.addEvent( 0, tick+tpq/8, midievent );
+        midiOut.addEvent( 0, tick+_tpq/8, midievent );
     }
 }
 
@@ -246,10 +262,10 @@ void Midigen::createDrumTrack() {
     */
 
     // number of 16th notes to generate
-    int n16th=nBeats*4;
+    int n16th=_nBeats*4;
     for(int i=0;i<n16th;i++) {
         
-        int tick=i*tp16th;
+        int tick=i*_tp16th;
         MidiEvent midievent;
 
         int beat=i%8;
@@ -271,7 +287,7 @@ void Midigen::createDrumTrack() {
                 midiOut.addEvent( 0, tick, midievent );
 
                 midievent.setCommand(0x89,note,0x00);
-                midiOut.addEvent( 0, tick+tpq/8, midievent );
+                midiOut.addEvent( 0, tick+_tpq/8, midievent );
             }
         }
     }
@@ -284,7 +300,7 @@ void Midigen::createBassTrack() {
     midiOut.addEvent( 1, 0, pc );
     for(int i=0;i<16;i++) {
 
-        int tick=i*tpq/4;
+        int tick=i*_tpq/4;
         MidiEvent midievent;
 
         int beat=i%8;
@@ -295,34 +311,90 @@ void Midigen::createBassTrack() {
             midiOut.addEvent( 1, tick, midievent );
 
             midievent.setCommand(0x80,note,0x00);
-            midiOut.addEvent( 1, tick+tpq/4-2, midievent );
+            midiOut.addEvent( 1, tick+_tpq/4-2, midievent );
         }
+    }
+}
+
+void Midigen::createChordsTrack() {
+    // Random Track
+    std::random_device dev;
+    std::mt19937 rng(dev());
+    std::uniform_int_distribution<std::mt19937::result_type> dist127(0,127); // distribution in range [1, 6]
+    std::uniform_int_distribution<std::mt19937::result_type> dist32k(0,32767); // distribution in range [1, 6]
+
+    int nInst=_instruments.size();
+    int randomInstrument = dist127(rng);
+    randomInstrument=randomInstrument%(nInst-1);
+    
+    MidiEvent pc( 192, _instruments.at(randomInstrument) );
+    midiOut.addEvent( 1, 0, pc );
+    
+    std::vector<int> chordNoteSet;
+    
+    int chordId=0;
+    for(auto chord:_chords) {
+        // number of 16th notes to generate
+        int n16th=_nBeats*4;
+        int startTick=chordId*n16th*_tp16th;
+        
+        chordNoteSet.clear();
+        int chordBaseNote=str2midinote(chord);
+        for(int octave=0;octave<10;octave++) {
+            chordNoteSet.push_back(chordBaseNote+12*octave);
+            chordNoteSet.push_back(chordBaseNote+4+12*octave);
+            chordNoteSet.push_back(chordBaseNote+7+12*octave);
+        }
+        int noteSetSize=chordNoteSet.size();
+        
+        for(int i=0;i<n16th;i++) {
+            int tick=startTick+(i*_tp16th)+1;
+            MidiEvent midievent;
+            int randomNote = chordNoteSet.at(dist32k(rng)%noteSetSize);
+            int randomVelocity = dist127(rng);
+
+            midievent.setCommand(0x90,randomNote,randomVelocity);
+            midiOut.addEvent( 0, tick, midievent );
+
+            midievent.setCommand(0x80,randomNote,0x00);
+            midiOut.addEvent( 0, tick+_tp16th/2, midievent );
+        }
+        chordId++;
     }
 }
 
 void Midigen::saveNewMidiFile(const string &filename)
 {
     midiOut.write(filename+".mid");
-    string soundfont = "/home/apolloqa/sf2/Touhou.sf2";
     string command = "fluidsynth " + soundfont + " " + filename + ".mid -F " + filename + "-uncut.wav -r 48000 -O s24";
     system( command.c_str() );
     cout << "executed " << command << endl;
-    
-    int nSamples=60*sampleRate*nBeats/bpm;
+
+    int nChords=_chords.size();
+    int nSamples=60*_sampleRate*_nBeats*nChords/_bpm;
     string nSamplesIsCommand="soxi -s "+ filename + "-uncut.wav ";
     string nSamplesIs=exec( nSamplesIsCommand.c_str() );
     rtrim(nSamplesIs);
-    cout << "samples: " << nSamplesIs << endl;
     int padSamples=nSamples - stoi(nSamplesIs);
-    string nSamplesPad=to_string(padSamples);
+    
+    cout << "bpms " << _bpm << "chords " << nChords << " samples: target " << nSamples << " is " << nSamplesIs << " pad " << padSamples << endl;
+    
     if(padSamples<0) {
-        nSamplesPad="0";
+        int trimSamples=stoi(nSamplesIs) - nSamples;
+        string nSamplesTrim=to_string(nSamples);
+        //string nSamplesTrimFrom=to_string(nSamples);
+        command = "sox " + filename + "-uncut.wav " + filename + ".wav " + " trim 0 " + nSamplesTrim + "s";
+        //command = "sox " + filename + "-uncut.wav " + filename + ".wav " + " trim " + nSamplesTrimFrom + "s " + nSamplesTrim + "s";
+        //command = "sox " + filename + "-uncut.wav " + filename + ".wav " + " pad 0s@" + nSamplesIs + "s";
+        system( command.c_str() );
+        cout << "executed " << command << endl;
+    } else {
+        string nSamplesPad=to_string(padSamples);
+        command = "sox " + filename + "-uncut.wav " + filename + ".wav " + " pad " + nSamplesPad + "s@" + nSamplesIs + "s";
+        system( command.c_str() );
+        cout << "executed " << command << endl;
     }
     
-    //command = "sox " + filename + "-uncut.wav " + filename + ".wav " + " trim 0 " + "" + nSamples + "s"; //
-    command = "sox " + filename + "-uncut.wav " + filename + ".wav " + " pad " + nSamplesPad + "s@" + nSamplesIs + "s"; //
-    system( command.c_str() );
-    cout << "executed " << command << endl;
     
     command = "ffmpeg -y -i " + filename + ".wav -acodec mp3 -ab 128k " + filename + ".mp3";
     system( command.c_str() );
@@ -332,6 +404,50 @@ void Midigen::saveNewMidiFile(const string &filename)
     //system( command.c_str() );
 
     //cout << "saved " << filename << endl;
+}
+
+int Midigen::str2midinote(string note) {
+    string firstChar=note.substr(0,1);
+    string secondChar=note.substr(1,1);
+    int midinote=-1;
+    if (firstChar=="C") {
+        if (secondChar=="#") {
+            midinote=1;
+        } else {
+            midinote=0;
+        }
+    } else if (firstChar=="D") {
+        if (secondChar=="#") {
+            midinote=3;
+        } else {
+            midinote=2;
+        }
+    } else if (firstChar=="E") {
+        midinote=4;
+    } else if (firstChar=="F") {
+        if (secondChar=="#") {
+            midinote=6;
+        } else {
+            midinote=5;
+        }
+    } else if (firstChar=="G") {
+        if (secondChar=="#") {
+            midinote=8;
+        } else {
+            midinote=7;
+        }
+    } else if (firstChar=="A") {
+        if (secondChar=="#") {
+            midinote=10;
+        } else {
+            midinote=9;
+        }
+    } else if (firstChar=="B") {
+        midinote=11;
+    } else if (firstChar=="H") {
+        midinote=11;
+    }
+    return midinote;
 }
 
 string Midigen::midinote2txt(int note) {

@@ -138,6 +138,7 @@ aqa.recArmed=false;
 aqa.stopArmed=false;
 aqa.recording=false;
 aqa.mediaRecorder={};
+aqa.autoplay=false;
 aqa.basenote=0;
 aqa.scale=0;
 aqa.sampleRate=48000;

@@ -225,7 +225,8 @@ function initGuiMenu() {
         
         const buttonMenu = gui.getControlByName("Button_Menu");
         const buttonPlayer = gui.getControlByName("Button_Player");
-        const buttonConfig =gui.getControlByName("Button_Config");
+        const buttonConfig = gui.getControlByName("Button_Config");
+        //const buttonAutoplay = gui.getControlByName("Button_Autoplay");
         
         const configRoot = guiGenConfig.rootContainer;
         configRoot.isVisible=false;
@@ -238,6 +239,7 @@ function initGuiMenu() {
             menuVisible=newState;
             buttonPlayer.isVisible=newState;
             buttonConfig.isVisible=newState;
+            //buttonAutoplay.isVisible=newState;
         });
         
         buttonConfig.onPointerUpObservable.add(function() {
@@ -263,6 +265,12 @@ function initGuiMenu() {
                 configRoot.isVisible=false;
             }
         });
+        
+        /*
+        buttonAutoplay.onPointerUpObservable.add(function() {
+            aqa.autoplay=!aqa.autoplay;
+        });
+        */
         
         netActBar.left = "40px";
         netActBar.top = "0px";

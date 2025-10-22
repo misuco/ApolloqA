@@ -42,7 +42,10 @@ public:
     //void    setScale(int s);
     void    setBPM(int b );
     void    setMode(int m);
-    void    newMidiFile ();
+    void    addInstrument(int i);
+    void    addChord(string c);
+    void    setSoundfont(string p);
+    void    newMidiFile();
     void    saveNewMidiFile(const string &filename);
 
 private:
@@ -55,19 +58,28 @@ private:
     int scaleFilterLowestNote;
     int scaleFilterHighestNote;
     
+    string soundfont;
+    std::vector<int> _instruments;
+    std::vector<string> _chords;
     //int         basenote;
     //int         scale;
-    int         mode;
-    int         bpm;
-    int         sampleRate;
-    int         nBeats;
-    int         tpq = 48;               // default value in MIDI file is 48
-    int         tp16th = tpq/4;         // tiks per 16th note
+    int         _mode;
+    int         _bpm;
+    int         _sampleRate;
+    int         _nBeats;
+    int         _quantize;
+    int         depth;
+    int         octaveLow;
+    int         octaveHigh;
+    int         _tpq = 48;         // default value in MIDI file is 48
+    int         _tp16th = _tpq/4;  // tiks per 16th note
     
     int  filterKey(int key);
     void createRandomTrack();
     void createDrumTrack();
     void createBassTrack();
+    void createChordsTrack();
+    int str2midinote(string note);
     string midinote2txt(int note);
 };
 
