@@ -153,14 +153,14 @@ function getSpaceshipInputFromMouse() {
 // The following values can be tweaked until they "feel right"
 
 // Our maximum acceleration (units per second per second)
-const MaxThrust = 10;
+const MaxThrust = 5;
 // Our maximum turn speed (radians per second)
-const TurnSpeed = 4;
+const TurnSpeed = 6;
 // The drag coefficient; roughly, how much velocity we will
 // lose per second. Lower values means less drag and a more
 // realistic "newtonian physics" feel, but may not be great
 // for gameplay.
-const DragCoefficient = 0.25;
+const DragCoefficient = 1;
 
 // The ship's current velocity
 const velocity = new Vector3();
@@ -210,10 +210,12 @@ scene.onBeforeRenderObservable.add(() => {
   velocity.scaleInPlace(1 - DragCoefficient * deltaSecs);
   // Apply velocity to position
   spaceshipMesh.position.addInPlace(velocity.scale(deltaSecs));
+  /*
   scene.audioListenerPositionProvider = () => {
     // Returns a static position
     return spaceshipMesh.absolutePosition;
   };
+  */
 });
 
 // Use the onBeforeRenderObservable event to move the

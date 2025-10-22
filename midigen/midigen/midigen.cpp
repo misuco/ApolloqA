@@ -303,8 +303,8 @@ void Midigen::createBassTrack() {
 void Midigen::saveNewMidiFile(const string &filename)
 {
     midiOut.write(filename+".mid");
-    string soundfont = "/home/antarctica/antarcticalibs/Touhou.sf2";
-    string command = "fluidsynth -v " + soundfont + " " + filename + ".mid -F " + filename + "-uncut.wav -r 48000 -O s24";
+    string soundfont = "/home/apolloqa/sf2/Touhou.sf2";
+    string command = "fluidsynth " + soundfont + " " + filename + ".mid -F " + filename + "-uncut.wav -r 48000 -O s24";
     system( command.c_str() );
     cout << "executed " << command << endl;
     
@@ -313,7 +313,11 @@ void Midigen::saveNewMidiFile(const string &filename)
     string nSamplesIs=exec( nSamplesIsCommand.c_str() );
     rtrim(nSamplesIs);
     cout << "samples: " << nSamplesIs << endl;
-    string nSamplesPad=to_string(nSamples - stoi(nSamplesIs));
+    int padSamples=nSamples - stoi(nSamplesIs);
+    string nSamplesPad=to_string(padSamples);
+    if(padSamples<0) {
+        nSamplesPad="0";
+    }
     
     //command = "sox " + filename + "-uncut.wav " + filename + ".wav " + " trim 0 " + "" + nSamples + "s"; //
     command = "sox " + filename + "-uncut.wav " + filename + ".wav " + " pad " + nSamplesPad + "s@" + nSamplesIs + "s"; //

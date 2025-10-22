@@ -29,7 +29,8 @@ app.post('/post', function(req, res) {
         let upload=files.file[0].path;
         console.log("file upload "+nickname+" "+upload+" "+sessionId);
         var result=proc.execSync('mkdir -p '+config.app.web_path+'/loops/'+sessionId);
-        fs.renameSync(upload,config.app.web_path+'/loops/'+sessionId+"/u"+uploadId+".ogg")
+        //fs.renameSync(upload,config.app.web_path+'/loops/'+sessionId+"/u"+uploadId+".ogg")
+        fs.copyFileSync(upload,config.app.web_path+'/loops/'+sessionId+"/u"+uploadId+".ogg")
         /*
         console.log("parse files "+JSON.stringify(files));
         Object.keys(files).forEach(function(name) {
