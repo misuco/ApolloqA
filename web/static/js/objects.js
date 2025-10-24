@@ -91,7 +91,7 @@ var triggerNewSound = function(trackId) {
             console.log("server error!!!");
             triggerNewSound(trackId);
         } else {
-            const trackUrl=this.response + ".mp3";
+            const trackUrl=this.response + ".ogg";
             orbitertrackUrl[trackId]=trackUrl;
             playTrack(trackUrl, trackId);
             if(trackId<aqa.nTracks) {

@@ -5,7 +5,7 @@ var readyAnalyzer = [false,false,false,false];
 const autoplayButton = document.querySelector(".autoplay");
 autoplayButton.onclick = function () {
     aqa.autoplay=!aqa.autoplay;
-    if(autoplay===true) {
+    if(aqa.autoplay===true) {
         autoplayButton.style.background = "orange";
     } else {
         autoplayButton.style.background = "gray";

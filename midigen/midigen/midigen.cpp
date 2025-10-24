@@ -340,7 +340,7 @@ void Midigen::createChordsTrack() {
         
         chordNoteSet.clear();
         int chordBaseNote=str2midinote(chord);
-        for(int octave=0;octave<10;octave++) {
+        for(int octave=3;octave<6;octave++) {
             chordNoteSet.push_back(chordBaseNote+12*octave);
             chordNoteSet.push_back(chordBaseNote+4+12*octave);
             chordNoteSet.push_back(chordBaseNote+7+12*octave);
@@ -348,10 +348,10 @@ void Midigen::createChordsTrack() {
         int noteSetSize=chordNoteSet.size();
         
         for(int i=0;i<n16th;i++) {
-            int tick=startTick+(i*_tp16th)+1;
+            int tick=startTick+(i*_tp16th);
             MidiEvent midievent;
             int randomNote = chordNoteSet.at(dist32k(rng)%noteSetSize);
-            int randomVelocity = dist127(rng);
+            int randomVelocity = 64+(dist127(rng)%2)*63;
 
             midievent.setCommand(0x90,randomNote,randomVelocity);
             midiOut.addEvent( 0, tick, midievent );
@@ -377,7 +377,7 @@ void Midigen::saveNewMidiFile(const string &filename)
     rtrim(nSamplesIs);
     int padSamples=nSamples - stoi(nSamplesIs);
     
-    cout << "bpms " << _bpm << "chords " << nChords << " samples: target " << nSamples << " is " << nSamplesIs << " pad " << padSamples << endl;
+    cout << "bpms " << _bpm << " chords " << nChords << " samples: target " << nSamples << " is " << nSamplesIs << " pad " << padSamples << endl;
     
     if(padSamples<0) {
         int trimSamples=stoi(nSamplesIs) - nSamples;
@@ -396,9 +396,14 @@ void Midigen::saveNewMidiFile(const string &filename)
     }
     
     
-    command = "ffmpeg -y -i " + filename + ".wav -acodec mp3 -ab 128k " + filename + ".mp3";
+    command = "ffmpeg -y -i " + filename + ".wav -acodec libvorbis -ab 128k " + filename + ".ogg";
     system( command.c_str() );
     cout << "executed " << command << endl;
+
+    string nSamplesIsMP3Command="soxi -s "+ filename + ".ogg";
+    string nSamplesIsMP3=exec( nSamplesIsMP3Command.c_str() );
+    cout << "executed " << nSamplesIsMP3Command << endl;    
+    cout << "samples mp3: " << nSamplesIsMP3 << endl;
     
     //command = "rm " + filename + "-loop.wav";
     //system( command.c_str() );
