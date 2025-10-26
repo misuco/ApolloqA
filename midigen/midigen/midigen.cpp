@@ -340,10 +340,21 @@ void Midigen::createChordsTrack() {
         
         chordNoteSet.clear();
         int chordBaseNote=str2midinote(chord);
-        for(int octave=3;octave<6;octave++) {
-            chordNoteSet.push_back(chordBaseNote+12*octave);
-            chordNoteSet.push_back(chordBaseNote+4+12*octave);
-            chordNoteSet.push_back(chordBaseNote+7+12*octave);
+        
+        char lastChar=chord.back();
+
+        for(int octave=2;octave<7;octave++) {
+            if(lastChar=='m') {
+                // minor chord
+                chordNoteSet.push_back(chordBaseNote+12*octave);
+                chordNoteSet.push_back(chordBaseNote+3+12*octave);
+                chordNoteSet.push_back(chordBaseNote+7+12*octave);
+            } else {
+                // major chord
+                chordNoteSet.push_back(chordBaseNote+12*octave);
+                chordNoteSet.push_back(chordBaseNote+4+12*octave);
+                chordNoteSet.push_back(chordBaseNote+7+12*octave);
+            }
         }
         int noteSetSize=chordNoteSet.size();
         
@@ -366,7 +377,7 @@ void Midigen::createChordsTrack() {
 void Midigen::saveNewMidiFile(const string &filename)
 {
     midiOut.write(filename+".mid");
-    string command = "fluidsynth " + soundfont + " " + filename + ".mid -F " + filename + "-uncut.wav -r 48000 -O s24";
+    string command = "fluidsynth -v '" + soundfont + "' " + filename + ".mid -F " + filename + "-uncut.wav -r 48000 -O s24";
     system( command.c_str() );
     cout << "executed " << command << endl;
 

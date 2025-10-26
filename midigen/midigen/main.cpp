@@ -30,6 +30,38 @@ void createNewSong( string filename, int basenote, int scale, int tempo, int mod
     mg.initScaleFilter( scale, basenote );
     mg.setBPM( tempo );
     mg.setMode( mode );
+    
+    //mg.setSoundfont( "/home/apolloqa/sf2/LilSness.sf2" );
+    //mg.setSoundfont( "/home/apolloqa/sf2/Discord.sf2" );
+    //mg.setSoundfont( "/home/apolloqa/sf2/Commodore 64.sf2" );
+    //mg.setSoundfont( "/home/apolloqa/sf2/BeepBox.sf2" );
+    //mg.setSoundfont( "/home/apolloqa/sf2/Final Fantasy VII.sf2" );
+    //mg.setSoundfont( "/home/apolloqa/sf2/Casio CTK-533.sf2" );
+    //mg.setSoundfont( "/home/apolloqa/sf2/Casio HT-700.sf2" );
+    //mg.setSoundfont( "/home/apolloqa/sf2/Nintendo 64.sf2" );
+    //mg.setSoundfont( "/home/apolloqa/sf2/Casio VL-1.sf2" );
+    //mg.setSoundfont( "/home/apolloqa/sf2/Donkey Kong Country SFX 1.sf2" );
+    //mg.setSoundfont( "/home/apolloqa/sf2/Terranigma.sf2" );
+    /*
+    for(int i=0;i<128;i++) {
+        mg.addInstrument(i);
+    }
+    */
+    
+    mg.setSoundfont( "/home/apolloqa/sf2/Korg M1.SF2" );
+    mg.addInstrument(0);
+    mg.addInstrument(1);
+    mg.addInstrument(91);
+    mg.addInstrument(71);
+    mg.addInstrument(62);
+    mg.addInstrument(70);
+    mg.addInstrument(35);
+    mg.addInstrument(90);
+    mg.addInstrument(61);
+    mg.addInstrument(60);
+    mg.addInstrument(30);
+    
+    /*
     mg.setSoundfont( "/home/apolloqa/sf2/HS-TB-303.SF2" );
     mg.addInstrument(0);
     mg.addInstrument(5);
@@ -49,10 +81,45 @@ void createNewSong( string filename, int basenote, int scale, int tempo, int mod
     mg.addInstrument(75);
     mg.addInstrument(80);
     mg.addInstrument(85);
-    mg.addChord("E");
-    mg.addChord("A");
-    mg.addChord("G");
+    */
+    
     mg.addChord("C");
+    mg.addChord("G");
+    mg.addChord("Am");
+    mg.addChord("F");
+    mg.addChord("C");
+    mg.addChord("G");
+    mg.addChord("Am");
+    mg.addChord("F");
+    mg.addChord("G");
+    mg.addChord("F");
+    mg.addChord("G");
+    mg.addChord("F");
+    mg.addChord("C");
+    mg.addChord("G");
+    mg.addChord("Am");
+    mg.addChord("F");
+    mg.addChord("C");
+    mg.addChord("G");
+    mg.addChord("Am");
+    mg.addChord("F");
+    mg.addChord("C");
+    mg.addChord("G");
+    mg.addChord("Am");
+    mg.addChord("F");
+    mg.addChord("C");
+    
+    /*
+    mg.addChord("C");
+    mg.addChord("D");
+    mg.addChord("E");
+    mg.addChord("F");
+    mg.addChord("G");
+    mg.addChord("A");
+    mg.addChord("B");
+    mg.addChord("C");
+    */
+    
     mg.newMidiFile();
     cout << "create_file: " << filename << endl << "tempo: " << tempo << endl;
     mg.saveNewMidiFile( filename );
