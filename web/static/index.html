@@ -1,223 +1,107 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-
-        <title>ApolloqA - Sound Platform</title>
-
-        <!-- Babylon.js
-        <script src="https://cdn.jsdelivr.net/npm/babylonjs@6.10.0/babylon.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/babylonjs-loaders@6.10.0/babylonjs.loaders.min.js"></script>
-        -->
-
-        <style>
-			* {
-			  box-sizing: border-box;
-			}
-
-			html,
-			body {
-			  margin: 0;
-			  height: 100%;
-			}
-
-			canvas {
-			  width: 100%;
-			  height: 100%;
-			  background-color: blue;
-			}
-            
-            
-            .wrapper {
-              height: 100%;
-              display: flex;
-              flex-direction: column;
-            }
-            
-            h1,
-            h2 {
-              font-size: 2rem;
-              text-align: center;
-              font-weight: normal;
-              padding: 0.5rem 0 0 0;
-            }
-            
-            .main-controls {
-              padding: 0.5rem 0;
-            }
-            
-            #buttons {
-              display: flex;
-              flex-direction: row;
-              justify-content: space-between;
-            }
-            
-            #buttons button {
-              font-size: 1rem;
-              padding: 1rem;
-              width: calc(50% - 0.25rem);
-            }
-            
-            button {
-              font-size: 1rem;
-              background: #0088cc;
-              text-align: center;
-              color: white;
-              border: none;
-              transition: all 0.2s;
-              padding: 0.5rem;
-              height:100px;
-            }
-            
-            button:hover,
-            button:focus {
-              box-shadow: inset 0px 0px 10px rgba(255, 255, 255, 1);
-              background: #0ae;
-            }
-            
-            button:active {
-              box-shadow: inset 0px 0px 20px rgba(0, 0, 0, 0.5);
-              transform: translateY(2px);
-            }
-            
-            /* Make the clips use as much space as possible, and
-             * also show a scrollbar when there are too many clips to show
-             * in the available space */
-            .sound-clips {
-              flex: 1;
-              overflow: auto;
-            }
-            
-            section,
-            article {
-              display: block;
-            }
-            
-            .clip {
-              padding-bottom: 1rem;
-            }
-            
-            audio {
-              width: 100%;
-              display: block;
-              margin: 1rem auto 0.5rem;
-            }
-            
-            .clip p {
-              display: inline-block;
-              font-size: 1rem;
-            }
-            
-            .clip button {
-              font-size: 1rem;
-              float: right;
-            }
-            
-            button.delete {
-              background: #f00;
-              padding: 0.5rem 0.75rem;
-              font-size: 0.8rem;
-            }
-            
-            /* Checkbox hack to control information box display */
-            
-            label {
-              font-size: 3rem;
-              position: absolute;
-              top: 2px;
-              right: 3px;
-              z-index: 5;
-              cursor: pointer;
-              background-color: black;
-              border-radius: 10px;
-            }
-            
-            input[type="checkbox"] {
-              position: absolute;
-              top: -100px;
-            }
-            
-            aside {
-              position: fixed;
-              top: 0;
-              left: 0;
-              width: 100%;
-              height: 100%;
-              transform: translateX(100%);
-              transition: 0.3s all ease-out;
-              background-color: #efefef;
-              padding: 1rem;
-            }
-            
-            aside p {
-              font-size: 1.2rem;
-              margin: 0.5rem 0;
-            }
-            
-            aside a {
-              color: #666;
-            }
-            
-            /* Toggled State of information box */
-            input[type="checkbox"]:checked ~ aside {
-              transform: translateX(0);
-            }
-            
-            /* Cursor when clip name is clicked over */
-            
-            .clip p {
-              cursor: pointer;
-            }
-            
-            /* Adjustments for wider screens */
-            @media all and (min-width: 800px) {
-              /* Don't take all the space as readability is lost when line length
-                 goes past a certain size */
-              .wrapper {
-                width: 90%;
-                max-width: 1000px;
-                margin: 0 auto;
-              }
-            }
-                        
-        </style>
-    </head>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>ApolloqA - Sound Co-Lab</title>
+    <link rel="stylesheet" href="style.css">
+    
+    <!-- Babylon.js
+    <script src="https://cdn.jsdelivr.net/npm/babylonjs@6.10.0/babylon.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/babylonjs-loaders@6.10.0/babylonjs.loaders.min.js"></script>
+    -->
+</head>
 <body style="background:black">
 
-<!---
-    <div id="login" style="width:100%;heght:100%">
-        <input id="name" type="text" \>
-        <input id="enter" type="button" value="ENTER!"\>
-    </div>
---->
-    <div class="wrapper" style="height:200px;width:100%;background:black">
-      <section class="main-controls">
-        <canvas class="visualizer" style="display:block;height:100px"></canvas>
-        <div id="buttons">
-          <button class="record">Record</button>
-          <button class="stop">Stop</button>
-          <button class="autoplay">Auto</button>
+<div class="wrapper" style="width:100%;background:black">
+    <section class="main-controls">
+        <div id="menu_buttons" class="buttons">
+            <button id="menu_main" style="width:10%">|||</button>
+            <button id="menu_session">Session</button>
+            <button id="menu_mic">Mic</button>
+            <button id="menu_gen_1">Gen1</button>
+            <button id="menu_gen_2">Gen2</button>
+            <button id="menu_gen_3">Gen3</button>
+            <button id="menu_gen_4">Gen4</button>
         </div>
-      </section>
-    </div>    
-	<canvas class="apolloqa"></canvas>
+        <div id="config_session">
+            <div class="flexbox">
+                <select name="chords">
+                    <option value="1">C D E F</option>
+                    <option value="2">E A G C</option>
+                    <option value="3">C G Am F</option>
+                    <option value="4">E E E E#</option>
+                </select>
+                <output id="display_bpm" style="font-size: 3rem;">90</output> BPM
+            </div>
+            <div class="flexbox">
+                <button id="dec_bpm" class="narrow">-</button>
+                <input id="range_bpm" type="range" min="40" max="180" value="90" step="1"></input>
+                <button id="inc_bpm" class="narrow">+</button>
+            </div>
+        </div>
+        <div id="config_mic">
+            <canvas class="visualizer" style="display:block;height:100px"></canvas>
+            <div class="buttons">
+                <button class="record1">Rec 1</button>
+                <button class="record2">Rec 2</button>
+                <button class="record3">Rec 3</button>
+                <button class="record4">Rec 4</button>
+                <button class="stop">Stop</button>
+            </div>
+        </div>
+        <div class="buttons">
+            <button id="calc1">Calc 1</button>
+            <button id="calc2">Calc 2</button>
+            <button id="calc3">Calc 3</button>
+            <button id="calc4">Calc 4</button>
+            <button id="autoplay">Auto</button>
+        </div>
+        <div id="config2">
+            <select name="instrument">
+                <option value="1">Strings</option>
+                <option value="2">Drum</option>
+                <option value="3">303</option>
+                <option value="4">M1</option>
+            </select>
+            <select name="quantize">
+                <option value="4">Q*4</option>
+                <option value="2">Q*2</option>
+                <option value="1">Q*1</option>
+                <option value="1/2">Q/2</option>
+                <option value="1/3">Q/3</option>
+                <option value="1/4">Q/4</option>
+                <option value="1/8">Q/8</option>
+            </select>
+            <select name="density">
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">4</option>
+                <option value="4">8</option>
+                <option value="4">16</option>
+                <option value="4">32</option>
+            </select>
+        </div>
+    </section>
+</div>
+<canvas class="apolloqa"></canvas>
 
-    <script src="js/babylon.js"></script>
-    <script src="js/babylonjs.loaders.min.js"></script>
-    <script src="js/babylon.gui.js"></script>
-    <script src="js/HavokPhysics_umd.js"></script>
-    <script src="js/initScene.js"></script>
-    <script src="js/colors.js"></script>
-	<script src="js/camera.js"></script>
-	<script src="js/syncTrack.js"></script>
-    <script src="js/objects.js"></script>
-    <script src="js/gui.js"></script>
-    <script src="js/starfield.js"></script>
-    <script src="js/animation.js"></script>
-    <script src="js/multiuser-ws.js"></script>
-    <script src="js/audiorec.js"></script>
+<script src="js/babylon.js"></script>
+<script src="js/babylonjs.loaders.min.js"></script>
+<script src="js/babylon.gui.js"></script>
+<script src="js/HavokPhysics_umd.js"></script>
+<script src="js/initScene.js"></script>
+<script src="js/colors.js"></script>
+<script src="js/camera.js"></script>
+<script src="js/syncTrack.js"></script>
+<script src="js/objects.js"></script>
+<script src="js/gui.js"></script>
+<script src="js/starfield.js"></script>
+<script src="js/animation.js"></script>
+<script src="js/multiuser-ws.js"></script>
+<script src="js/audiorec.js"></script>
+<script src="js/guiHtml.js"></script>
 
-    <script>
+<script>
 
 
 
@@ -228,39 +112,39 @@
 let star_mesh = null;
 
 SceneLoader.ImportMeshAsync(
-  null,
-  // This link was copied from the Dropbox "Share" panel, but the domain needs to be changed to dl.dropboxusercontent.com to avoid issues with CORS
-  //"obj/12150_Christmas_Tree_V2_L2.obj",
-  //"obj/Spaceship_BarbaraTheBee.gltf",
-  //"obj/Flakes1_Classic.obj",
-  //"obj/Logo-A_002.obj",
-  "obj/estrellica.obj",
-  null,
-  scene
+null,
+// This link was copied from the Dropbox "Share" panel, but the domain needs to be changed to dl.dropboxusercontent.com to avoid issues with CORS
+//"obj/12150_Christmas_Tree_V2_L2.obj",
+//"obj/Spaceship_BarbaraTheBee.gltf",
+//"obj/Flakes1_Classic.obj",
+//"obj/Logo-A_002.obj",
+"obj/estrellica.obj",
+null,
+scene
 ).then(({ meshes }) => {
-  // We now have our spaceship loaded into the scene!
+// We now have our spaceship loaded into the scene!
 
-  // Set spaceshipMesh to the first mesh in the array: this is correct
-  // for our spaceship, but really depends on the mesh you loaded
-  console.log("Meshes : "+meshes);
-  
-  star_mesh = meshes[0];
+// Set spaceshipMesh to the first mesh in the array: this is correct
+// for our spaceship, but really depends on the mesh you loaded
+console.log("Meshes : "+meshes);
 
-  // To allow working with rotationQuaternion, which is
-  // null by default, we need to give it a value
-  star_mesh.rotationQuaternion = Quaternion.Identity();
+star_mesh = meshes[0];
 
-  star_mesh.position.x = 0;
-  star_mesh.position.y = 0;
-  star_mesh.position.z = -150;
+// To allow working with rotationQuaternion, which is
+// null by default, we need to give it a value
+star_mesh.rotationQuaternion = Quaternion.Identity();
 
-  star_mesh.scaling.x = 0.15;
-  star_mesh.scaling.y = 0.15;
-  star_mesh.scaling.z = 0.15;
-  
-  star_mesh.rotation.x = 90;
-  
-  
+star_mesh.position.x = 0;
+star_mesh.position.y = 0;
+star_mesh.position.z = -150;
+
+star_mesh.scaling.x = 0.15;
+star_mesh.scaling.y = 0.15;
+star_mesh.scaling.z = 0.15;
+
+star_mesh.rotation.x = 90;
+
+
 
 
 });
@@ -270,26 +154,26 @@ var meshesToLoad = ["Flakes1_Classic.obj", "estrellica.obj"];
 
 var toLoad = meshesToLoad.length;
 var whenDoneFunction = function () {
-	toLoad--;
+toLoad--;
 
-	console.log("imported mesh, to load "+toLoad);
-	if (toLoad === 0) {
-		alert("loading done!");
-	}
+console.log("imported mesh, to load "+toLoad);
+if (toLoad === 0) {
+alert("loading done!");
+}
 }
 
 for (var index = 0; index < meshesToLoad.length; index++) {
-	// The first parameter can be used to specify which mesh to import. Here we import all meshes
-	BABYLON.SceneLoader.ImportMesh("mesh"+index, "obj/", meshesToLoad[index], scene, function (newMeshes) {
-		// Set the target of the camera to the first imported mesh
-		whenDoneFunction();
-		//kek = scene.getMeshByName("test");
-		//kek.isVisible =true;
-	});
+// The first parameter can be used to specify which mesh to import. Here we import all meshes
+BABYLON.SceneLoader.ImportMesh("mesh"+index, "obj/", meshesToLoad[index], scene, function (newMeshes) {
+// Set the target of the camera to the first imported mesh
+whenDoneFunction();
+//kek = scene.getMeshByName("test");
+//kek.isVisible =true;
+});
 }
 
 /*
-    
+
 
 const slalom1 = BABYLON.MeshBuilder.CreateSphere("slalom1", { diameter:8 }, scene);
 const slalom2 = BABYLON.MeshBuilder.CreateSphere("slalom2", { diameter:8 }, scene);
@@ -331,36 +215,36 @@ var terrainCreated = false;
 var terrain;
 
 terrainScript.onload = function() {
-    var mapSubX = 500;
-    var mapSubZ = 300;
-    var terrainSub = 100;
+var mapSubX = 500;
+var mapSubZ = 300;
+var terrainSub = 100;
 
-    // map creation
-    var mapData = new Float32Array(mapSubX * mapSubZ * 3);
-    for (var l = 0; l < mapSubZ; l++) {
-        for (var w = 0; w < mapSubX; w++) {
-            mapData[3 *(l * mapSubX + w)] = (w - mapSubX * 0.5) * 2.0;
-            mapData[3 * (l * mapSubX + w) + 1] = w / (l +1) * Math.sin(l / 2) * Math.cos(w / 2) * 2.0;
-            mapData[3 * (l * mapSubX + w) + 2] = (l - mapSubZ * 0.5) * 2.0;
-       }
-    }
+// map creation
+var mapData = new Float32Array(mapSubX * mapSubZ * 3);
+for (var l = 0; l < mapSubZ; l++) {
+for (var w = 0; w < mapSubX; w++) {
+mapData[3 *(l * mapSubX + w)] = (w - mapSubX * 0.5) * 2.0;
+mapData[3 * (l * mapSubX + w) + 1] = w / (l +1) * Math.sin(l / 2) * Math.cos(w / 2) * 2.0;
+mapData[3 * (l * mapSubX + w) + 2] = (l - mapSubZ * 0.5) * 2.0;
+}
+}
 
-    // terrain creation
-    var params = {
-        mapData: mapData,
-        mapSubX: mapSubX,
-        mapSubZ: mapSubZ,
-        terrainSub: terrainSub
-    };
-    terrain = new BABYLON.DynamicTerrain("terrain", params, scene);
-    terrain.mesh.material = terrainMaterial;
-    terrain.subToleranceX = 8;
-    terrain.subToleranceZ = 8;
-    terrain.LODLimits = [4, 3, 2, 1, 1];
-    terrainCreated = true;
+// terrain creation
+var params = {
+mapData: mapData,
+mapSubX: mapSubX,
+mapSubZ: mapSubZ,
+terrainSub: terrainSub
+};
+terrain = new BABYLON.DynamicTerrain("terrain", params, scene);
+terrain.mesh.material = terrainMaterial;
+terrain.subToleranceX = 8;
+terrain.subToleranceZ = 8;
+terrain.LODLimits = [4, 3, 2, 1, 1];
+terrainCreated = true;
 };
 */
 
-    </script>
+</script>
 </body>
 </html>

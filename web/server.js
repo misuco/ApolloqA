@@ -38,7 +38,7 @@ app.post('/post', function(req, res) {
         });
         */
     });
-    
+
     console.log("got post body " + req.body + " " + JSON.stringify(req.body));
     console.log("got post body " + req.body.file + " " + JSON.stringify(req.body.file));
     console.log("got post data " + req.data + " " + JSON.stringify(req.data));
@@ -47,20 +47,22 @@ app.post('/post', function(req, res) {
 
 app.get('/newclip', function(req, res) {
    console.log("got newclip " + req.query.id);
-   console.log(config.app.bin_path_midigen 
+   console.log(config.app.bin_path_midigen
+       + ' -c C_D_E_F '
        + ' -s '+req.query.scale
        + ' -b '+req.query.basenote
        + ' -m 0 '
-       + ' -t '+req.query.tempo 
+       + ' -t '+req.query.tempo
        + ' -o '+config.app.web_path+'/loops/'+req.query.sessionId+'/'+req.query.id);
-       
+
    createSessionDir(req.query.sessionId);
    //result=proc.execSync(config.app.bin_path_midigen + ' -t '+req.query.tempo+' -p ' + req.query.pitch + ' -b '+req.query.clipId+' -l '+req.query.loopLength+' -r '+req.query.repeat+' -n '+req.query.basenote+' -s '+req.query.scale+' -a '+req.query.arrange+' -c '+req.query.sound+' -o '+config.app.web_path+'/loops/'+req.query.sessionId+'/'+req.query.id);
-   result=proc.execSync(config.app.bin_path_midigen 
+   result=proc.execSync(config.app.bin_path_midigen
+       + ' -c C_D_E_F '
        + ' -s '+req.query.scale
        + ' -b '+req.query.basenote
        + ' -m 0 '
-       + ' -t '+req.query.tempo 
+       + ' -t '+req.query.tempo
        + ' -o '+config.app.web_path+'/loops/'+req.query.sessionId+'/'+req.query.id);
    console.log("------------------------------------------------------------------------------");
    console.log("request result :");

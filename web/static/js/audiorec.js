@@ -1,5 +1,5 @@
 // Set up basic variables for app
-const record = document.querySelector(".record");
+const record = document.querySelector(".record1");
 const stop = document.querySelector(".stop");
 //const soundClips = document.querySelector(".sound-clips");
 const canvasAudio = document.querySelector(".visualizer");

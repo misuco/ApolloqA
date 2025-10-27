@@ -1,0 +1,144 @@
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    margin: 0;
+    height: 100%;
+    font-size: 30px;
+    font-family: sans-serif;
+    color: white;
+}
+
+canvas {
+    width: 100%;
+    height: 60%;
+    background-color: blue;
+}
+
+.wrapper {
+    height: 40%;
+    display: flex;
+    flex-direction: column;
+}
+
+h1,
+h2 {
+    font-size: 2rem;
+    text-align: center;
+    font-weight: normal;
+    padding: 0.5rem 0 0 0;
+}
+
+.main-controls {
+    padding: 0.5rem 0;
+}
+
+.flexbox {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+input[type=range] {
+    appearance: none;
+    width: 70%;
+    border-radius:0;
+    background-color: cornflowerblue; 
+}
+
+input[type=range]::-webkit-slider-thumb {
+    /*
+    -webkit-appearance: none;
+    border: 1% solid blue;
+    width: 5vw;
+    height: 100%;
+    */
+    border-radius: 5vh;
+    cursor: pointer;
+    background: goldenrod;
+}
+
+input[type=range]::-moz-range-thumb {
+    background: orange;
+    border: 1% solid var(--me-highlight);
+    width: 20%;
+    height: 100%;
+    border-radius: 20%;
+    cursor: pointer;
+}
+
+select {
+    font-size: 1rem;
+    background: #0088cc;
+    text-align: center;
+    color: white;
+    border: none;
+    transition: all 2s;
+    padding: 0 5%;
+    line-height:100px;
+    -webkit-appearance: menulist-button;
+    -moz-appearance:none;
+}
+
+.buttons {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.buttons button {
+    font-size: 1rem;
+    padding: 1rem;
+    width: calc(50% - 0.25rem);
+}
+
+button {
+    font-size: 1rem;
+    background: #0088cc;
+    text-align: center;
+    color: white;
+    border: "5px solid white";
+    transition: all 0.2s;
+    padding: 0.5rem;
+    height:100%;
+}
+
+button:hover,
+button:focus {
+    box-shadow: inset 0px 0px 10px rgba(255, 255, 255, 1);
+    background: #0ae;
+}
+
+button:active {
+    box-shadow: inset 0px 0px 20px rgba(0, 0, 0, 0.5);
+    transform: translateY(2px);
+}
+
+button.narrow {
+    width: 10%;
+}
+
+/* Toggled State of information box */
+input[type="checkbox"]:checked ~ aside {
+    transform: translateX(0);
+}
+
+/* Cursor when clip name is clicked over */
+
+.clip p {
+    cursor: pointer;
+}
+
+/* Adjustments for wider screens */
+@media all and (min-width: 800px) {
+    /* Don't take all the space as readability is lost when line length
+    goes past a certain size */
+    .wrapper {
+        width: 90%;
+        max-width: 1000px;
+        margin: 0 auto;
+    }
+}
+

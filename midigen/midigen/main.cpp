@@ -7,11 +7,12 @@
  *
  * Licence: GNU/GPL
  *
- * https://github.com/misuco/antarctica
+ * https://github.com/misuco/apolloqa
  *
  */
 
 #include <stdlib.h>
+#include <sstream>
 #include <unistd.h>
 #include "midigen.hpp"
 
@@ -23,14 +24,50 @@ inline bool file_exists (const string& name) {
     return f.good();
 }
 
-void createNewSong( string filename, int basenote, int scale, int tempo, int mode ) {
-    cout << "loading Scale map\n";
-    mg.loadScaleMap( "/home/apolloqa/live/ApolloqA/web/static/js/scales_cleaned_sorted.csv" );
-    cout << "init Scale filter\n";
-    mg.initScaleFilter( scale, basenote );
+
+int main(int argc, char *argv[])
+{
+    string filename="midigen";
+    int tempo=140;
+    int mode=0;
+    int basenote=0;
+    int scale=0;
+    string chords="";
+
+    int c;
+    while ((c = getopt (argc, argv, "b:c:m:o:s:t:")) != -1) {
+        switch (c)
+        {
+        case 'c':
+            chords = optarg;
+            break;
+        case 'b':
+            basenote = stoi(optarg);
+            break;
+        case 'm':
+            mode = stoi(optarg);
+            break;
+        case 'o':
+            filename = optarg;
+            break;
+        case 's':
+            scale = stoi(optarg);
+            break;
+        case 't':
+            tempo = stoi(optarg);
+            break;
+        default:
+            abort ();
+        }
+    }
+
+//    cout << "loading Scale map\n";
+//    mg.loadScaleMap( "/home/apolloqa/live/ApolloqA/web/static/js/scales_cleaned_sorted.csv" );
+//    cout << "init Scale filter\n";
+//    mg.initScaleFilter( scale, basenote );
     mg.setBPM( tempo );
     mg.setMode( mode );
-    
+
     //mg.setSoundfont( "/home/apolloqa/sf2/LilSness.sf2" );
     //mg.setSoundfont( "/home/apolloqa/sf2/Discord.sf2" );
     //mg.setSoundfont( "/home/apolloqa/sf2/Commodore 64.sf2" );
@@ -46,8 +83,8 @@ void createNewSong( string filename, int basenote, int scale, int tempo, int mod
     for(int i=0;i<128;i++) {
         mg.addInstrument(i);
     }
-    */
-    
+
+
     mg.setSoundfont( "/home/apolloqa/sf2/Korg M1.SF2" );
     mg.addInstrument(0);
     mg.addInstrument(1);
@@ -60,8 +97,8 @@ void createNewSong( string filename, int basenote, int scale, int tempo, int mod
     mg.addInstrument(61);
     mg.addInstrument(60);
     mg.addInstrument(30);
-    
-    /*
+    */
+
     mg.setSoundfont( "/home/apolloqa/sf2/HS-TB-303.SF2" );
     mg.addInstrument(0);
     mg.addInstrument(5);
@@ -81,35 +118,43 @@ void createNewSong( string filename, int basenote, int scale, int tempo, int mod
     mg.addInstrument(75);
     mg.addInstrument(80);
     mg.addInstrument(85);
-    */
-    
-    mg.addChord("C");
-    mg.addChord("G");
-    mg.addChord("Am");
-    mg.addChord("F");
-    mg.addChord("C");
-    mg.addChord("G");
-    mg.addChord("Am");
-    mg.addChord("F");
-    mg.addChord("G");
-    mg.addChord("F");
-    mg.addChord("G");
-    mg.addChord("F");
-    mg.addChord("C");
-    mg.addChord("G");
-    mg.addChord("Am");
-    mg.addChord("F");
-    mg.addChord("C");
-    mg.addChord("G");
-    mg.addChord("Am");
-    mg.addChord("F");
-    mg.addChord("C");
-    mg.addChord("G");
-    mg.addChord("Am");
-    mg.addChord("F");
-    mg.addChord("C");
-    
+
+    std::stringstream test(chords);
+    std::string segment;
+
+    while(std::getline(test, segment, '_'))
+    {
+      mg.addChord(segment);
+    }
+
     /*
+    mg.addChord("C");
+    mg.addChord("G");
+    mg.addChord("Am");
+    mg.addChord("F");
+    mg.addChord("C");
+    mg.addChord("G");
+    mg.addChord("Am");
+    mg.addChord("F");
+    mg.addChord("G");
+    mg.addChord("F");
+    mg.addChord("G");
+    mg.addChord("F");
+    mg.addChord("C");
+    mg.addChord("G");
+    mg.addChord("Am");
+    mg.addChord("F");
+    mg.addChord("C");
+    mg.addChord("G");
+    mg.addChord("Am");
+    mg.addChord("F");
+    mg.addChord("C");
+    mg.addChord("G");
+    mg.addChord("Am");
+    mg.addChord("F");
+    mg.addChord("C");
+
+
     mg.addChord("C");
     mg.addChord("D");
     mg.addChord("E");
@@ -119,42 +164,10 @@ void createNewSong( string filename, int basenote, int scale, int tempo, int mod
     mg.addChord("B");
     mg.addChord("C");
     */
-    
+
     mg.newMidiFile();
     cout << "create_file: " << filename << endl << "tempo: " << tempo << endl;
     mg.saveNewMidiFile( filename );
-}
 
-int main(int argc, char *argv[])
-{
-    string target="midigen";
-    int tempo=140;
-    int mode=0;
-    int basenote=0;
-    int scale=0;
-    int c;
-    while ((c = getopt (argc, argv, "b:m:o:s:t:")) != -1) {
-        switch (c)
-        {
-        case 'b':
-            basenote = stoi(optarg);
-            break;
-        case 'm':
-            mode = stoi(optarg);
-            break;
-        case 'o':
-            target = optarg;
-            break;
-        case 's':
-            scale = stoi(optarg);
-            break;
-        case 't':
-            tempo = stoi(optarg);
-            break;
-        default:
-            abort ();
-        }
-    }    
-    createNewSong( target, basenote, scale, tempo, mode );
     return 0;
 }

@@ -2,7 +2,7 @@
 var readyTack = [false,false,false,false];
 var readyAnalyzer = [false,false,false,false];
 
-const autoplayButton = document.querySelector(".autoplay");
+const autoplayButton = document.querySelector("#autoplay");
 autoplayButton.onclick = function () {
     aqa.autoplay=!aqa.autoplay;
     if(aqa.autoplay===true) {
@@ -77,6 +77,7 @@ var syncTrackTimer = function() {
                 readyAnalyzer[i]=false;
                 orbitertrackCalc[i] = false;
                 aqa.calcButton[i].color = "#FFFFFFFF";
+                aqa.htmlGui.setCalcButtonColor(i,"green");
                 console.log("playing track " + i);
             }
         }
@@ -91,6 +92,7 @@ var syncTrackTimer = function() {
             if(orbitertrackCalc[nextAutoTriger]===false) {
                 orbitertrackCalc[nextAutoTriger] = true;
                 aqa.calcButton[nextAutoTriger].color="#FF3333FF"
+                aqa.htmlGui.setCalcButtonColor(nextAutoTriger,"orange");
                 triggerNewSound(nextAutoTriger);
             }
         } 
