@@ -86,11 +86,15 @@ let removeInactiveClients = function() {
     clients.forEach((value, key) => {
         let inactiveSince=t-value.t;
         //console.log("- "+key+" "+inactiveSince);
-        if(inactiveSince>10000) {
+        if(inactiveSince>3000) {
             fs.mkdirSync("sessions/"+key);
             console.log("Storing "+JSON.stringify(clients.get(key)));
             fs.writeFileSync("sessions/"+key+'/client.json', JSON.stringify(clients.get(key)));
-            fs.writeFileSync("sessions/"+key+'/trackList.json', JSON.stringify(clientTrackLists.get(key)));
+            const trackList=clientTrackLists.get(key);
+            if(trackList){
+                console.log("Storing "+JSON.stringify(trackList));
+                fs.writeFileSync("sessions/"+key+'/trackList.json', JSON.stringify(trackList));
+            }
             
             // add to past clients list
             pastClients.set(key,clients.get(key));
@@ -101,7 +105,7 @@ let removeInactiveClients = function() {
             
             clientSockets.delete(key);
             clientSockets.forEach((socket,socketKey) => {
-                console.log("forwarding trackList to "+socketKey);
+                console.log("past client update to "+socketKey);
                 socket.send('{"pastClients":'+JSON.stringify(Array.from(pastClientsUpdate.entries()))+'}');
             });
             
