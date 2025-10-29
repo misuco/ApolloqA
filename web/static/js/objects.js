@@ -103,7 +103,14 @@ var triggerNewSound = function(trackId) {
         }
     });
     console.log("trigger new sound trackId " + trackId);
+    
     var queryId = trackId + "_" + aqa.tempo + "_" + Date.now();
-    oReq.open("GET", aqa.baseUrl + "newclip?id=" + queryId + "&tempo=" + aqa.tempo + "&basenote=" + aqa.basenote + "&scale=" + aqa.scale + "&sessionId=" + aqa.sessionId);
+    oReq.open("GET", aqa.baseUrl + "newclip?id=" + queryId 
+    + "&tempo=" + aqa.tempo 
+    + "&chords=" + aqa.htmlGui.chords
+    + "&basenote=" + aqa.basenote 
+    + "&scale=" + aqa.scale 
+    + "&sessionId=" + aqa.sessionId);
+    
     oReq.send();
 };

@@ -1,24 +1,13 @@
 /*
 
-Fly a spaceship in BabylonJS - Part 3
+ApolloqA - Sound Co-Lab 
 
-Read the full series of articles at https://medium.com/@joelmalone
+Sound generator:
+by c1Audio
 
-Barbara the Bee spaceship model comes from Quaternius' Ultimate Space Kit:
-
-https://quaternius.com/packs/ultimatespacekit.html
-
-For this scene, we need to load two BabylonJS scripts:
-
- * Babylon.js Core - the core runtime
- * Babylon.js All Official Loaders (OBJ, STL, glTF) - because we're loading a GLTF
-
-The BabylonJS scripts are loaded from CDN, though we use jsdelivr rather than BabylonJS' own CDN because jsdelivr allows us to lock to a specific version.
-
-See here for details on loading BabylonJS scripts:
-
-https://doc.babylonjs.com/setup/frameworkPackages/CDN
-
+3D World:
+Based on series of articles at https://medium.com/@joelmalone
+and GFX by https://quaternius.com/packs/ultimatespacekit.html
 */
 
 // First identify user
@@ -129,11 +118,14 @@ function getRandomInt(max) {
 }
 
 const aqa={};
+aqa.htmlGui={};     // guiHtml.js
+
 aqa.nickname=nickname;
 aqa.uploadId=0;
 aqa.nTracks=4;
 aqa.tempo=140;
 aqa.cycleNr=1;
+aqa.recTrackId=0;
 aqa.recArmed=false;
 aqa.stopArmed=false;
 aqa.recording=false;

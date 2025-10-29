@@ -38,35 +38,42 @@ var syncTrackTimer = function() {
     tJitter=nextSyncInMs-tCycle;
     
     if(aqa.cycleNr===1) {
+        
         if(aqa.recording) {
             tRec++;
         }
+        
         if(aqa.recArmed) {
             aqa.mediaRecorder.start();
             console.log("Recorder started.");
-            record.style.background = "red";
             aqa.recArmed=false;
             aqa.recording=true;
             tRec=0;
+            mic_record_button[aqa.recTrackId].style.background = "red";
         }
+        
         if(aqa.stopArmed) {
             aqa.mediaRecorder.stop();
             console.log(aqa.mediaRecorder.state);
             console.log("Recorder stopped.");
-            stop.style.background = "green";
+            mic_stop_button.style.background = "";
             aqa.stopArmed=false;
             aqa.recording=false;
+            for(let i=0;i<4;i++) {
+                mic_record_button[i].style.background = "";
+                mic_record_button[i].disabled = false;
+            }
         }
-        
+
+        // stop after max rec time
         if(aqa.recording && tRec+1>=tRecMax) {
             aqa.stopArmed=true;
-            record.style.background = "";
-            record.style.color = "";
-            stop.disabled = true;
-            record.disabled = false;
-            stop.style.background = "orange";
+            mic_record_button[aqa.recTrackId].style.background = "";
+            mic_record_button[aqa.recTrackId].disabled = false;
+            mic_stop_button.disabled = true;
+            mic_stop_button.style.background = "orange";
         }
-        
+
         for(let i=0;i<4;i++) {
             if(readyTack[i] && readyAnalyzer[i]) {
                 orbitertrack[i].outBus=orbiteranalyzer[i];
