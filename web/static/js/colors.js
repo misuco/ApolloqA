@@ -1,5 +1,4 @@
 /// Colors
-
 let redColor = new BABYLON.StandardMaterial("RedColor");
 redColor.diffuseColor = new BABYLON.Color3.FromHexString("#FF0000");
 
@@ -10,9 +9,7 @@ chanColorStr[2] = "#f0e871";
 chanColorStr[3] = "#e171f0";
 
 /* 
-
 /// Alternative color scheme
-
 chanColorStr[0] = "#2a9d8f";
 chanColorStr[1] = "#e9c46a";
 chanColorStr[2] = "#f4a261";
