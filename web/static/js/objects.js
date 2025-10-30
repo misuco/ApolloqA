@@ -108,8 +108,9 @@ var triggerNewSound = function(trackId) {
     oReq.open("GET", aqa.baseUrl + "newclip?id=" + queryId 
     + "&tempo=" + aqa.tempo 
     + "&chords=" + aqa.htmlGui.chords
-    + "&basenote=" + aqa.basenote 
-    + "&scale=" + aqa.scale 
+    + "&instrument=" + aqa.htmlGui.instrument(trackId)
+    + "&quantize=" + aqa.htmlGui.quantize(trackId)
+    + "&density=" + aqa.htmlGui.density(trackId)
     + "&sessionId=" + aqa.sessionId);
     
     oReq.send();
