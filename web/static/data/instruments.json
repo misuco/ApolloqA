@@ -1,0 +1,22 @@
+[
+    {
+        "name": "303",
+        "soundfont": "HS-TB-303.SF2",
+        "program": [0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,85]
+    },
+    {
+        "name": "M1",
+        "soundfont": "Korg M1.SF2",
+        "program": [0,1,30,35,60,61,62,70,71,90,91]
+    },
+    {
+        "name": "Piano",
+        "soundfont": "Touhou.sf2",
+        "program": [0,1,2,3,4,5]
+    },
+    {
+        "name": "Organ",
+        "soundfont": "Touhou.sf2",
+        "program": [16,17,18,19,20]
+    }
+]

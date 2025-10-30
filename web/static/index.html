@@ -23,14 +23,9 @@
             <button id="menu_gen_3">Gen3</button>
             <button id="menu_gen_4">Gen4</button>
         </div>
-        <div id="config_session">
+        <div id="config_session" hidden>
             <div class="flexbox">
-                <select id="chords">
-                    <option value="C_D_E_F">C D E F</option>
-                    <option value="E_A_G_C">E A G C</option>
-                    <option value="3">C G Am F</option>
-                    <option value="4">E E E E#</option>
-                </select>
+                <select id="chords"></select>
                 <output id="display_bpm" style="font-size: 3rem;">140</output> BPM
             </div>
             <div class="flexbox">
@@ -40,7 +35,7 @@
             </div>
         </div>
 
-        <div id="config_mic">
+        <div id="config_mic" hidden>
             <canvas id="visualizer" style="display:block;height:100px"></canvas>
             <div class="buttons">
                 <button id="record0">Rec 1</button>
@@ -58,21 +53,21 @@
             <select id="select_density_0"></select>
         </div>
 
-        <div id="config_gen_1">
+        <div id="config_gen_1" hidden>
             2
             <select id="select_instrument_1"></select>
             <select id="select_quantize_1"></select>
             <select id="select_density_1"></select>
         </div>
 
-        <div id="config_gen_2">
+        <div id="config_gen_2" hidden>
             3
             <select id="select_instrument_2"></select>
             <select id="select_quantize_2"></select>
             <select id="select_density_2"></select>
         </div>
 
-        <div id="config_gen_3">
+        <div id="config_gen_3" hidden>
             4
             <select id="select_instrument_3"></select>
             <select id="select_quantize_3"></select>

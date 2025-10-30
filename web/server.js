@@ -39,9 +39,9 @@ app.get('/newclip', function(req, res) {
     createSessionDir(req.query.sessionId);
     fs.writeFileSync(config.app.web_path+'/loops/'+req.query.sessionId+'/'+req.query.id+'.json', query);
     result=proc.execSync(config.app.bin_path_midigen
-        + ' -c '+req.query.chords
-        + ' -t '+req.query.tempo
-        + ' -o '+config.app.web_path+'/loops/'+req.query.sessionId+'/'+req.query.id);
+        + ' -d '+config.app.web_path+'/data'
+        + ' -f '+config.app.web_path+'/loops/'+req.query.sessionId+'/'+req.query.id
+        + ' -s '+config.app.sf2_path );
         console.log("------------------------------------------------------------------------------");
         console.log("request result :");
         console.log("--> "+result);

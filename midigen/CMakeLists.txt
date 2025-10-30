@@ -50,7 +50,8 @@ add_library(midifile STATIC ${SRCS} ${HDRS})
 ## App: Midigen
 ##
 set(SOURCES2 midigen/main.cpp midigen/midigen.cpp midigen/midigen.hpp )
+find_package(jsoncpp REQUIRED)
 
 ##############################
 add_executable(midigen ${SOURCES2} ${RESOURCES} )
-target_link_libraries(midigen midifile )
+target_link_libraries(midigen midifile jsoncpp_lib)

@@ -1,19 +1,21 @@
 /**
- * ApolloqA
- *
- * Piano music composition generator
- *
- * (c) 2025 by claudio zopfi
- *
- * Licence: GNU/GPL
- *
- * https://github.com/misuco/apolloqa
- *
- */
+* ApolloqA
+*
+* Piano music composition generator
+*
+* (c) 2025 by claudio zopfi
+*
+* Licence: GNU/GPL
+*
+* https://github.com/misuco/apolloqa
+*
+*/
 
 #include <stdlib.h>
 #include <sstream>
 #include <unistd.h>
+//#include <json/value.h>
+#include <jsoncpp/json/json.h>
 #include "midigen.hpp"
 
 Midigen mg;
@@ -24,150 +26,106 @@ inline bool file_exists (const string& name) {
     return f.good();
 }
 
-
 int main(int argc, char *argv[])
 {
     string filename="midigen";
+    string sf2path=".";
+    string datapath=".";
     int tempo=140;
-    int mode=0;
-    int basenote=0;
-    int scale=0;
-    string chords="";
-
+    
     int c;
-    while ((c = getopt (argc, argv, "b:c:m:o:s:t:")) != -1) {
+    while ((c = getopt (argc, argv, "d:f:s:")) != -1) {
         switch (c)
         {
-        case 'c':
-            chords = optarg;
+            case 'd':
+            datapath = optarg;
             break;
-        case 'b':
-            basenote = stoi(optarg);
-            break;
-        case 'm':
-            mode = stoi(optarg);
-            break;
-        case 'o':
+            case 'f':
             filename = optarg;
             break;
-        case 's':
-            scale = stoi(optarg);
+            case 's':
+            sf2path = optarg;
             break;
-        case 't':
-            tempo = stoi(optarg);
-            break;
-        default:
+            
+            default:
             abort ();
         }
     }
-
-//    cout << "loading Scale map\n";
-//    mg.loadScaleMap( "/home/apolloqa/live/ApolloqA/web/static/js/scales_cleaned_sorted.csv" );
-//    cout << "init Scale filter\n";
-//    mg.initScaleFilter( scale, basenote );
+    
+    // prepare chords lookup from json
+    string chords_config_filename=datapath+"/chords.json";
+    cout << "chords config file: " << chords_config_filename << endl;
+    std::ifstream chords_config_file(chords_config_filename, std::ifstream::binary);
+    Json::Value chords_config;
+    chords_config_file >> chords_config;
+    cout<< "chords config" << endl << chords_config << endl;
+    
+    // prepare instruments lookup from json
+    string instruments_config_filename=datapath+"/instruments.json";
+    cout << "generator config file: " << instruments_config_filename << endl;
+    std::ifstream instruments_config_file(instruments_config_filename, std::ifstream::binary);
+    Json::Value instruments_config;
+    instruments_config_file >> instruments_config;
+    cout<< "instrument config" << endl << instruments_config << endl;
+    
+    /* 
+    parse generator config json:
+    {   
+        "id":"0_140_1761813755890",
+        "tempo":"140",
+        "chords":"3",
+        "instrument":"1",
+        "quantize":"3",
+        "density":"3",
+        "sessionId":"de9514cf-efaa-4cc1-ba37-8170bbcc51ea"
+    }
+    */
+    
+    string gen_config_filename=filename+".json";
+    cout << "generator config file: " << gen_config_filename << endl;
+    std::ifstream gen_config_file(gen_config_filename, std::ifstream::binary);
+    Json::Value gen_config;
+    gen_config_file >> gen_config;
+    
+    // set direct parameters
+    tempo = stoi(gen_config["tempo"].asString());
+    
+    // lookup instrument 
+    int instrumentId = stoi(gen_config["instrument"].asString());
+    string instrument_sf2_file=instruments_config[instrumentId]["soundfont"].asString();
+    Json::Value instrument_sf2_prog=instruments_config[instrumentId]["program"];
+    cout << "intrument sf2 " << instrument_sf2_file << endl;
+    
+    // lookup chords
+    int chordsId = stoi(gen_config["chords"].asString());
+    string chords=chords_config[chordsId]["chords"].asString();
+    cout << "intrument sf2 " << instrument_sf2_file << endl;
+    
+    // Init generator from config
+    // - tempo
     mg.setBPM( tempo );
-    mg.setMode( mode );
-
-    //mg.setSoundfont( "/home/apolloqa/sf2/LilSness.sf2" );
-    //mg.setSoundfont( "/home/apolloqa/sf2/Discord.sf2" );
-    //mg.setSoundfont( "/home/apolloqa/sf2/Commodore 64.sf2" );
-    //mg.setSoundfont( "/home/apolloqa/sf2/BeepBox.sf2" );
-    //mg.setSoundfont( "/home/apolloqa/sf2/Final Fantasy VII.sf2" );
-    //mg.setSoundfont( "/home/apolloqa/sf2/Casio CTK-533.sf2" );
-    //mg.setSoundfont( "/home/apolloqa/sf2/Casio HT-700.sf2" );
-    //mg.setSoundfont( "/home/apolloqa/sf2/Nintendo 64.sf2" );
-    //mg.setSoundfont( "/home/apolloqa/sf2/Casio VL-1.sf2" );
-    //mg.setSoundfont( "/home/apolloqa/sf2/Donkey Kong Country SFX 1.sf2" );
-    //mg.setSoundfont( "/home/apolloqa/sf2/Terranigma.sf2" );
-    /*
-    for(int i=0;i<128;i++) {
-        mg.addInstrument(i);
+    
+    // - instrument
+    mg.setSoundfont( sf2path + "/" + instrument_sf2_file );
+    for ( int index = 0; index < instrument_sf2_prog.size(); ++index ) {
+        mg.addInstrument(instrument_sf2_prog[index].asInt());
     }
-
-
-    mg.setSoundfont( "/home/apolloqa/sf2/Korg M1.SF2" );
-    mg.addInstrument(0);
-    mg.addInstrument(1);
-    mg.addInstrument(91);
-    mg.addInstrument(71);
-    mg.addInstrument(62);
-    mg.addInstrument(70);
-    mg.addInstrument(35);
-    mg.addInstrument(90);
-    mg.addInstrument(61);
-    mg.addInstrument(60);
-    mg.addInstrument(30);
-    */
-
-    mg.setSoundfont( "/home/apolloqa/sf2/HS-TB-303.SF2" );
-    mg.addInstrument(0);
-    mg.addInstrument(5);
-    mg.addInstrument(10);
-    mg.addInstrument(15);
-    mg.addInstrument(20);
-    mg.addInstrument(25);
-    mg.addInstrument(30);
-    mg.addInstrument(35);
-    mg.addInstrument(40);
-    mg.addInstrument(45);
-    mg.addInstrument(50);
-    mg.addInstrument(55);
-    mg.addInstrument(60);
-    mg.addInstrument(65);
-    mg.addInstrument(70);
-    mg.addInstrument(75);
-    mg.addInstrument(80);
-    mg.addInstrument(85);
-
-    std::stringstream test(chords);
-    std::string segment;
-
-    while(std::getline(test, segment, '_'))
+    
+    // - chord
+    std::stringstream chords_stream(chords);
+    std::string chords_segment;
+    while(std::getline(chords_stream, chords_segment, ' '))
     {
-      mg.addChord(segment);
+        mg.addChord(chords_segment);
+        cout << "intrument sf2 " << instrument_sf2_file << endl;
     }
-
-    /*
-    mg.addChord("C");
-    mg.addChord("G");
-    mg.addChord("Am");
-    mg.addChord("F");
-    mg.addChord("C");
-    mg.addChord("G");
-    mg.addChord("Am");
-    mg.addChord("F");
-    mg.addChord("G");
-    mg.addChord("F");
-    mg.addChord("G");
-    mg.addChord("F");
-    mg.addChord("C");
-    mg.addChord("G");
-    mg.addChord("Am");
-    mg.addChord("F");
-    mg.addChord("C");
-    mg.addChord("G");
-    mg.addChord("Am");
-    mg.addChord("F");
-    mg.addChord("C");
-    mg.addChord("G");
-    mg.addChord("Am");
-    mg.addChord("F");
-    mg.addChord("C");
-
-
-    mg.addChord("C");
-    mg.addChord("D");
-    mg.addChord("E");
-    mg.addChord("F");
-    mg.addChord("G");
-    mg.addChord("A");
-    mg.addChord("B");
-    mg.addChord("C");
-    */
-
+    
+    // Generate composition
     mg.newMidiFile();
     cout << "create_file: " << filename << endl << "tempo: " << tempo << endl;
+    
+    // Save composition as files (Midi/Audio)
     mg.saveNewMidiFile( filename );
-
+    
     return 0;
 }

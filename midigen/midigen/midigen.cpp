@@ -7,7 +7,7 @@
  *
  * Licence: GNU/GPL
  *
- * https://github.com/misuco/antarctica
+ * https://github.com/misuco/apolloqa
  *
  */
 
@@ -47,9 +47,9 @@ void Midigen::setBPM(int b)
     _bpm = b;
 }
 
-void Midigen::setMode(int m)
+void Midigen::setSoundfont(string p)
 {
-    _mode = m;
+    _soundfont = p;
 }
 
 void Midigen::addInstrument(int i) {
@@ -60,108 +60,12 @@ void Midigen::addChord(string c) {
     _chords.push_back(c);
 }
 
-void Midigen::setSoundfont(string p)
-{
-    soundfont = p;
-}
-
-//////////////////////////////
-//
-// convertMidiFileToText --
-//
-
 Midigen::Midigen() :
-    _mode {0},
     _bpm {125},
     _sampleRate {48000},
     _nBeats {4},
-    soundfont {"/home/apolloqa/sf2/Touhou.sf2"}
+    _soundfont {"/home/apolloqa/sf2/Touhou.sf2"}
 {
-}
-
-void Midigen::loadScaleMap(string filename)
-{
-    ifstream file(filename);
-    string line;
-
-    if(!file.is_open()) return;
-
-    //ommit first line in csv file
-    getline(file,line);
-    
-    while(getline(file,line)) {
-        vector<string> fields;// = line.split(";");
-        istringstream f(line);
-        string s;
-        while (getline(f, s, ';')) {
-            //cout << s << endl;
-            fields.push_back(s);
-        }
-
-        if(fields.size()>2) {
-            scaleMap[fields.at(2)] = fields.at(0);
-            scalePool.push_back(fields.at(2));
-            //cout << "loaded chord " << fields.at(0) << endl;
-        } else {
-            //cout << "invalid record " << line << endl;
-        }
-    }
-
-}
-
-void Midigen::initScaleFilter(int scale, int basenote)
-{
-    if(scale>=scalePool.size()) scale=scalePool.size()-1;
-
-    cout << "Scale: " << scaleMap[scalePool.at(scale)] << endl;
-    cout << "Basenote: " << midinote2txt(basenote) << endl;
-
-    // clear existing filter
-    scaleFilter.clear();
-    scaleFilterMap.clear();
-    for(int i=0;i<127;i++) {
-        scaleFilter.push_back( false );
-        scaleFilterMap.push_back( -1 );
-    }
-
-    // seek lowest hearable note
-    scaleFilterLowestNote = basenote;
-    while(scaleFilterLowestNote<21) { scaleFilterLowestNote+=12; }
-
-    // get record
-    vector<string> scaleSteps;
-    istringstream f(scalePool.at(scale));
-    string s;
-    while (getline(f, s, '-')) {
-        //cout << s << endl;
-        scaleSteps.push_back(s);
-    }
-
-    int stepI = 0;
-    for(int i=scaleFilterLowestNote;i<127;) {
-        scaleFilter.at(i)=true;
-        scaleFilterHighestNote=i;
-
-        if(scaleSteps.size()==0) {
-            i+=12;
-        } else if(scaleSteps.at(stepI)=="H") {
-            i+=1;
-        } else if(scaleSteps.at(stepI)=="W") {
-            i+=2;
-        } else if(scaleSteps.at(stepI)=="2W") {
-            i+=4;
-        } else if(scaleSteps.at(stepI)=="3H") {
-            i+=3;
-        } else if(scaleSteps.at(stepI)=="4H") {
-            i+=4;
-        } else {
-            cout << "WARNING: unknown step token " << scaleSteps.at(stepI) << endl;
-        }
-        stepI++;
-        if(stepI>=scaleSteps.size()) {
-            stepI=0;
-        }
-    }
 }
 
 void Midigen::newMidiFile() {
@@ -176,18 +80,11 @@ void Midigen::newMidiFile() {
                                 // (will be coverted to delta time when written)
     midiOut.addTrack(2);        // Add another two tracks to the MIDI file
     midiOut.setTicksPerQuarterNote(_tpq);
-
-    //tempoEvent.makeTempo(_bpm);
+    
     tempoEvent.setTempo(_bpm);
-    //tempoEvent.tick = 0;
     midiOut.addEvent( 0, 0, tempoEvent );
     
-    if(_mode==1) {
-        createDrumTrack();
-    } else {
-        createChordsTrack();
-        //createRandomTrack();
-    }
+    createChordsTrack();
     
     // End Of Track
     int endtick=_nBeats*_tpq;
@@ -195,125 +92,6 @@ void Midigen::newMidiFile() {
     midiOut.addCopyright( 0, 0, "c1audio 2025" );
     midiOut.sortTracks();
 
-}
-
-int Midigen::filterKey(int key) {
-
-    if(key>=scaleFilterHighestNote) {
-        return scaleFilterHighestNote;
-    } else if(key<=scaleFilterLowestNote) {
-        return scaleFilterLowestNote;
-    } else if(scaleFilterMap[key] == -1) {
-        int mapKeyUp=key;
-        int mapKeyDown=key;
-
-        while(scaleFilter.at(mapKeyDown)!=true && scaleFilter.at(mapKeyUp)!=true ) {
-            mapKeyDown--;
-            mapKeyUp++;
-        }
-        if( scaleFilter.at(mapKeyUp)==true) {
-            scaleFilterMap[key] = mapKeyUp;
-        } else if( scaleFilter.at(mapKeyDown)==true ) {
-            scaleFilterMap[key] = mapKeyDown;
-        }
-    }
-    return scaleFilterMap[key];
-}
-
-void Midigen::createRandomTrack() {
-    // Random Track
-    std::random_device dev;
-    std::mt19937 rng(dev());
-    std::uniform_int_distribution<std::mt19937::result_type> dist127(0,127); // distribution in range [1, 6]
-
-    int randomInstrument = dist127(rng);
-    randomInstrument=(randomInstrument%16*5);
-    
-    MidiEvent pc( 192, randomInstrument );
-    midiOut.addEvent( 1, 0, pc );
-
-    // number of 16th notes to generate
-    int n16th=_nBeats*4;
-    for(int i=0;i<n16th;i++) {
-        
-        int tick=i*_tp16th+1;
-        MidiEvent midievent;
-        int randomNote = filterKey(dist127(rng));
-        int randomVelocity = dist127(rng);
-
-        midievent.setCommand(0x90,randomNote,randomVelocity);
-        midiOut.addEvent( 0, tick, midievent );
-
-        midievent.setCommand(0x80,randomNote,0x00);
-        midiOut.addEvent( 0, tick+_tpq/8, midievent );
-    }
-}
-
-void Midigen::createDrumTrack() {
-    // Drum Track
-
-    /*
-    Program change to 42 on channel 1-16
-    
-    for(int i=192;i<192+16;i++) {
-        MidiEvent pc( i, 41 );
-        midiOut.addEvent( 0, 0, pc );
-    }
-    */
-
-    // number of 16th notes to generate
-    int n16th=_nBeats*4;
-    for(int i=0;i<n16th;i++) {
-        
-        int tick=i*_tp16th;
-        MidiEvent midievent;
-
-        int beat=i%8;
-        for(int note:{0x2A,0x24,0x26}) {
-            bool addEvent=false;
-            if(note==0x2A) { // HiHat
-                addEvent=true;
-            } else if(note==0x24) { // Bassdrum
-                if(beat==0 || beat==4) {
-                    addEvent=true;
-                }
-            } else if(note==0x26) { // Snare
-                if(beat==4) {
-                    addEvent=true;
-                }
-            }
-            if(addEvent) {
-                midievent.setCommand(0x99,note,0x7f);
-                midiOut.addEvent( 0, tick, midievent );
-
-                midievent.setCommand(0x89,note,0x00);
-                midiOut.addEvent( 0, tick+_tpq/8, midievent );
-            }
-        }
-    }
-}
-
-
-void Midigen::createBassTrack() {
-    // Bass Track
-    MidiEvent pc( 192, 38 );
-    midiOut.addEvent( 1, 0, pc );
-    for(int i=0;i<16;i++) {
-
-        int tick=i*_tpq/4;
-        MidiEvent midievent;
-
-        int beat=i%8;
-
-        if(beat==2 || beat==6 || beat==3 || beat==7) {
-            int note=0x25;
-            midievent.setCommand(0x90,note,0x7f);
-            midiOut.addEvent( 1, tick, midievent );
-
-            midievent.setCommand(0x80,note,0x00);
-            midiOut.addEvent( 1, tick+_tpq/4-2, midievent );
-        }
-    }
 }
 
 void Midigen::createChordsTrack() {
@@ -377,7 +155,7 @@ void Midigen::createChordsTrack() {
 void Midigen::saveNewMidiFile(const string &filename)
 {
     midiOut.write(filename+".mid");
-    string command = "fluidsynth -v '" + soundfont + "' " + filename + ".mid -F " + filename + "-uncut.wav -r 48000 -O s24";
+    string command = "fluidsynth '" + _soundfont + "' " + filename + ".mid -F " + filename + "-uncut.wav -r 48000 -O s24";
     system( command.c_str() );
     cout << "executed " << command << endl;
 
