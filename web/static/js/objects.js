@@ -102,15 +102,22 @@ var triggerNewSound = function(trackId) {
             }
         }
     });
-    console.log("trigger new sound trackId " + trackId);
 
+    let quantize_selected = aqa.htmlGui.quantize(trackId);
+    let quantize_real = Math.pow(2,quantize_selected);
+    
+    let len_selected = aqa.htmlGui.len();
+    let len_real = Math.pow(2,len_selected);
+    
+    console.log("trigger new sound trackId " + trackId + " quantize " + quantize_selected + " " + quantize_real );
     var queryId = trackId + "_" + aqa.tempo + "_" + Date.now();
     oReq.open("GET", aqa.baseUrl + "newclip"
     + "?id=" + queryId 
     + "&tempo=" + aqa.tempo 
     + "&chords=" + aqa.htmlGui.chords
     + "&instrument=" + aqa.htmlGui.instrument(trackId)
-    + "&quantize=" + aqa.htmlGui.quantize(trackId)
+    + "&len=" + len_real
+    + "&quantize=" + quantize_real
     + "&density=" + aqa.htmlGui.density(trackId)
     + "&sessionId=" + aqa.sessionId);
 

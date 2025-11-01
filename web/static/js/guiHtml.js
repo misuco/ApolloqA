@@ -28,7 +28,7 @@ class aqa_menu {
         this.menu_main_button = document.querySelector("#menu_main");
         this.menu_main_button.addEventListener("click", () => {this.toggleMenu()});
         
-        this.chords_select = document.querySelector("#chords");
+        this.chords_select = document.querySelector("#select_chords");
         this.display_bpm = document.querySelector("#display_bpm");
         this.range_bpm = document.querySelector("#range_bpm");
         this.range_bpm.addEventListener("input", (event) => this.updateBpmValue(event.target.value));
@@ -38,6 +38,15 @@ class aqa_menu {
         
         this.dec_bpm = document.querySelector("#dec_bpm");
         this.dec_bpm.addEventListener("click", (event) => this.decBpmValue());
+
+        this.select_len = document.querySelector("#select_len");
+        [ "1","2","4","8","16","32","64" ].forEach((inst,n) => {
+            let opt=document.createElement('option');
+            opt.value=n;
+            opt.innerHTML=inst;
+            this.select_len.appendChild(opt);
+        });
+        this.select_len.value=2;
         
         // populate generator config selects
         this.select_instrument = [];
@@ -48,12 +57,13 @@ class aqa_menu {
             this.select_instrument[i] = document.querySelector("#select_instrument_"+i);
             
             this.select_quantize[i] = document.querySelector("#select_quantize_"+i);
-            [ "4","2","1","1/2","1/4","1/8","1/16","1/32" ].forEach((inst,n) => {
+            [ "1","2","4","8","16","32","64" ].forEach((inst,n) => {
                 let opt=document.createElement('option');
                 opt.value=n;
                 opt.innerHTML=inst;
                 this.select_quantize[i].appendChild(opt);
             });
+            this.select_quantize[i].value=4;
             
             this.select_density[i] = document.querySelector("#select_density_"+i);
             [ "1","2","4","8","16","32" ].forEach((inst,n) => {
@@ -167,6 +177,10 @@ class aqa_menu {
     
     instrument(i) {
         return this.select_instrument[i].value;
+    }
+    
+    len() {
+        return this.select_len.value;
     }
     
     quantize(i) {

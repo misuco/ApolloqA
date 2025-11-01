@@ -18,5 +18,20 @@
         "name": "Organ",
         "soundfont": "Touhou.sf2",
         "program": [16,17,18,19,20]
+    },
+    {
+        "name": "Vox",
+        "soundfont": "Touhou.sf2",
+        "program": [52,53,54]
+    },
+    {
+        "name": "Strings",
+        "soundfont": "Touhou.sf2",
+        "program": [44,45,46,47,48,49,50,51]
+    },
+    {
+        "name": "FX",
+        "soundfont": "Touhou.sf2",
+        "program": [96,97,98,99,100,101,102,103]
     }
 ]

@@ -32,6 +32,8 @@ int main(int argc, char *argv[])
     string sf2path=".";
     string datapath=".";
     int tempo=140;
+    int len=4;
+    int quantize=16;
     
     int c;
     while ((c = getopt (argc, argv, "d:f:s:")) != -1) {
@@ -89,6 +91,8 @@ int main(int argc, char *argv[])
     
     // set direct parameters
     tempo = stoi(gen_config["tempo"].asString());
+    quantize = stoi(gen_config["quantize"].asString());
+    len = stoi(gen_config["len"].asString());
     
     // lookup instrument 
     int instrumentId = stoi(gen_config["instrument"].asString());
@@ -104,6 +108,9 @@ int main(int argc, char *argv[])
     // Init generator from config
     // - tempo
     mg.setBPM( tempo );
+    mg.setQuantize( quantize );
+    mg.setLen( len );
+    mg.setFilename( filename );
     
     // - instrument
     mg.setSoundfont( sf2path + "/" + instrument_sf2_file );
@@ -125,7 +132,7 @@ int main(int argc, char *argv[])
     cout << "create_file: " << filename << endl << "tempo: " << tempo << endl;
     
     // Save composition as files (Midi/Audio)
-    mg.saveNewMidiFile( filename );
+    mg.saveNewMidiFile();
     
     return 0;
 }

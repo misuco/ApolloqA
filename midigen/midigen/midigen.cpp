@@ -42,9 +42,29 @@ inline void rtrim(std::string &s) {
     }).base(), s.end());
 }
 
+void Midigen::setFilename(const string &f)
+{
+    _filename = f;
+}
+
 void Midigen::setBPM(int b)
 {
     _bpm = b;
+}
+
+void Midigen::setLen(int l)
+{
+    _len = l;
+}
+
+void Midigen::setQuantize(int q)
+{
+    _quantize = q;
+}
+
+void Midigen::setDensity(int d)
+{
+    _density = d;
 }
 
 void Midigen::setSoundfont(string p)
@@ -61,9 +81,10 @@ void Midigen::addChord(string c) {
 }
 
 Midigen::Midigen() :
-    _bpm {125},
+    _tpq {48},  // default value in MIDI file is 48
+    _bpm {140},
     _sampleRate {48000},
-    _nBeats {4},
+    _len {4},
     _soundfont {"/home/apolloqa/sf2/Touhou.sf2"}
 {
 }
@@ -87,35 +108,46 @@ void Midigen::newMidiFile() {
     createChordsTrack();
     
     // End Of Track
-    int endtick=_nBeats*_tpq;
+    int endtick=_chords.size()*_len*_tpq/_quantize;
+    cout << "endtick " << endtick << endl;
     midiOut.addMetaEvent( 0, endtick, 0x2F, "" );
     midiOut.addCopyright( 0, 0, "c1audio 2025" );
     midiOut.sortTracks();
-
 }
 
 void Midigen::createChordsTrack() {
-    // Random Track
+    // Random Generator
     std::random_device dev;
     std::mt19937 rng(dev());
     std::uniform_int_distribution<std::mt19937::result_type> dist127(0,127); // distribution in range [1, 6]
     std::uniform_int_distribution<std::mt19937::result_type> dist32k(0,32767); // distribution in range [1, 6]
-
+    
+    // Select random instrument
     int nInst=_instruments.size();
     int randomInstrument = dist127(rng);
     randomInstrument=randomInstrument%(nInst-1);
     
+    string command = sprintf("echo prog 0 %d > %s.conf",randomInstrument, _filename);
+    system( command.c_str() );
+    cout << "executed " << command << endl;
+    
     MidiEvent pc( 192, _instruments.at(randomInstrument) );
-    midiOut.addEvent( 1, 0, pc );
+    midiOut.addEvent( 0, 0, pc );
     
     std::vector<int> chordNoteSet;
     
     int chordId=0;
+    
+    // number of 16th notes to generate
+    //int n16th=_len*4;
+    
+    int ticksPerNote=_tpq*_len/_quantize;
+    
     for(auto chord:_chords) {
-        // number of 16th notes to generate
-        int n16th=_nBeats*4;
-        int startTick=chordId*n16th*_tp16th;
+        //int startTick=chordId*n16th*_tp16th;
+        int startTick=chordId*_len*_tpq;
         
+        // calculate available notes in current chord
         chordNoteSet.clear();
         int chordBaseNote=str2midinote(chord);
         
@@ -136,8 +168,8 @@ void Midigen::createChordsTrack() {
         }
         int noteSetSize=chordNoteSet.size();
         
-        for(int i=0;i<n16th;i++) {
-            int tick=startTick+(i*_tp16th);
+        for(int i=0;i<_quantize;i++) {
+            int tick=startTick+(i*ticksPerNote);
             MidiEvent midievent;
             int randomNote = chordNoteSet.at(dist32k(rng)%noteSetSize);
             int randomVelocity = 64+(dist127(rng)%2)*63;
@@ -146,22 +178,22 @@ void Midigen::createChordsTrack() {
             midiOut.addEvent( 0, tick, midievent );
 
             midievent.setCommand(0x80,randomNote,0x00);
-            midiOut.addEvent( 0, tick+_tp16th/2, midievent );
+            midiOut.addEvent( 0, tick+ticksPerNote-1, midievent );
         }
         chordId++;
     }
 }
 
-void Midigen::saveNewMidiFile(const string &filename)
+void Midigen::saveNewMidiFile()
 {
-    midiOut.write(filename+".mid");
-    string command = "fluidsynth '" + _soundfont + "' " + filename + ".mid -F " + filename + "-uncut.wav -r 48000 -O s24";
+    midiOut.write(_filename+".mid");
+    string command = "fluidsynth '" + _soundfont + "' " + _filename + ".mid -F " + _filename + "-uncut.wav -r 48000 -O s24";
     system( command.c_str() );
     cout << "executed " << command << endl;
 
     int nChords=_chords.size();
-    int nSamples=60*_sampleRate*_nBeats*nChords/_bpm;
-    string nSamplesIsCommand="soxi -s "+ filename + "-uncut.wav ";
+    int nSamples=60*_sampleRate*_len*nChords/_bpm;
+    string nSamplesIsCommand="soxi -s "+ _filename + "-uncut.wav ";
     string nSamplesIs=exec( nSamplesIsCommand.c_str() );
     rtrim(nSamplesIs);
     int padSamples=nSamples - stoi(nSamplesIs);
@@ -172,32 +204,32 @@ void Midigen::saveNewMidiFile(const string &filename)
         int trimSamples=stoi(nSamplesIs) - nSamples;
         string nSamplesTrim=to_string(nSamples);
         //string nSamplesTrimFrom=to_string(nSamples);
-        command = "sox " + filename + "-uncut.wav " + filename + ".wav " + " trim 0 " + nSamplesTrim + "s";
-        //command = "sox " + filename + "-uncut.wav " + filename + ".wav " + " trim " + nSamplesTrimFrom + "s " + nSamplesTrim + "s";
-        //command = "sox " + filename + "-uncut.wav " + filename + ".wav " + " pad 0s@" + nSamplesIs + "s";
+        command = "sox " + _filename + "-uncut.wav " + _filename + ".wav " + " trim 0 " + nSamplesTrim + "s";
+        //command = "sox " + _filename + "-uncut.wav " + _filename + ".wav " + " trim " + nSamplesTrimFrom + "s " + nSamplesTrim + "s";
+        //command = "sox " + _filename + "-uncut.wav " + _filename + ".wav " + " pad 0s@" + nSamplesIs + "s";
         system( command.c_str() );
         cout << "executed " << command << endl;
     } else {
         string nSamplesPad=to_string(padSamples);
-        command = "sox " + filename + "-uncut.wav " + filename + ".wav " + " pad " + nSamplesPad + "s@" + nSamplesIs + "s";
+        command = "sox " + _filename + "-uncut.wav " + _filename + ".wav " + " pad " + nSamplesPad + "s@" + nSamplesIs + "s";
         system( command.c_str() );
         cout << "executed " << command << endl;
     }
     
     
-    command = "ffmpeg -y -i " + filename + ".wav -acodec libvorbis -ab 128k " + filename + ".ogg";
+    command = "ffmpeg -y -i " + _filename + ".wav -acodec libvorbis -ab 128k " + _filename + ".ogg";
     system( command.c_str() );
     cout << "executed " << command << endl;
 
-    string nSamplesIsMP3Command="soxi -s "+ filename + ".ogg";
+    string nSamplesIsMP3Command="soxi -s "+ _filename + ".ogg";
     string nSamplesIsMP3=exec( nSamplesIsMP3Command.c_str() );
     cout << "executed " << nSamplesIsMP3Command << endl;    
     cout << "samples mp3: " << nSamplesIsMP3 << endl;
     
-    //command = "rm " + filename + "-loop.wav";
+    //command = "rm " + _filename + "-loop.wav";
     //system( command.c_str() );
 
-    //cout << "saved " << filename << endl;
+    //cout << "saved " << _filename << endl;
 }
 
 int Midigen::str2midinote(string note) {

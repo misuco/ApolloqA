@@ -34,41 +34,37 @@ public:
     Midigen();
     ~Midigen() {}
 
-    // Scale filter functions
-    //void    loadScaleMap(string filename);
-    //void    initScaleFilter(int scale, int basenote);
-
-    //void    setBasenote(int b);
-    //void    setScale(int s);
-    void    setBPM(int b );
-    //void    setMode(int m);
-    void    setSoundfont(string p);
-    void    addInstrument(int i);
-    void    addChord(string c);
-    void    newMidiFile();
-    void    saveNewMidiFile(const string &filename);
+    void setFilename(const string &f);
+    void setBPM(int b);
+    void setLen(int l);
+    void setQuantize(int q);
+    void setDensity(int d);
+    void setSoundfont(string p);
+    void addInstrument(int i);
+    void addChord(string c);
+    void newMidiFile();
+    void saveNewMidiFile();
 
 private:
     MidiFile    midiOut;
     
-    string _soundfont;
-    std::vector<int> _instruments;
-    std::vector<string> _chords;
-    int         _bpm;
     int         _sampleRate;
-    int         _nBeats;
+    int         _tpq;           // ticks per quarter (1/4 note)
+    
+    string              _soundfont;
+    std::vector<int>    _instruments;
+    std::vector<string> _chords;
+    
+    int         _bpm;
+    int         _len;        // 1 Beat = 1/4 Note
     int         _quantize;
     int         _density;
-    int         _tpq = 48;         // default value in MIDI file is 48
-    int         _tp16th = _tpq/4;  // tiks per 16th note
     
-    //int  filterKey(int key);
-    //void createRandomTrack();
-    //void createDrumTrack();
-    //void createBassTrack();
+    string      _filename;
+    
     void createChordsTrack();
-    int str2midinote(string note);
-    string midinote2txt(int note);
+    int str2midinote(const string &note);
+    string midinote2txt(const int &note);
 };
 
 #endif // MIDIGEN_HPP

@@ -14,6 +14,9 @@
 
 <div class="wrapper" style="width:100%;background:black">
     <section class="main-controls">
+        <div id="menu_header">
+            <output id="display_header" style="font-size: 1rem;">ApolloqA</output>
+        </div>
         <div id="menu_buttons" class="buttons">
             <button id="menu_main" style="width:10%">|||</button>
             <button id="menu_session">Session</button>
@@ -25,7 +28,8 @@
         </div>
         <div id="config_session" hidden>
             <div class="flexbox">
-                <select id="chords"></select>
+                <select id="select_chords"></select>
+                <select id="select_len"></select>
                 <output id="display_bpm" style="font-size: 3rem;">140</output> BPM
             </div>
             <div class="flexbox">
@@ -53,21 +57,21 @@
             <select id="select_density_0"></select>
         </div>
 
-        <div id="config_gen_1" hidden>
+        <div id="config_gen_1">
             2
             <select id="select_instrument_1"></select>
             <select id="select_quantize_1"></select>
             <select id="select_density_1"></select>
         </div>
 
-        <div id="config_gen_2" hidden>
+        <div id="config_gen_2">
             3
             <select id="select_instrument_2"></select>
             <select id="select_quantize_2"></select>
             <select id="select_density_2"></select>
         </div>
 
-        <div id="config_gen_3" hidden>
+        <div id="config_gen_3">
             4
             <select id="select_instrument_3"></select>
             <select id="select_quantize_3"></select>
