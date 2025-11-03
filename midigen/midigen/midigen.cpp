@@ -1,15 +1,15 @@
 /**
- * Midigen
- *
- * Midi music generator
- *
- * (c) 2025 by claudio zopfi
- *
- * Licence: GNU/GPL
- *
- * https://github.com/misuco/apolloqa
- *
- */
+* Midigen
+*
+* Midi music generator
+*
+* (c) 2025 by claudio zopfi
+*
+* Licence: GNU/GPL
+*
+* https://github.com/misuco/apolloqa
+*
+*/
 
 #include "midigen.hpp"
 #include <sstream>
@@ -17,6 +17,7 @@
 #include <stdexcept> // exec
 #include <algorithm> // rtrim
 #include <random>
+#include <format>
 
 std::string exec(const char* cmd) {
     char buffer[128];
@@ -81,32 +82,32 @@ void Midigen::addChord(string c) {
 }
 
 Midigen::Midigen() :
-    _tpq {48},  // default value in MIDI file is 48
-    _bpm {140},
-    _sampleRate {48000},
-    _len {4},
-    _soundfont {"/home/apolloqa/sf2/Touhou.sf2"}
+_tpq {48},  // default value in MIDI file is 48
+_bpm {140},
+_sampleRate {48000},
+_len {4},
+_soundfont {"/home/apolloqa/sf2/Touhou.sf2"}
 {
 }
 
 void Midigen::newMidiFile() {
 
     MidiEvent tempoEvent;
-    
+
     vector<uchar> midievent;    // temporary storage for MIDI events
     midievent.resize(3);        // set the size of the array to 3 bytes
 
     midiOut.clear();
     midiOut.absoluteTicks();    // time information stored as absolute time
-                                // (will be coverted to delta time when written)
+    // (will be coverted to delta time when written)
     midiOut.addTrack(2);        // Add another two tracks to the MIDI file
     midiOut.setTicksPerQuarterNote(_tpq);
-    
+
     tempoEvent.setTempo(_bpm);
     midiOut.addEvent( 0, 0, tempoEvent );
-    
+
     createChordsTrack();
-    
+
     // End Of Track
     int endtick=_chords.size()*_len*_tpq/_quantize;
     cout << "endtick " << endtick << endl;
@@ -121,36 +122,38 @@ void Midigen::createChordsTrack() {
     std::mt19937 rng(dev());
     std::uniform_int_distribution<std::mt19937::result_type> dist127(0,127); // distribution in range [1, 6]
     std::uniform_int_distribution<std::mt19937::result_type> dist32k(0,32767); // distribution in range [1, 6]
-    
+
     // Select random instrument
     int nInst=_instruments.size();
     int randomInstrument = dist127(rng);
     randomInstrument=randomInstrument%(nInst-1);
-    
-    string command = sprintf("echo prog 0 %d > %s.conf",randomInstrument, _filename);
+    int randomInstrumentProg=_instruments.at(randomInstrument);
+
+    //string command = sprintf("echo prog 0 %d > %s.conf",randomInstrument, _filename);
+    string command = std::format("echo prog 0 {} > {}.conf",randomInstrumentProg ,_filename);
     system( command.c_str() );
     cout << "executed " << command << endl;
-    
-    MidiEvent pc( 192, _instruments.at(randomInstrument) );
+
+    MidiEvent pc( 192, randomInstrumentProg );
     midiOut.addEvent( 0, 0, pc );
-    
+
     std::vector<int> chordNoteSet;
-    
+
     int chordId=0;
-    
+
     // number of 16th notes to generate
     //int n16th=_len*4;
-    
+
     int ticksPerNote=_tpq*_len/_quantize;
-    
+
     for(auto chord:_chords) {
         //int startTick=chordId*n16th*_tp16th;
         int startTick=chordId*_len*_tpq;
-        
+
         // calculate available notes in current chord
         chordNoteSet.clear();
         int chordBaseNote=str2midinote(chord);
-        
+
         char lastChar=chord.back();
 
         for(int octave=2;octave<7;octave++) {
@@ -167,19 +170,68 @@ void Midigen::createChordsTrack() {
             }
         }
         int noteSetSize=chordNoteSet.size();
-        
-        for(int i=0;i<_quantize;i++) {
-            int tick=startTick+(i*ticksPerNote);
-            MidiEvent midievent;
-            int randomNote = chordNoteSet.at(dist32k(rng)%noteSetSize);
-            int randomVelocity = 64+(dist127(rng)%2)*63;
 
-            midievent.setCommand(0x90,randomNote,randomVelocity);
-            midiOut.addEvent( 0, tick, midievent );
-
-            midievent.setCommand(0x80,randomNote,0x00);
-            midiOut.addEvent( 0, tick+ticksPerNote-1, midievent );
+        // density-filter contains available steps
+        bool densityFilter[_quantize] = {0};
+        int pressedNotes=_quantize*_density/10;
+        int selectedNotes=0;
+        int selectCollision=0;
+        int timeout=0;
+        std::cout << "select notes " << pressedNotes << endl;
+        if(_density>5) {
+            for(int i=0;i<_quantize;i++) {
+                densityFilter[i] = true;
+            }
+            selectedNotes=_quantize;
+            while(selectedNotes>pressedNotes && timeout<_quantize*4) {
+                int selectNote = dist127(rng)%_quantize;
+                if(densityFilter[selectNote]==true) {
+                    densityFilter[selectNote]=false;
+                    selectedNotes--;
+                } else {
+                    selectCollision++;
+                }
+                timeout++;
+                std::cout << " - select note " << selectNote << " selected notes " << selectedNotes << " coll " << selectCollision << " timeout " << timeout << endl;
+            }
+        } else {
+            while(selectedNotes<pressedNotes && timeout<_quantize*4) {
+                int selectNote = dist127(rng)%_quantize;
+                if(densityFilter[selectNote]==false) {
+                    densityFilter[selectNote]=true;
+                    selectedNotes++;
+                } else {
+                    selectCollision++;
+                }
+                timeout++;
+                std::cout << " - select note " << selectNote << " selected notes " << selectedNotes << " coll " << selectCollision << " timeout " << timeout << endl;
+            }
         }
+        std::cout << "selected notes " << selectedNotes << " coll " << selectCollision << endl;
+
+        // add calculated notes to midifile
+        MidiEvent midievent;
+        int randomNote;
+        for(int i=0;i<_quantize;i++) {
+            if(densityFilter[i]) {
+                int tick=startTick+(i*ticksPerNote);
+
+                if(i>0) {
+                    // note Off
+                    midievent.setCommand(0x80,randomNote,0x00);
+                    midiOut.addEvent( 0, tick-1, midievent );
+                }
+
+                randomNote = chordNoteSet.at(dist32k(rng)%noteSetSize);
+                int randomVelocity = 64+(dist127(rng)%2)*63;
+                // note On
+                midievent.setCommand(0x90,randomNote,randomVelocity);
+                midiOut.addEvent( 0, tick, midievent );
+            }
+        }
+        // note Off
+        midievent.setCommand(0x80,randomNote,0x00);
+        midiOut.addEvent( 0, startTick+(_quantize*ticksPerNote)-1, midievent );
         chordId++;
     }
 }
@@ -187,7 +239,7 @@ void Midigen::createChordsTrack() {
 void Midigen::saveNewMidiFile()
 {
     midiOut.write(_filename+".mid");
-    string command = "fluidsynth '" + _soundfont + "' " + _filename + ".mid -F " + _filename + "-uncut.wav -r 48000 -O s24";
+    string command = "fluidsynth '" + _soundfont + "' " + _filename + ".mid -f " + _filename + ".conf -F " + _filename + "-uncut.wav -r 48000 -O s24";
     system( command.c_str() );
     cout << "executed " << command << endl;
 
@@ -197,9 +249,9 @@ void Midigen::saveNewMidiFile()
     string nSamplesIs=exec( nSamplesIsCommand.c_str() );
     rtrim(nSamplesIs);
     int padSamples=nSamples - stoi(nSamplesIs);
-    
+
     cout << "bpms " << _bpm << " chords " << nChords << " samples: target " << nSamples << " is " << nSamplesIs << " pad " << padSamples << endl;
-    
+
     if(padSamples<0) {
         int trimSamples=stoi(nSamplesIs) - nSamples;
         string nSamplesTrim=to_string(nSamples);
@@ -215,24 +267,24 @@ void Midigen::saveNewMidiFile()
         system( command.c_str() );
         cout << "executed " << command << endl;
     }
-    
-    
+
+
     command = "ffmpeg -y -i " + _filename + ".wav -acodec libvorbis -ab 128k " + _filename + ".ogg";
     system( command.c_str() );
     cout << "executed " << command << endl;
 
     string nSamplesIsMP3Command="soxi -s "+ _filename + ".ogg";
     string nSamplesIsMP3=exec( nSamplesIsMP3Command.c_str() );
-    cout << "executed " << nSamplesIsMP3Command << endl;    
+    cout << "executed " << nSamplesIsMP3Command << endl;
     cout << "samples mp3: " << nSamplesIsMP3 << endl;
-    
+
     //command = "rm " + _filename + "-loop.wav";
     //system( command.c_str() );
 
     //cout << "saved " << _filename << endl;
 }
 
-int Midigen::str2midinote(string note) {
+int Midigen::str2midinote(const string &note) {
     string firstChar=note.substr(0,1);
     string secondChar=note.substr(1,1);
     int midinote=-1;
@@ -276,49 +328,48 @@ int Midigen::str2midinote(string note) {
     return midinote;
 }
 
-string Midigen::midinote2txt(int note) {
+string Midigen::midinote2txt(const int &note) {
     int octave=note/12;
     int v=note%12;
     std::string txt = "?";
 
     switch (v) {
-    case 0:
+        case 0:
         txt="C";
         break;
-    case 1:
+        case 1:
         txt="C#";
         break;
-    case 2:
+        case 2:
         txt="D";
         break;
-    case 3:
+        case 3:
         txt="D#";
         break;
-    case 4:
+        case 4:
         txt="E";
         break;
-    case 5:
+        case 5:
         txt="F";
         break;
-    case 6:
+        case 6:
         txt="F#";
         break;
-    case 7:
+        case 7:
         txt="G";
         break;
-    case 8:
+        case 8:
         txt="G#";
         break;
-    case 9:
+        case 9:
         txt="A";
         break;
-    case 10:
+        case 10:
         txt="A#";
         break;
-    case 11:
+        case 11:
         txt="B";
         break;
     }
     return txt + std::to_string( octave );
-
 }
