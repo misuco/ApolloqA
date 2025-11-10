@@ -10,82 +10,8 @@ Based on series of articles at https://medium.com/@joelmalone
 and GFX by https://quaternius.com/packs/ultimatespacekit.html
 */
 
-// First identify user
-function getCookie(cname) {
-  let name = cname + "=";
-  let decodedCookie = decodeURIComponent(document.cookie);
-  let ca = decodedCookie.split(';');
-  for(let i = 0; i <ca.length; i++) {
-    let c = ca[i];
-    while (c.charAt(0) == ' ') {
-      c = c.substring(1);
-    }
-    if (c.indexOf(name) == 0) {
-      return c.substring(name.length, c.length);
-    }
-  }
-  return "";
-}
-
-const nickname = getCookie("nickname");
-if (!nickname) {
-    window.location.href = 'checkin';
-}
-
-const {
-  Color4,
-  DirectionalLight,
-  Engine,
-  ParticleSystem,
-  PointerEventTypes,
-  Quaternion,
-  Scalar,
-  Scene,
-  SceneLoader,
-  Texture,
-  TransformNode,
-  UniversalCamera,
-  Vector3,
-  HavokPlugin
-} = BABYLON;
-
 // Get a reference to the <canvas>
 const canvas = document.querySelector(".apolloqa");
-// Create a BabylonJS engine
-const engine = new Engine(canvas, true);
-
-// Create a BabylonJS scene
-const scene = new Scene(engine);
-// And also, let's set the scene's "clear colour" to black
-scene.clearColor = "black";
-
-// Create an ambient light with low intensity, so the dark parts of the scene aren't pitch black
-var ambientLight = new BABYLON.HemisphericLight(
-  "ambient light",
-  new BABYLON.Vector3(0, 0, 0),
-  scene
-);
-ambientLight.intensity = 0.25;
-
-// Create a light to simulate the sun's light
-const sunLight = new DirectionalLight("sun light", new Vector3(1, -1, -1));
-sunLight.intensity = 5;
-
-const createPhysics = async function () {
-    // initialize plugin
-    const havokInstance = await HavokPhysics();
-    // pass the engine to the plugin
-    const hk = new BABYLON.HavokPlugin(true, havokInstance);
-    
-    var gravityVector = new BABYLON.Vector3(0, 0, 0);
-    scene.enablePhysics(gravityVector, hk);
-}
-
-createPhysics().then(() => {
-    console.log("physics created");
-    //const spaceshipAggregate = new BABYLON.PhysicsAggregate(spaceshipMesh, BABYLON.PhysicsShapeType.SPHERE, { mass: 0.1, restitution: 0.75 }, scene);
-});
-
 // Bind to the window's resize DOM event, so that we can update the <canvas> dimensions to match;
 // this is needed because the <canvas> render context doesn't automaticaly update itself
 const onWindowResize = () => {
@@ -95,85 +21,80 @@ const onWindowResize = () => {
 // You can see the problem if you disable this next line, and then resize the window - the scene will become pixelated
 window.addEventListener("resize", onWindowResize);
 
-/*
-scene.debugLayer.show({
-  embedMode: true,
-});
-*/
+const engine = new Engine(canvas, true);
 
-(async () => {
+const createScene = async function () {
+    // Create a BabylonJS engine
+
+    // Create a BabylonJS scene
+    const scene = new Scene(engine);
+    // And also, let's set the scene's "clear colour" to black
+    scene.clearColor = "black";
+
+    // Create an ambient light with low intensity, so the dark parts of the scene aren't pitch black
+    var ambientLight = new BABYLON.HemisphericLight(
+      "ambient light",
+      new BABYLON.Vector3(0, 0, 0),
+      scene
+    );
+    ambientLight.intensity = 0.25;
+
+    // Create a light to simulate the sun's light
+    const sunLight = new DirectionalLight("sun light", new Vector3(1, -1, -1));
+    sunLight.intensity = 5;
+
+    const havokInstance = await HavokPhysics();
+    const hk = new BABYLON.HavokPlugin(true, havokInstance);
+    var gravityVector = new BABYLON.Vector3(0, 0, 0);
+    scene.enablePhysics(gravityVector, hk);
+    console.log("physics created");
+
+    /*
+    scene.debugLayer.show({
+      embedMode: true,
+    });
+    */
+
     const audioEngine = await BABYLON.CreateAudioEngineAsync();
-    await audioEngine.unlockAsync();
+    //await audioEngine.unlockAsync();
     console.log("audioEngine ready")
-})();
-
-function uuidv4() {
-  return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
-    (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
-  );
+    
+    return scene;
 }
 
-function getRandomInt(max) {
-    return Math.floor(Math.random() * max);
+let scene = null;
+
+async function boot() {
+    console.log("boot: createScene");
+    scene = await createScene();
+    console.log("boot: initColors");
+    initColors();
+    console.log("boot: initCamera");
+    initCamera();
+    console.log("boot: initStarfield");
+    initStarfield();
+    console.log("boot: initObjects");
+    initObjects();
+    console.log("boot: initAnimation");
+    initAnimation();
+    console.log("boot: initMediaRecorder");
+    initMediaRecorder();
+    
+    aqa.htmlGui=new aqa_menu();
+    aqa.htmlGui.updateHeader();
+    
+    console.log("boot: initMultiuser");
+    initMultiuser();
+
+    // Start a render loop 
+    // - basically, this will instruct BabylonJS to continuously re-render the scene
+    engine.runRenderLoop(() => {
+        scene.render();
+    });    
 }
 
-const aqa={};
-aqa.htmlGui={};     // guiHtml.js
+boot();
 
-aqa.nickname=nickname;
-aqa.uploadId=0;
-aqa.nTracks=4;
-aqa.tempo=140;
-aqa.cycleNr=1;
-aqa.recTrackId=0;
-aqa.recArmed=false;
-aqa.stopArmed=false;
-aqa.recording=false;
-aqa.mediaRecorder={};
-aqa.autoplay=false;
-aqa.basenote=0;
-aqa.scale=0;
-aqa.sampleRate=48000;
-aqa.calcButton=[];
-aqa.levelBars=[];
-aqa.windowUrl = window.location;
-aqa.sessionId = uuidv4();
-aqa.baseUrl = aqa.windowUrl.protocol + "//" + aqa.windowUrl.host + "/";
-aqa.wsUrl = "wss://ws.apolloqa.net/"
 
-aqa.avatarId=getRandomInt(9);
-aqa.avatarUrl=function(id) {
-    switch(id) {
-        case 0:
-            return "obj/Spaceship_FinnTheFrog.gltf";
-            break;
-        case 1:
-            return "obj/Spaceship_FernandoTheFlamingo.gltf";
-            break;
-        case 2:
-            return "obj/Spaceship_BarbaraTheBee.gltf";
-            break;
-        case 3:
-            return "obj/Astronaut_BarbaraTheBee.gltf";
-            break;
-        case 4:
-            return "obj/Astronaut_FernandoTheFlamingo.gltf";
-            break;
-        case 5:
-            return "obj/Astronaut_FinnTheFrog.gltf";
-            break;
-        case 6:
-            return "obj/Astronaut_RaeTheRedPanda.gltf";
-            break;
-        case 7:
-            return "obj/Mech_BarbaraTheBee.gltf";
-            break;
-        case 8:
-            return "obj/Mech_FernandoTheFlamingo.gltf";
-            break;
-        default:
-            return "obj/Spaceship_RaeTheRedPanda.gltf";
-            break;
-    }
-}
+
 

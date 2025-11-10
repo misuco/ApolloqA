@@ -15,7 +15,7 @@
 <div class="wrapper" style="width:100%;background:black">
     <section class="main-controls">
         <div id="menu_header">
-            <output id="display_header" style="font-size: 1rem;">ApolloqA</output>
+            <output id="display_net_status">◐</output><output id="display_header" style="font-size: 1rem;">ApolloqA</output>
         </div>
         <div id="menu_buttons" class="buttons">
             <button id="menu_main" style="width:10%">|||</button>
@@ -50,28 +50,28 @@
             </div>
         </div>
 
-        <div id="config_gen_0">
+        <div id="config_gen_0" hidden>
             1
             <select id="select_instrument_0"></select>
             <select id="select_quantize_0"></select>
             <select id="select_density_0"></select>
         </div>
 
-        <div id="config_gen_1">
+        <div id="config_gen_1" hidden>
             2
             <select id="select_instrument_1"></select>
             <select id="select_quantize_1"></select>
             <select id="select_density_1"></select>
         </div>
 
-        <div id="config_gen_2">
+        <div id="config_gen_2" hidden>
             3
             <select id="select_instrument_2"></select>
             <select id="select_quantize_2"></select>
             <select id="select_density_2"></select>
         </div>
 
-        <div id="config_gen_3">
+        <div id="config_gen_3" hidden>
             4
             <select id="select_instrument_3"></select>
             <select id="select_quantize_3"></select>
@@ -85,25 +85,37 @@
             <button id="calc3">Calc 4</button>
             <button id="autoplay">Auto</button>
         </div>
+        
+        <div class="buttons">
+            <button id="netSession0"></button>
+            <button id="netSession1"></button>
+            <button id="netSession2"></button>
+            <button id="netSession3"></button>
+            <button id="netSession4"></button>
+        </div>
+        
     </section>
 </div>
 <canvas class="apolloqa"></canvas>
+
+<script src="js/session.js"></script>
 
 <script src="js/babylon.js"></script>
 <script src="js/babylonjs.loaders.min.js"></script>
 <script src="js/babylon.gui.js"></script>
 <script src="js/HavokPhysics_umd.js"></script>
-<script src="js/initScene.js"></script>
+<script src="js/apolloqa.js"></script>
 <script src="js/colors.js"></script>
 <script src="js/camera.js"></script>
 <script src="js/syncTrack.js"></script>
 <script src="js/objects.js"></script>
-<script src="js/gui.js"></script>
+<!--- <script src="js/gui.js"></script> --->
 <script src="js/starfield.js"></script>
 <script src="js/animation.js"></script>
 <script src="js/multiuser-ws.js"></script>
 <script src="js/audiorec.js"></script>
 <script src="js/guiHtml.js"></script>
+<script src="js/initScene.js"></script>
 
 <script>
 

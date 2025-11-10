@@ -48,8 +48,8 @@ async function sendData(uploadFile) {
 }
 
 function startMicRecording(recTrackId) {
-    if(syncTrackRunning===false) {
-        syncTrackTimer();
+    if(aqa.syncTrackRunning===false) {
+        aqa.syncTrackTimer();
     }
     console.log(aqa.mediaRecorder.state);
     console.log("Recorder armed.");
@@ -62,52 +62,54 @@ function startMicRecording(recTrackId) {
     mic_stop_button.disabled = false;
 }
 
-// Main block for doing the audio recording
-if (navigator.mediaDevices.getUserMedia) {
-    console.log("The mediaDevices.getUserMedia() method is supported.");
-
-    const constraints = { audio: true };
-    let chunks = [];
-
-    let onSuccess = function (stream) {
-        aqa.mediaRecorder = new MediaRecorder(stream);
-
-        visualize(stream);
-
-        mic_record_button[0].onclick = function () { startMicRecording(0) };
-        mic_record_button[1].onclick = function () { startMicRecording(1) };
-        mic_record_button[2].onclick = function () { startMicRecording(2) };
-        mic_record_button[3].onclick = function () { startMicRecording(3) };
-
-        mic_stop_button.onclick = function () {
-            aqa.stopArmed=true;
-            mic_stop_button.disabled = true;
-            mic_stop_button.style.background = "orange";
-            mic_record_button[aqa.recTrackId].style.background = "orange";
+function initMediaRecorder() {
+    // Main block for doing the audio recording
+    if (navigator.mediaDevices.getUserMedia) {
+        console.log("The mediaDevices.getUserMedia() method is supported.");
+    
+        const constraints = { audio: true };
+        let chunks = [];
+    
+        let onSuccess = function (stream) {
+            aqa.mediaRecorder = new MediaRecorder(stream);
+    
+            visualize(stream);
+    
+            mic_record_button[0].onclick = function () { startMicRecording(0) };
+            mic_record_button[1].onclick = function () { startMicRecording(1) };
+            mic_record_button[2].onclick = function () { startMicRecording(2) };
+            mic_record_button[3].onclick = function () { startMicRecording(3) };
+    
+            mic_stop_button.onclick = function () {
+                aqa.stopArmed=true;
+                mic_stop_button.disabled = true;
+                mic_stop_button.style.background = "orange";
+                mic_record_button[aqa.recTrackId].style.background = "orange";
+            };
+    
+            aqa.mediaRecorder.onstop = function (e) {
+                console.log("recorder stopped");
+    
+                let blob = new Blob(chunks, { type: "audio/ogg" });
+                let uploadFile = new File([blob], 'recording.ogg');
+    
+                sendData(uploadFile);
+                chunks = [];
+            };
+    
+            aqa.mediaRecorder.ondataavailable = function (e) {
+                chunks.push(e.data);
+            };
         };
-
-        aqa.mediaRecorder.onstop = function (e) {
-            console.log("recorder stopped");
-
-            let blob = new Blob(chunks, { type: "audio/ogg" });
-            let uploadFile = new File([blob], 'recording.ogg');
-
-            sendData(uploadFile);
-            chunks = [];
+    
+        let onError = function (err) {
+            console.log("The following error occured: " + err);
         };
-
-        aqa.mediaRecorder.ondataavailable = function (e) {
-            chunks.push(e.data);
-        };
-    };
-
-    let onError = function (err) {
-        console.log("The following error occured: " + err);
-    };
-
-    navigator.mediaDevices.getUserMedia(constraints).then(onSuccess, onError);
-} else {
-    console.log("MediaDevices.getUserMedia() not supported on your browser!");
+    
+        navigator.mediaDevices.getUserMedia(constraints).then(onSuccess, onError);
+    } else {
+        console.log("MediaDevices.getUserMedia() not supported on your browser!");
+    }
 }
 
 function visualize(stream) {

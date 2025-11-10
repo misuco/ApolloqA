@@ -12,32 +12,15 @@ autoplayButton.onclick = function () {
     }
 }
 
-var syncTrackRunning = false;
 let tTarget=0;
 let tJitter=0;
 let tRec=0;
 let tRecMax=4;
 let nextAutoTriger=0;
 
-var syncTrackTimer = function() {
-    let tCycle=6e4 / aqa.tempo;
-    if(syncTrackRunning===false) {
-        syncTrackRunning = true;
-        tTarget=Date.now();
-    } else {
-        aqa.cycleNr++;
-        if(aqa.cycleNr>16) {
-            aqa.cycleNr=1;
-        }
-        updateNetHeaderBar();
-        tTarget+=tCycle;
-    }
-    
-    let now=Date.now();
-    let nextSyncInMs = tTarget-now;
-    tJitter=nextSyncInMs-tCycle;
-    
-    if(aqa.cycleNr===1) {
+aqa.syncTrackTimer = function() {
+    aqa.htmlGui.updateHeader();
+    if(aqa.cycleNr===0) {
         
         if(aqa.recording) {
             tRec++;
@@ -83,7 +66,6 @@ var syncTrackTimer = function() {
                 readyTack[i]=false;
                 readyAnalyzer[i]=false;
                 orbitertrackCalc[i] = false;
-                aqa.calcButton[i].color = "#FFFFFFFF";
                 aqa.htmlGui.setCalcButtonColor(i,"green");
                 console.log("playing track " + i);
             }
@@ -98,13 +80,28 @@ var syncTrackTimer = function() {
             }
             if(orbitertrackCalc[nextAutoTriger]===false) {
                 orbitertrackCalc[nextAutoTriger] = true;
-                aqa.calcButton[nextAutoTriger].color="#FF3333FF"
                 aqa.htmlGui.setCalcButtonColor(nextAutoTriger,"orange");
                 triggerNewSound(nextAutoTriger);
             }
         } 
     }
     
+    let tCycle=6e4 / aqa.tempo;
+    if(aqa.syncTrackRunning===false) {
+        aqa.syncTrackRunning = true;
+        tTarget=Date.now();
+    } else {
+        aqa.cycleNr++;
+        if(aqa.cycleNr>15) {
+            aqa.cycleNr=0;
+        }
+        tTarget+=tCycle;
+    }
+    
+    let now=Date.now();
+    let nextSyncInMs = tTarget-now;
+    tJitter=nextSyncInMs-tCycle;
+    
     //console.log("time:"+tTarget+" next sync in " + nextSyncInMs + " ms jitter: "+tJitter);
-    setTimeout(syncTrackTimer, nextSyncInMs);
+    setTimeout(aqa.syncTrackTimer, nextSyncInMs);
 };

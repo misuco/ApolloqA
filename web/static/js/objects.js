@@ -8,27 +8,25 @@ var orbitertrackMute = [];
 var orbitertrackCalc = [];
 var orbitertrackObserver = [];
 
-for (let i = 0; i < aqa.nTracks; i++) {
-    orbiter[i] = [];
-    orbitertrackVolume[i] = .9;
-    orbitertrackMute[i] = false;
-    orbitertrackCalc[i] = false;
-    for (let j = 0; j < 16; j++) {
-        orbiter[i][j] = BABYLON.MeshBuilder.CreateSphere("orbiter" + i, {
-            diameter: 1
-        }, scene);
-        orbiter[i][j].isVisible = false;
-        orbiter[i][j].material = chanColor[i];
+function initObjects() {
+    for (let i = 0; i < aqa.nTracks; i++) {
+        orbiter[i] = [];
+        orbitertrackVolume[i] = .9;
+        orbitertrackMute[i] = false;
+        orbitertrackCalc[i] = false;
+        for (let j = 0; j < 16; j++) {
+            orbiter[i][j] = BABYLON.MeshBuilder.CreateSphere("orbiter" + i, {
+                diameter: 1
+            }, scene);
+            orbiter[i][j].isVisible = false;
+            orbiter[i][j].material = aqa.chanColor[i];
+        }
     }
 }
 
 var playTrack = function(trackUrl, trackId) {
     console.log("play track: " + trackUrl);
     
-    if (syncTrackRunning === false) {
-        syncTrackTimer();
-    }
-
     if (orbitertrack[trackId]) {
         console.log("Cleanup track "+trackId);
         console.log("Cleanup analyzer observer:" + orbitertrackObserver[trackId]);
@@ -48,6 +46,11 @@ var playTrack = function(trackUrl, trackId) {
         }
         orbitertrack[trackId] = track;
         readyTack[trackId]=true;
+        
+        if (aqa.syncTrackRunning === false) {
+            aqa.syncTrackTimer();
+        }
+        
         //console.log("track ready: " + trackUrl);
     }).catch(err => {
         console.error("cannot play sound:" + trackUrl + " " + err);
@@ -60,6 +63,7 @@ var playTrack = function(trackUrl, trackId) {
         readyAnalyzer[trackId] = true;
         //console.log("analyzer bus ready: " + trackUrl);
 
+        /*
         orbitertrackObserver[trackId] = scene.onBeforeRenderObservable.add(() => {
             try {
                 const frequencies = bus.analyzer.getByteFrequencyData();
@@ -76,6 +80,7 @@ var playTrack = function(trackUrl, trackId) {
                 console.log("Analyzer error:" + err);
             }
         });
+        */
 
         console.log("added analyzer observer:" + orbitertrackObserver[trackId]);
         console.log("playing sound:" + trackUrl);

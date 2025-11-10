@@ -2,6 +2,9 @@ class aqa_menu {
     constructor() {
         this.menu_hidden=false;
 
+        this.display_header = document.querySelector("#display_header");
+        this.display_net_status = document.querySelector("#display_net_status");
+        
         this.div_gen_1 = document.querySelector("#config_gen_0");
         this.div_gen_2 = document.querySelector("#config_gen_1");
         this.div_gen_3 = document.querySelector("#config_gen_2");
@@ -88,6 +91,14 @@ class aqa_menu {
         this.calc_button[1].addEventListener("click", () => this.triggerCalc(1));
         this.calc_button[2].addEventListener("click", () => this.triggerCalc(2));
         this.calc_button[3].addEventListener("click", () => this.triggerCalc(3));
+        
+        this.netSessionMap = new Map();
+        this.netSessionList = [];
+        this.netSessionList[0] = document.querySelector("#netSession0");
+        this.netSessionList[1] = document.querySelector("#netSession1");
+        this.netSessionList[2] = document.querySelector("#netSession2");
+        this.netSessionList[3] = document.querySelector("#netSession3");
+        this.netSessionList[4] = document.querySelector("#netSession4");
     }
 
     initChordsSelect() {
@@ -191,9 +202,58 @@ class aqa_menu {
     density(i) {
         return this.select_density[i].value;
     }
+    
+    updateHeader() {
+        let bars=Math.floor(aqa.cycleNr/4)+1;
+        let quarter=aqa.cycleNr%4+1;
+        this.display_header.innerHTML = aqa.nickname + " " + bars + ":" + quarter;
+    }
+    
+    updateNetStatus(messageCount) {
+        let status="";
+        switch (Math.floor(messageCount/10)%4) {
+            case 1:
+                status="◓";
+                break;
+            case 2:
+                status="◑";
+                break;
+            case 3:
+                status="◒";
+                break;
+            default:
+                status="◐";
+        }
+        this.display_net_status.innerHTML = status;
+    }
+    
+    setNetSessionEntry(key,name) {
+        this.netSessionMap.set(key,name);
+        this.updateNetSessionList();
+    }
+    
+    deleteNetSessionEntry(key) {
+        this.netSessionMap.delete(key);
+        this.updateNetSessionList();
+    }
+    
+    updateNetSessionList() {
+        let i=0;
+        this.netSessionMap.forEach((name, key) => {
+            this.netSessionList[i].innerHTML=name;
+            this.netSessionList[i].hidden=false;
+            i++;
+        });
+        for(;i<5;i++) {
+            this.netSessionList[i].innerHTML="";
+            this.netSessionList[i].hidden=true;
+        }
+    }
 }
 
+/*
 // Initialize the form when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
     aqa.htmlGui=new aqa_menu();
 });
+*/
