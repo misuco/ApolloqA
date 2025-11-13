@@ -1,5 +1,5 @@
 //// OBJECTS
-var readyTack = [false,false,false,false];
+var readyTrack = [false,false,false,false];
 var readyAnalyzer = [false,false,false,false];
 
 const autoplayButton = document.querySelector("#autoplay");
@@ -21,11 +21,11 @@ let nextAutoTriger=0;
 aqa.syncTrackTimer = function() {
     aqa.htmlGui.updateHeader();
     if(aqa.cycleNr===0) {
-        
+
         if(aqa.recording) {
             tRec++;
         }
-        
+
         if(aqa.recArmed) {
             aqa.mediaRecorder.start();
             console.log("Recorder started.");
@@ -34,7 +34,7 @@ aqa.syncTrackTimer = function() {
             tRec=0;
             mic_record_button[aqa.recTrackId].style.background = "red";
         }
-        
+
         if(aqa.stopArmed) {
             aqa.mediaRecorder.stop();
             console.log(aqa.mediaRecorder.state);
@@ -58,21 +58,29 @@ aqa.syncTrackTimer = function() {
         }
 
         for(let i=0;i<4;i++) {
-            if(readyTack[i] && readyAnalyzer[i]) {
+            if(readyTrack[i] && readyAnalyzer[i]) {
+                if (orbitertrack[i]) {
+                    console.log("Cleanup track "+i);
+                    console.log("Cleanup analyzer observer:" + orbitertrackObserver[i]);
+                    scene.onBeforeRenderObservable.remove(orbitertrackObserver[i]);
+                    orbitertrack[i].stop();
+                    orbitertrack[i].dispose();
+                }
+                orbitertrack[i]=readyTrack[i];
                 orbitertrack[i].outBus=orbiteranalyzer[i];
                 orbitertrack[i].play({
                     loop: true
                 });
-                readyTack[i]=false;
+                readyTrack[i]=false;
                 readyAnalyzer[i]=false;
                 orbitertrackCalc[i] = false;
                 aqa.htmlGui.setCalcButtonColor(i,"green");
                 console.log("playing track " + i);
             }
         }
-        
+
         // auto trigger next track calc
-        
+
         if(aqa.autoplay===true) {
             nextAutoTriger++;
             if(nextAutoTriger>3) {
@@ -83,9 +91,9 @@ aqa.syncTrackTimer = function() {
                 aqa.htmlGui.setCalcButtonColor(nextAutoTriger,"orange");
                 triggerNewSound(nextAutoTriger);
             }
-        } 
+        }
     }
-    
+
     let tCycle=6e4 / aqa.tempo;
     if(aqa.syncTrackRunning===false) {
         aqa.syncTrackRunning = true;
@@ -97,11 +105,11 @@ aqa.syncTrackTimer = function() {
         }
         tTarget+=tCycle;
     }
-    
+
     let now=Date.now();
     let nextSyncInMs = tTarget-now;
     tJitter=nextSyncInMs-tCycle;
-    
+
     //console.log("time:"+tTarget+" next sync in " + nextSyncInMs + " ms jitter: "+tJitter);
     setTimeout(aqa.syncTrackTimer, nextSyncInMs);
 };

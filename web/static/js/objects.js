@@ -25,33 +25,27 @@ function initObjects() {
 }
 
 var playTrack = function(trackUrl, trackId) {
-    console.log("play track: " + trackUrl);
-    
-    if (orbitertrack[trackId]) {
-        console.log("Cleanup track "+trackId);
-        console.log("Cleanup analyzer observer:" + orbitertrackObserver[trackId]);
-        scene.onBeforeRenderObservable.remove(orbitertrackObserver[trackId]);
-        orbitertrack[trackId].stop();
-        orbitertrack[trackId].dispose();
-    }
+    console.log("play track url: " + trackUrl + " id: " + trackId );
 
     BABYLON.CreateSoundAsync(trackUrl, trackUrl, {
         spatialEnabled: true
     }).then(track => {
+        console.log("track ready "+ trackId );
+        
         track.spatial.attach(orbiter[trackId][0]);
+        
         if(orbitertrackMute[trackId]==true) {
             track.setVolume(0);
         } else {
             track.setVolume(orbitertrackVolume[trackId]);
         }
-        orbitertrack[trackId] = track;
-        readyTack[trackId]=true;
+        
+        readyTrack[trackId] = track;
         
         if (aqa.syncTrackRunning === false) {
             aqa.syncTrackTimer();
         }
         
-        //console.log("track ready: " + trackUrl);
     }).catch(err => {
         console.error("cannot play sound:" + trackUrl + " " + err);
     });
