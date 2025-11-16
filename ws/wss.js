@@ -87,13 +87,15 @@ let removeInactiveClients = function() {
         let inactiveSince=t-value.t;
         //console.log("- "+key+" "+inactiveSince);
         if(inactiveSince>3000) {
-            fs.mkdirSync("sessions/"+key);
+            let sessionDir="sessions/"+key;
+            if(fs.existsSync(sessionDir)) { console.log("Found sessions dir "+sessionDir); }
+            else { fs.mkdirSync(sessionDir);console.log("Cerated sessions dir "+sessionDir); }
             console.log("Storing "+JSON.stringify(clients.get(key)));
-            fs.writeFileSync("sessions/"+key+'/client.json', JSON.stringify(clients.get(key)));
+            fs.writeFileSync(sessionDir+'/client.json', JSON.stringify(clients.get(key)));
             const trackList=clientTrackLists.get(key);
             if(trackList){
                 console.log("Storing "+JSON.stringify(trackList));
-                fs.writeFileSync("sessions/"+key+'/trackList.json', JSON.stringify(trackList));
+                fs.writeFileSync(sessionDir+'/trackList.json', JSON.stringify(trackList));
             }
             
             // add to past clients list

@@ -10,31 +10,33 @@ let pastClientLoader = [];
 // holds loaded pastClient objects {x:x,y:y....}
 let pastClients = new Map();
 
-// Connect to the WebSocket server
-console.log("Connecting ws to "+aqa.wsUrl)
-
 function initMultiuser() {
+    console.log("Connecting ws to "+aqa.wsUrl)
     aqa.ws = new WebSocket(aqa.wsUrl);
+    
+    // Handle errors
+    aqa.ws.onerror = (error) => {
+        console.log("WS Error "+error);
+    };
     
     // Connection opened
     aqa.ws.onopen = () => {
         console.log("Connected to server");
     };
-    
+
     // Listen for messages
     aqa.ws.onmessage = (event) => {
-    
+
         //console.log("onmessage");
         messageCount++;
         aqa.htmlGui.updateNetStatus(messageCount);
-    
+
         const m=JSON.parse(event.data);
-    
+
         if(m.pastClients) {
-            //console.log("onmessage: "+event.data);
+            console.log("onmessage: "+event.data);
             m.pastClients.forEach((client)=> {
                 const clientId=client[0];
-                //console.log("Received past client i: "+clientId);
                 const x=client[1].x;
                 const y=client[1].y;
                 const z=client[1].z;
@@ -42,48 +44,59 @@ function initMultiuser() {
                 if( x && y && z && !pastClients.has(clientId) ) {
                     pastClientLoader.push(["obj/Planet_"+(a+1)+".gltf",x,y,z]);
                     pastClients.set(clientId,client[1]);
+                    console.log("pastClientLoader.push: "+clientId+" "+x+" "+y+" "+z);
                 }
             });
             loadPastClientMeshes();
             sendPosition();
             return;
         }
-    
+
+        /*
         if(!aqa.spaceshipMesh) {
             sendPosition();
             return;
         }
-    
+        */
+
         if(m.trackList) {
             console.log("onmessage: tracklist "+m.trackList);
             if(m.sessionId!==aqa.sessionId) {
-                for(let i=0;i<aqa.nTracks;i++) {
-                    const trackUrl=m.trackList[i];
-                    if(trackUrl) {
-                        if(orbitertrackUrl[i]!==trackUrl) {
-                            orbitertrackUrl[i]=trackUrl;
-                            playTrack(trackUrl,i);
-                            console.log("playTrack: "+trackUrl);
-                        } else {
-                            console.log("already playing: "+trackUrl);
+                let trackListUser = otherUsers.get(m.sessionId);
+                console.log("get other user tracklist "+trackListUser);
+                if(trackListUser) {
+                    let userId=trackListUser.userId;
+                    console.log("other user id "+userId);
+                    for(let i=0;i<aqa.nTracks;i++) {
+                        const trackUrl=m.trackList[i];
+                        if(trackUrl) {
+                            if(aqa.orbitertrackUrl[userId][i]!==trackUrl) {
+                                aqa.orbitertrackUrl[userId][i]=trackUrl;
+                                playTrack(userId,trackUrl,i);
+                                console.log("playTrack: "+trackUrl);
+                            } else {
+                                console.log("already playing: "+trackUrl);
+                            }
                         }
                     }
+                } else {
+                    console.log("ALERT: unknown other user id "+m.sessionId);
                 }
             }
             sendPosition();
             return;
         }
-    
+
         allUsers = new Map(m);
         let iOtherUser=0;
-    
+
         allUsers.forEach((value, key) => {
             if(key==aqa.sessionId) {
                 return;
             }
-    
+
             let otherUser=otherUsers.get(key);
-    
+
             if(otherUser) {
                 if(otherUser.position) {
                     otherUser.position.x = value.x;
@@ -95,9 +108,9 @@ function initMultiuser() {
                 }
             } else {
                 otherUsers.set(key,{});
-    
+
                 let spaceshipUrl=aqa.avatarUrl(value.avatarId);
-    
+
                 SceneLoader.ImportMeshAsync(
                   null,
                   spaceshipUrl,
@@ -111,45 +124,37 @@ function initMultiuser() {
                   newUser.position.y = value.y;
                   newUser.position.z = value.z;
                   newUser.rotation = new BABYLON.Vector3(value.rx,value.ry,value.rz);
+                  newUser.userId = aqa.nextUserId;
+                  initObjects(newUser.userId);
                   otherUsers.set(key,newUser);
                   aqa.htmlGui.setNetSessionEntry(key,value.nickname);
+                  aqa.nextUserId++;
                   sessionCount++;
+                  console.log("New session count "+sessionCount);
                 });
             }
         });
         sendPosition();
     };
-    
-    // Handle errors
-    aqa.ws.onerror = (error) => {
-        console.log("WS Error "+error);
-    };
-    
+
     // Handle connection close
     aqa.ws.onclose = () => {
         console.log("DISConnected from server");
     };
-    
+
     setTimeout(removeInactiveClients, 1000);
 
 }
 
 function loadPastClientMeshes() {
-    /*
-    if(!aqa.spaceshipMesh) {
-        console.log("retry loadPastClientMeshes");
-        setTimeout(loadPastClientMeshes,1000);
-        return;
-    }
-    */
-    
     const data=pastClientLoader.pop();
+    console.log("loadPastClientMeshes "+data);
     if(data) {
         let planetUrl=data[0];
         let x=data[1];
         let y=data[2];
         let z=data[3];
-        //console.log("Loading "+planetUrl + " x:" + x + " y:" + y + " z:" + z);
+        console.log("Loading "+planetUrl + " x:" + x + " y:" + y + " z:" + z);
         BABYLON.ImportMeshAsync(planetUrl,scene)
         .then((result) => {
               //console.log("New planet created "+planetUrl);
@@ -163,6 +168,7 @@ function loadPastClientMeshes() {
         });
     }
 }
+
 // Send own position to web socket server
 function sendPosition() {
     if(aqa.spaceshipMesh) {

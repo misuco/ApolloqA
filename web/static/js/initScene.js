@@ -1,6 +1,6 @@
 /*
 
-ApolloqA - Sound Co-Lab 
+ApolloqA - Sound Co-Lab
 
 Sound generator:
 by c1Audio
@@ -23,13 +23,13 @@ window.addEventListener("resize", onWindowResize);
 
 const engine = new Engine(canvas, true);
 
-const createScene = async function () {
+async function createScene() {
     // Create a BabylonJS engine
 
     // Create a BabylonJS scene
     const scene = new Scene(engine);
     // And also, let's set the scene's "clear colour" to black
-    scene.clearColor = "black";
+    scene.clearColor = "green";
 
     // Create an ambient light with low intensity, so the dark parts of the scene aren't pitch black
     var ambientLight = new BABYLON.HemisphericLight(
@@ -49,16 +49,14 @@ const createScene = async function () {
     scene.enablePhysics(gravityVector, hk);
     console.log("physics created");
 
-    /*
     scene.debugLayer.show({
       embedMode: true,
     });
-    */
 
     const audioEngine = await BABYLON.CreateAudioEngineAsync();
     //await audioEngine.unlockAsync();
     console.log("audioEngine ready")
-    
+
     return scene;
 }
 
@@ -70,31 +68,30 @@ async function boot() {
     console.log("boot: initColors");
     initColors();
     console.log("boot: initCamera");
-    initCamera();
-    console.log("boot: initStarfield");
-    initStarfield();
+    await initCamera();
     console.log("boot: initObjects");
-    initObjects();
+    initObjects(0);
     console.log("boot: initAnimation");
     initAnimation();
     console.log("boot: initMediaRecorder");
     initMediaRecorder();
-    
+
     aqa.htmlGui=new aqa_menu();
     aqa.htmlGui.updateHeader();
-    
+
     console.log("boot: initMultiuser");
     initMultiuser();
 
-    // Start a render loop 
+    //console.log("boot: initStarfield");
+    //initStarfield();
+    
+    console.log("boot: runRenderLoop");
+    // Start a render loop
     // - basically, this will instruct BabylonJS to continuously re-render the scene
     engine.runRenderLoop(() => {
         scene.render();
-    });    
+    });
+    
 }
 
 boot();
-
-
-
-

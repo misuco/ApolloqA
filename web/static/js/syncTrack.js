@@ -1,6 +1,4 @@
 //// OBJECTS
-var readyTrack = [false,false,false,false];
-var readyAnalyzer = [false,false,false,false];
 
 const autoplayButton = document.querySelector("#autoplay");
 autoplayButton.onclick = function () {
@@ -57,25 +55,31 @@ aqa.syncTrackTimer = function() {
             mic_stop_button.style.background = "orange";
         }
 
-        for(let i=0;i<4;i++) {
-            if(readyTrack[i] && readyAnalyzer[i]) {
-                if (orbitertrack[i]) {
-                    console.log("Cleanup track "+i);
-                    console.log("Cleanup analyzer observer:" + orbitertrackObserver[i]);
-                    scene.onBeforeRenderObservable.remove(orbitertrackObserver[i]);
-                    orbitertrack[i].stop();
-                    orbitertrack[i].dispose();
+        let userCount=aqa.orbiter.length;
+        console.log("check ready tracks for user count "+userCount)
+        for(let userId=0;userId<userCount;userId++) {
+            let userTrackCount=aqa.readyTrack[userId].length;
+            console.log("check userId "+userId+" track count "+userTrackCount)
+            for(let i=0;i<userTrackCount;i++) {
+                if(aqa.readyTrack[userId][i] && aqa.readyAnalyzer[userId][i]) {
+                    if (aqa.orbitertrack[userId][i]) {
+                        console.log("Cleanup track "+i);
+                        console.log("Cleanup analyzer observer:" + aqa.orbitertrackObserver[userId][i]);
+                        scene.onBeforeRenderObservable.remove(aqa.orbitertrackObserver[userId][i]);
+                        aqa.orbitertrack[userId][i].stop();
+                        aqa.orbitertrack[userId][i].dispose();
+                    }
+                    aqa.orbitertrack[userId][i]=aqa.readyTrack[userId][i];
+                    aqa.orbitertrack[userId][i].outBus=aqa.orbiteranalyzer[userId][i];
+                    aqa.orbitertrack[userId][i].play({
+                        loop: true
+                    });
+                    aqa.readyTrack[userId][i]=false;
+                    aqa.readyAnalyzer[userId][i]=false;
+                    aqa.orbitertrackCalc[userId][i] = false;
+                    aqa.htmlGui.setCalcButtonColor(i,"green");
+                    console.log("playing track " + i);
                 }
-                orbitertrack[i]=readyTrack[i];
-                orbitertrack[i].outBus=orbiteranalyzer[i];
-                orbitertrack[i].play({
-                    loop: true
-                });
-                readyTrack[i]=false;
-                readyAnalyzer[i]=false;
-                orbitertrackCalc[i] = false;
-                aqa.htmlGui.setCalcButtonColor(i,"green");
-                console.log("playing track " + i);
             }
         }
 
@@ -86,10 +90,10 @@ aqa.syncTrackTimer = function() {
             if(nextAutoTriger>3) {
                 nextAutoTriger=0;
             }
-            if(orbitertrackCalc[nextAutoTriger]===false) {
-                orbitertrackCalc[nextAutoTriger] = true;
+            if(aqa.orbitertrackCalc[0][nextAutoTriger]===false) {
+                aqa.orbitertrackCalc[0][nextAutoTriger] = true;
                 aqa.htmlGui.setCalcButtonColor(nextAutoTriger,"orange");
-                triggerNewSound(nextAutoTriger);
+                triggerNewSound(0,nextAutoTriger);
             }
         }
     }

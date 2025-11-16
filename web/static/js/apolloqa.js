@@ -34,17 +34,33 @@ aqa.spaceshipMesh = null;
 aqa.spaceshipPosition = null;
 aqa.spaceshipController = null;
 aqa.spaceshipGravity = null;
-aqa.chaseCameraPosition = null; // The position we want to place the camera
-aqa.chaseCameraLookAt = null; // The position we want the camera to look at
+aqa.chaseCameraPosition = null;
+aqa.chaseCameraLookAt = null;
 aqa.mouseState = null;
 
 // multiuser-ws.js
 aqa.ws = null;
+aqa.nextUserId=1;
+//aqa.wsUrl = "ws://192.168.0.10:3038/"
 aqa.wsUrl = "wss://ws.apolloqa.net/"
 
 // syncTrack.js
 aqa.syncTrackTimer = null;
 aqa.syncTrackRunning = false;
+
+// objects.js
+aqa.orbiter = [[]];
+aqa.orbitertrack = [[]];
+aqa.orbitertrackUrl = [[]];
+aqa.orbiteranalyzer = [[]];
+aqa.orbitertrackVolume = [[]];
+aqa.orbitertrackMute = [[]];
+aqa.orbitertrackObserver = [[]];
+aqa.orbitertrackCalc = [[]];
+
+// syncTrack.js
+aqa.readyTrack = [[false,false,false,false]];
+aqa.readyAnalyzer = [[false,false,false,false]];
 
 aqa.nickname=nickname;
 aqa.uploadId=0;
