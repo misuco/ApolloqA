@@ -49,9 +49,11 @@ async function createScene() {
     scene.enablePhysics(gravityVector, hk);
     console.log("physics created");
 
+    /*
     scene.debugLayer.show({
       embedMode: true,
     });
+    */
 
     const audioEngine = await BABYLON.CreateAudioEngineAsync();
     //await audioEngine.unlockAsync();
