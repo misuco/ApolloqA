@@ -41,7 +41,7 @@ wss.on('connection', (ws,req) => {
   
   // Message event handler
   ws.on('message', (message) => {
-      const m=JSON.parse(message);
+      let m=JSON.parse(message);
       const t=Date.now();
       //console.log('Received ip: '+wsIp+' msg: '+message);
       if(m.sessionId) {
@@ -59,7 +59,8 @@ wss.on('connection', (ws,req) => {
                   }
               });
           } else {
-              clients.set(m.sessionId,{"x":m.x,"y":m.y,"z":m.z,"rx":m.rx,"ry":m.ry,"rz":m.rz,"avatarId":m.avatarId,"nickname":m.nickname,"t":t});
+              m.t=t;
+              clients.set(m.sessionId,m);
           }
       }
       ws.send(JSON.stringify(Array.from(clients.entries())));

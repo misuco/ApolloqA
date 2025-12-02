@@ -33,14 +33,11 @@ async function sendData(uploadFile) {
         let trackUrl="https://apolloqa.net/loops/"+aqa.sessionId+"/u"+aqa.uploadId+".ogg";
         let trackId=aqa.recTrackId;
         aqa.orbitertrackUrl[0][trackId]=trackUrl;
-        playTrack(trackUrl, trackId);
+        playTrack(0,trackUrl, trackId);
         if(trackId<aqa.nTracks) {
             sendTrackList(aqa.orbitertrackUrl[0]);
         }
-        for (let i = 0; i < 16; i++) {
-            aqa.orbiter[0][trackId][i].isVisible = true;
-        }
-
+        
         aqa.uploadId++;
     } catch (e) {
         console.error(e);

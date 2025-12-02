@@ -81,6 +81,19 @@ class aqa_menu {
         this.initIntrumentSelect();
         this.initChordsSelect();
 
+        this.radius=[];
+        this.yaw=[];
+        this.pitch=[];
+        this.rotate_yaw=[];
+        this.rotate_pitch=[];
+        for(let i=0;i<aqa.nTracks;i++) {
+            this.radius[i] = document.querySelector("#radius_"+i);
+            this.yaw[i] = document.querySelector("#yaw_"+i);
+            this.pitch[i] = document.querySelector("#pitch_"+i);
+            this.rotate_yaw[i] = document.querySelector("#rotate_yaw_"+i);
+            this.rotate_pitch[i] = document.querySelector("#rotate_pitch_"+i);
+        }
+        
         this.calc_button = [];
         this.calc_button[0] = document.querySelector("#calc0");
         this.calc_button[1] = document.querySelector("#calc1");
@@ -201,6 +214,17 @@ class aqa_menu {
 
     density(i) {
         return this.select_density[i].value;
+    }
+
+    alignment(i) {
+        let a={
+            radius:this.radius[i].value,
+            yaw:this.yaw[i].value,
+            pitch:this.pitch[i].value,
+            rotate_yaw:this.rotate_yaw[i].value,
+            rotate_pitch:this.rotate_pitch[i].value
+        };
+        return a;
     }
 
     updateHeader() {

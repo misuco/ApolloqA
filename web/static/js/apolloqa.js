@@ -28,6 +28,7 @@ aqa.getRandomInt = function(max) {
 }
 
 aqa.htmlGui={};     // guiHtml.js
+aqa.sessionId = aqa.uuidv4();
 
 // camera.js
 aqa.spaceshipMesh = null;
@@ -40,9 +41,11 @@ aqa.mouseState = null;
 
 // multiuser-ws.js
 aqa.ws = null;
+aqa.otherUsers = new Map();
 aqa.nextUserId=1;
-//aqa.wsUrl = "ws://192.168.0.10:3038/"
-aqa.wsUrl = "wss://ws.apolloqa.net/"
+aqa.user2sessionId = [aqa.sessionId];
+aqa.wsUrl = "ws://192.168.0.10:3038/"
+//aqa.wsUrl = "wss://ws.apolloqa.net/"
 
 // syncTrack.js
 aqa.syncTrackTimer = null;
@@ -50,6 +53,7 @@ aqa.syncTrackRunning = false;
 
 // objects.js
 aqa.orbiter = [[]];
+aqa.orbiterPivot = [[]];
 aqa.orbitertrack = [[]];
 aqa.orbitertrackUrl = [[]];
 aqa.orbiteranalyzer = [[]];
@@ -61,6 +65,9 @@ aqa.orbitertrackCalc = [[]];
 // syncTrack.js
 aqa.readyTrack = [[false,false,false,false]];
 aqa.readyAnalyzer = [[false,false,false,false]];
+
+// animation.js
+aqa.startTime = Date.now();
 
 aqa.nickname=nickname;
 aqa.uploadId=0;
@@ -80,7 +87,6 @@ aqa.calcButton=[];
 aqa.levelBars=[];
 aqa.chanColor=[];
 aqa.windowUrl = window.location;
-aqa.sessionId = aqa.uuidv4();
 aqa.baseUrl = aqa.windowUrl.protocol + "//" + aqa.windowUrl.host + "/";
 
 aqa.avatarId=aqa.getRandomInt(9);

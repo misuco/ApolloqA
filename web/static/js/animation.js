@@ -3,43 +3,56 @@ function initAnimation() {
         if (!aqa.spaceshipMesh) {
             return;
         }
-        const now = Date.now() / 2e3;
-        const orbiterDist = 2 * Math.PI / aqa.nTracks;
-        for (let j = 0; j < 16; j++) {
+        const uptimeS = (Date.now()-aqa.startTime)/1000;
+        
+        let log="";
+        
+        for(let userId=0;userId<aqa.nextUserId;userId++) {
             for (let i = 0; i < aqa.nTracks; i++) {
-                if (!aqa.orbiter[0][i]) {
+                if (!aqa.orbiter[userId][i]) {
                     continue;
                 }
-                if (i % 4 == 0) {
-                    let radius = 8;
-                    aqa.orbiter[0][i][j].position.x = aqa.spaceshipMesh.position.x + radius * Math.sin(now + i * orbiterDist);
-                    aqa.orbiter[0][i][j].position.y = aqa.spaceshipMesh.position.y + j % 4 * .5;
-                    aqa.orbiter[0][i][j].position.z = aqa.spaceshipMesh.position.z + radius * Math.cos(now + i * orbiterDist) + j / 4 * .5;
-                    aqa.orbiter[0][i][j].rotation.x = now % 180 * 2;
-                    aqa.orbiter[0][i][j].rotation.y = now % 90 * 4;
-                } else if (i % 4 == 1) {
-                    let radius = 8;
-                    aqa.orbiter[0][i][j].position.x = aqa.spaceshipMesh.position.x + radius * Math.sin(now + i * orbiterDist);
-                    aqa.orbiter[0][i][j].position.y = aqa.spaceshipMesh.position.y + radius * Math.cos(now + i * orbiterDist) + j / 4 * .5;
-                    aqa.orbiter[0][i][j].position.z = aqa.spaceshipMesh.position.z + j % 4 * .5;
-                    aqa.orbiter[0][i][j].rotation.x = now % 90 * 4;
-                    aqa.orbiter[0][i][j].rotation.y = now % 180 * 2;
-                } else if (i % 4 == 2) {
-                    let radius = 12;
-                    aqa.orbiter[0][i][j].position.x = aqa.spaceshipMesh.position.x + radius * Math.sin(now + i * orbiterDist) + j / 4 * .5;
-                    aqa.orbiter[0][i][j].position.y = aqa.spaceshipMesh.position.y + j % 4 * .5;
-                    aqa.orbiter[0][i][j].position.z = aqa.spaceshipMesh.position.z + radius * Math.cos(now + i * orbiterDist);
-                    aqa.orbiter[0][i][j].rotation.y = now % 45 * 8;
-                    aqa.orbiter[0][i][j].rotation.z = now % 180 * 2;
-                } else if (i % 4 == 3) {
-                    let radius = 12;
-                    aqa.orbiter[0][i][j].position.x = aqa.spaceshipMesh.position.x + radius * Math.sin(now + i * orbiterDist) + j / 4 * .5;
-                    aqa.orbiter[0][i][j].position.y = aqa.spaceshipMesh.position.y + radius * Math.cos(now + i * orbiterDist);
-                    aqa.orbiter[0][i][j].position.z = aqa.spaceshipMesh.position.z + j % 4 * .5;
-                    aqa.orbiter[0][i][j].rotation.y = now % 180 * 2;
-                    aqa.orbiter[0][i][j].rotation.z = now % 45 * 8;
+
+                if(userId>=aqa.user2sessionId.length) {
+                    console.log("animation: userId out of range:" +userId);
+                    continue;
+                }
+                
+                let alignment = null;
+                if(userId>0) {
+                    let otherUserSessioId=aqa.user2sessionId[userId];
+                    let otherUser = aqa.otherUsers.get(otherUserSessioId);
+                    if(otherUser) {
+                        alignment=otherUser.pan[i];
+                    } else {
+                        console.log("unknown user "+otherUserSessioId);
+                        continue;
+                    }
+                } else {
+                    alignment=aqa.htmlGui.alignment(i);
+                }
+                
+                log+="alignment "+userId+" "+i+" "+ JSON.stringify(alignment)+"\n\n";
+                
+                let yaw_move = uptimeS * alignment.rotate_yaw % 360;
+                let yaw_const = parseInt(alignment.yaw);
+                let yaw_rad = (yaw_const+yaw_move)%360*2*Math.PI/360;
+    
+                let pitch_move = uptimeS * alignment.rotate_pitch % 360;
+                let pitch_const = parseInt(alignment.pitch);
+                let pitch_rad = (pitch_const+pitch_move)%360*2*Math.PI/360;
+                
+                let radius = alignment.radius;
+                
+                for (let j = 0; j < 16; j++) {
+                    aqa.orbiter[userId][i][j].position.x = j / 4 * .5;
+                    aqa.orbiter[userId][i][j].position.y = j % 4 * .5;
+                    aqa.orbiter[userId][i][j].position.z = radius;
+                    aqa.orbiterPivot[userId][i].rotation.y = yaw_rad;
+                    aqa.orbiterPivot[userId][i].rotation.x = pitch_rad;
                 }
             }
         }
+        console.log(log);
     });
 }

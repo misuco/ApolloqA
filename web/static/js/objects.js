@@ -1,6 +1,7 @@
 
 function initObjects(userId) {
     aqa.orbiter[userId] = [];
+    aqa.orbiterPivot[userId] = [];
     aqa.orbitertrack[userId] = [];
     aqa.orbitertrackUrl[userId] = [];
     aqa.orbiteranalyzer[userId] = [];
@@ -12,15 +13,25 @@ function initObjects(userId) {
     aqa.readyAnalyzer[userId] = [];
     for (let i = 0; i < aqa.nTracks; i++) {
         aqa.orbiter[userId][i] = [];
+        aqa.orbiterPivot[userId][i] = [];
+        aqa.orbiterPivot[userId][i] = new BABYLON.TransformNode("transformNode_"+userId+"_"+i);
+        aqa.orbiterPivot[userId][i].parent=aqa.spaceshipMesh;
         aqa.orbitertrackVolume[userId][i] = .9;
         aqa.orbitertrackMute[userId][i] = false;
         aqa.orbitertrackCalc[userId][i] = false;
         for (let j = 0; j < 16; j++) {
+            /*
             aqa.orbiter[userId][i][j] = BABYLON.MeshBuilder.CreateSphere("orbiter" + i, {
                 diameter: 1
             }, scene);
-            aqa.orbiter[userId][i][j].isVisible = false;
+            */
+            aqa.orbiter[userId][i][j] = BABYLON.MeshBuilder.CreateBox("orbiter" + i, {
+                width: 1, depth: 1, height: 1
+            }, scene);
+            
+            aqa.orbiter[userId][i][j].isVisible = true;
             aqa.orbiter[userId][i][j].material = aqa.chanColor[i];
+            aqa.orbiter[userId][i][j].parent = aqa.orbiterPivot[userId][i];
         }
     }
 }
@@ -29,7 +40,8 @@ var playTrack = function(userId, trackUrl, trackId) {
     console.log("play track " + userId + " url: " + trackUrl + " id: " + trackId );
 
     BABYLON.CreateSoundAsync(trackUrl, trackUrl, {
-        spatialEnabled: true
+        spatialEnabled: true,
+        spatialMaxDistance: 20
     }).then(track => {
         console.log("track ready "+ trackId );
 
@@ -42,7 +54,7 @@ var playTrack = function(userId, trackUrl, trackId) {
         }
 
         aqa.readyTrack[userId][trackId] = track;
-
+        
         if (aqa.syncTrackRunning === false) {
             aqa.syncTrackTimer();
         }
@@ -66,9 +78,6 @@ var playTrack = function(userId, trackUrl, trackId) {
                     aqa.orbiter[userId][trackId][i].scaling.x = scaling;
                     aqa.orbiter[userId][trackId][i].scaling.y = scaling;
                     aqa.orbiter[userId][trackId][i].scaling.z = scaling;
-
-                    //aqa.levelBars[trackId][i].top = 960 - scaling*200 + "px";
-                    //aqa.levelBars[trackId][i].height = scaling*200 + "px";
                 }
             } catch(err) {
                 console.log("Analyzer error:" + err);
@@ -93,9 +102,6 @@ var triggerNewSound = function(userId,trackId) {
             playTrack(userId, trackUrl, trackId);
             if(trackId<aqa.nTracks) {
                 sendTrackList(aqa.orbitertrackUrl[userId]);
-            }
-            for (let i = 0; i < 16; i++) {
-                aqa.orbiter[userId][trackId][i].isVisible = true;
             }
         }
     });

@@ -1,8 +1,6 @@
 /// Multiuser Websocket Feature
-let otherUsers = new Map();
 var allUsers;
 let messageCount=0;
-let sessionCount=0;
 
 // holds to be loaded pastClient arrays [path,x,y,z]
 let pastClientLoader = [];
@@ -34,6 +32,7 @@ function initMultiuser() {
         const m=JSON.parse(event.data);
 
         if(m.pastClients) {
+            /*
             console.log("onmessage: "+event.data);
             m.pastClients.forEach((client)=> {
                 const clientId=client[0];
@@ -48,6 +47,7 @@ function initMultiuser() {
                 }
             });
             loadPastClientMeshes();
+            */
             sendPosition();
             return;
         }
@@ -62,7 +62,7 @@ function initMultiuser() {
         if(m.trackList) {
             console.log("onmessage: tracklist "+m.trackList);
             if(m.sessionId!==aqa.sessionId) {
-                let trackListUser = otherUsers.get(m.sessionId);
+                let trackListUser = aqa.otherUsers.get(m.sessionId);
                 console.log("get other user tracklist "+trackListUser);
                 if(trackListUser) {
                     let userId=trackListUser.userId;
@@ -95,7 +95,7 @@ function initMultiuser() {
                 return;
             }
 
-            let otherUser=otherUsers.get(key);
+            let otherUser=aqa.otherUsers.get(key);
 
             if(otherUser) {
                 if(otherUser.position) {
@@ -105,9 +105,13 @@ function initMultiuser() {
                     otherUser.rotation.x = value.rx;
                     otherUser.rotation.y = value.ry;
                     otherUser.rotation.z = value.rz;
+                    otherUser.pan[0] = value.pan[0];
+                    otherUser.pan[1] = value.pan[1];
+                    otherUser.pan[2] = value.pan[2];
+                    otherUser.pan[3] = value.pan[3];
                 }
             } else {
-                otherUsers.set(key,{});
+                aqa.otherUsers.set(key,{});
 
                 let spaceshipUrl=aqa.avatarUrl(value.avatarId);
 
@@ -124,13 +128,17 @@ function initMultiuser() {
                   newUser.position.y = value.y;
                   newUser.position.z = value.z;
                   newUser.rotation = new BABYLON.Vector3(value.rx,value.ry,value.rz);
+                  newUser.pan = [];
+                  newUser.pan[0] = value.pan[0];
+                  newUser.pan[1] = value.pan[1];
+                  newUser.pan[2] = value.pan[2];
+                  newUser.pan[3] = value.pan[3];
                   newUser.userId = aqa.nextUserId;
-                  initObjects(newUser.userId);
-                  otherUsers.set(key,newUser);
-                  aqa.htmlGui.setNetSessionEntry(key,value.nickname);
+                  aqa.user2sessionId[newUser.userId] = key;
                   aqa.nextUserId++;
-                  sessionCount++;
-                  console.log("New session count "+sessionCount);
+                  initObjects(newUser.userId);
+                  aqa.otherUsers.set(key,newUser);
+                  aqa.htmlGui.setNetSessionEntry(key,value.nickname);
                 });
             }
         });
@@ -176,7 +184,21 @@ function sendPosition() {
         let x = aqa.spaceshipMesh.position.x;
         let y = aqa.spaceshipMesh.position.y;
         let z = aqa.spaceshipMesh.position.z;
-        let message=JSON.stringify({"sessionId":aqa.sessionId,"nickname":aqa.nickname,"x":x,"y":y,"z":z,"rx":rq.x,"ry":rq.y,"rz":rq.z,"avatarId":aqa.avatarId});
+        let message=JSON.stringify(
+            {"sessionId":aqa.sessionId,
+            "nickname":aqa.nickname,
+            "x":x,"y":y,"z":z,"rx":rq.x,
+            "ry":rq.y,"rz":rq.z,
+            "avatarId":aqa.avatarId,
+            "pan": 
+                [
+                    aqa.htmlGui.alignment(0),
+                    aqa.htmlGui.alignment(1),
+                    aqa.htmlGui.alignment(2),
+                    aqa.htmlGui.alignment(3)
+                ]
+            }
+        );
         aqa.ws.send(message);
     } else {
         aqa.ws.send("{}");
@@ -191,15 +213,14 @@ function sendTrackList(list) {
 
 function removeInactiveClients() {
     //console.log("removeInactiveClients")
-    otherUsers.forEach((value, key) => {
+    aqa.otherUsers.forEach((value, key) => {
         //console.log("- "+key);
         let otherUser=allUsers.get(key);
         if(!otherUser) {
             console.log("-> removeInactiveClient "+key);
-            otherUsers.delete(key);
-            sessionCount--;
-            aqa.htmlGui.deleteNetSessionEntry(key);
             value.dispose();
+            aqa.otherUsers.delete(key);
+            aqa.htmlGui.deleteNetSessionEntry(key);
         }
     });
     setTimeout(removeInactiveClients, 1000);
