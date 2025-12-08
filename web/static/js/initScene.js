@@ -72,7 +72,7 @@ async function boot() {
     console.log("boot: initCamera");
     await initCamera();
     console.log("boot: initObjects");
-    initObjects(0);
+    initObjects(0,aqa.spaceshipMesh);
     console.log("boot: initAnimation");
     initAnimation();
     console.log("boot: initMediaRecorder");

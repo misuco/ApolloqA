@@ -1,5 +1,5 @@
 
-function initObjects(userId) {
+function initObjects(userId,parent) {
     aqa.orbiter[userId] = [];
     aqa.orbiterPivot[userId] = [];
     aqa.orbitertrack[userId] = [];
@@ -15,7 +15,8 @@ function initObjects(userId) {
         aqa.orbiter[userId][i] = [];
         aqa.orbiterPivot[userId][i] = [];
         aqa.orbiterPivot[userId][i] = new BABYLON.TransformNode("transformNode_"+userId+"_"+i);
-        aqa.orbiterPivot[userId][i].parent=aqa.spaceshipMesh;
+        aqa.orbiterPivot[userId][i].parent=parent;
+
         aqa.orbitertrackVolume[userId][i] = .9;
         aqa.orbitertrackMute[userId][i] = false;
         aqa.orbitertrackCalc[userId][i] = false;
@@ -66,15 +67,20 @@ var playTrack = function(userId, trackUrl, trackId) {
     BABYLON.CreateAudioBusAsync(trackUrl, {
         analyzerEnabled: true
     }).then(bus => {
+        bus.analyzer.fftSize=128;
         aqa.orbiteranalyzer[userId][trackId] = bus;
         aqa.readyAnalyzer[userId][trackId] = true;
-        //console.log("analyzer bus ready: " + trackUrl);
+        console.log("analyzer bus ready: " + trackUrl);
 
         aqa.orbitertrackObserver[userId][trackId] = scene.onBeforeRenderObservable.add(() => {
             try {
+                console.log("orbitertrackObserver user "+userId+" trackId "+trackId);
                 const frequencies = bus.analyzer.getByteFrequencyData();
+                //const frequencies = aqa.orbiteranalyzer[userId][trackId].analyzer.getFloatFrequencyData();
+                //console.log("frequencies: "+frequencies);
                 for (let i = 0; i < 16; i++) {
                     let scaling = frequencies[i]/255;
+                    if(i==0) {scaling=1;}
                     aqa.orbiter[userId][trackId][i].scaling.x = scaling;
                     aqa.orbiter[userId][trackId][i].scaling.y = scaling;
                     aqa.orbiter[userId][trackId][i].scaling.z = scaling;
@@ -85,9 +91,9 @@ var playTrack = function(userId, trackUrl, trackId) {
         });
 
         console.log("added analyzer observer:" + aqa.orbitertrackObserver[userId][trackId]);
-        console.log("playing sound:" + trackUrl);
+        console.log("analyzing sound:" + trackUrl);
     }).catch(err => {
-        console.error("cannot play sound:" + trackUrl + " " + err);
+        console.error("cannot alanyze sound:" + trackUrl + " " + err);
     });
 };
 

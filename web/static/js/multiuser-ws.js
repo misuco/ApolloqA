@@ -135,10 +135,10 @@ function initMultiuser() {
                   newUser.pan[3] = value.pan[3];
                   newUser.userId = aqa.nextUserId;
                   aqa.user2sessionId[newUser.userId] = key;
-                  aqa.nextUserId++;
-                  initObjects(newUser.userId);
+                  initObjects(newUser.userId,newUser);
                   aqa.otherUsers.set(key,newUser);
                   aqa.htmlGui.setNetSessionEntry(key,value.nickname);
+                  aqa.nextUserId++;
                 });
             }
         });
