@@ -174,7 +174,7 @@ class aqa_menu {
 
     triggerCalc(i) {
         this.setCalcButtonColor(i,"orange");
-        triggerNewSound(0,i);
+        triggerNewSound(i);
     }
 
     incBpmValue() {

@@ -30,12 +30,12 @@ async function sendData(uploadFile) {
         });
         console.log(await response.json());
 
-        let trackUrl="https://apolloqa.net/loops/"+aqa.sessionId+"/u"+aqa.uploadId+".ogg";
-        let trackId=aqa.recTrackId;
-        aqa.orbitertrackUrl[0][trackId]=trackUrl;
-        playTrack(0,trackUrl, trackId);
+        const trackUrl="https://apolloqa.net/loops/"+aqa.sessionId+"/u"+aqa.uploadId+".ogg";
+        const trackId=aqa.recTrackId;
+        aqa.myOrbiter.trackUrl[trackId]=trackUrl;
+        playTrack(aqa.sessionId,trackUrl, trackId);
         if(trackId<aqa.nTracks) {
-            sendTrackList(aqa.orbitertrackUrl[0]);
+            sendTrackList(aqa.myOrbiter.trackUrl);
         }
         
         aqa.uploadId++;

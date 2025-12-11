@@ -5,34 +5,28 @@ function initAnimation() {
         }
         const uptimeS = (Date.now()-aqa.startTime)/1000;
         
-        let log="";
+        //let log="";
         
-        for(let userId=0;userId<aqa.nextUserId;userId++) {
+        aqa.orbiter.forEach((orbiter, userId) => {
             for (let i = 0; i < aqa.nTracks; i++) {
-                if (!aqa.orbiter[userId][i]) {
-                    continue;
-                }
-
-                if(userId>=aqa.user2sessionId.length) {
-                    console.log("animation: userId out of range:" +userId);
+                if (!orbiter[i]) {
                     continue;
                 }
                 
                 let alignment = null;
-                if(userId>0) {
-                    let otherUserSessioId=aqa.user2sessionId[userId];
-                    let otherUser = aqa.otherUsers.get(otherUserSessioId);
+                if(userId!=aqa.sessionId) {
+                    let otherUser = aqa.otherUsers.get(userId);
                     if(otherUser) {
                         alignment=otherUser.pan[i];
                     } else {
-                        console.log("unknown user "+otherUserSessioId);
+                        console.log("unknown user "+userId);
                         continue;
                     }
                 } else {
                     alignment=aqa.htmlGui.alignment(i);
                 }
                 
-                log+="alignment "+userId+" "+i+" "+ JSON.stringify(alignment)+"\n\n";
+                //log+="alignment "+userId+" "+i+" "+ JSON.stringify(alignment)+"\n\n";
                 
                 let yaw_move = uptimeS * alignment.rotate_yaw % 360;
                 let yaw_const = parseInt(alignment.yaw);
@@ -45,14 +39,14 @@ function initAnimation() {
                 let radius = alignment.radius;
                 
                 for (let j = 0; j < 16; j++) {
-                    aqa.orbiter[userId][i][j].position.x = j / 4 * .5;
-                    aqa.orbiter[userId][i][j].position.y = j % 4 * .5;
-                    aqa.orbiter[userId][i][j].position.z = radius;
-                    aqa.orbiterPivot[userId][i].rotation.y = yaw_rad;
-                    aqa.orbiterPivot[userId][i].rotation.x = pitch_rad;
+                    orbiter[i][j].position.x = j / 4 * .5;
+                    orbiter[i][j].position.y = j % 4 * .5;
+                    orbiter[i][j].position.z = radius;
+                    orbiter.pivot[i].rotation.y = yaw_rad;
+                    orbiter.pivot[i].rotation.x = pitch_rad;
                 }
             }
-        }
+        });
         //console.log(log);
     });
 }

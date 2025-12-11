@@ -72,7 +72,8 @@ async function boot() {
     console.log("boot: initCamera");
     await initCamera();
     console.log("boot: initObjects");
-    initObjects(0,aqa.spaceshipMesh);
+    initObjects(aqa.sessionId,aqa.spaceshipMesh);
+    aqa.myOrbiter=aqa.orbiter.get(aqa.sessionId);
     console.log("boot: initAnimation");
     initAnimation();
     console.log("boot: initMediaRecorder");

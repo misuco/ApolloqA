@@ -65,14 +65,14 @@ function initMultiuser() {
                 let trackListUser = aqa.otherUsers.get(m.sessionId);
                 console.log("get other user tracklist "+trackListUser);
                 if(trackListUser) {
-                    let userId=trackListUser.userId;
-                    console.log("other user id "+userId);
+                    const orbiter=aqa.orbiter.get(m.sessionId);
+                    console.log("other user id "+m.sessionId);
                     for(let i=0;i<aqa.nTracks;i++) {
                         const trackUrl=m.trackList[i];
                         if(trackUrl) {
-                            if(aqa.orbitertrackUrl[userId][i]!==trackUrl) {
-                                aqa.orbitertrackUrl[userId][i]=trackUrl;
-                                playTrack(userId,trackUrl,i);
+                            if(orbiter.trackUrl[i]!==trackUrl) {
+                                orbiter.trackUrl[i]=trackUrl;
+                                playTrack(m.sessionId,trackUrl,i);
                                 console.log("playTrack: "+trackUrl);
                             } else {
                                 console.log("already playing: "+trackUrl);
@@ -133,12 +133,9 @@ function initMultiuser() {
                   newUser.pan[1] = value.pan[1];
                   newUser.pan[2] = value.pan[2];
                   newUser.pan[3] = value.pan[3];
-                  newUser.userId = aqa.nextUserId;
-                  aqa.user2sessionId[newUser.userId] = key;
-                  initObjects(newUser.userId,newUser);
+                  initObjects(key,newUser);
                   aqa.otherUsers.set(key,newUser);
                   aqa.htmlGui.setNetSessionEntry(key,value.nickname);
-                  aqa.nextUserId++;
                 });
             }
         });

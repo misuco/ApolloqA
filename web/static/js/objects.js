@@ -1,65 +1,71 @@
-
 function initObjects(userId,parent) {
-    aqa.orbiter[userId] = [];
-    aqa.orbiterPivot[userId] = [];
-    aqa.orbitertrack[userId] = [];
-    aqa.orbitertrackUrl[userId] = [];
-    aqa.orbiteranalyzer[userId] = [];
-    aqa.orbitertrackVolume[userId] = [];
-    aqa.orbitertrackMute[userId] = [];
-    aqa.orbitertrackObserver[userId] = [];
-    aqa.orbitertrackCalc[userId] = [];
-    aqa.readyTrack[userId] = [];
-    aqa.readyAnalyzer[userId] = [];
+    console.log("initObjects "+userId)
+    let orbiter = {};
+    orbiter.pivot = [];
+    orbiter.track = [];
+    orbiter.trackUrl = [];
+    orbiter.analyzer = [];
+    orbiter.trackVolume = [];
+    orbiter.trackMute = [];
+    orbiter.trackObserver = [];
+    orbiter.trackCalc = [];
+    
     for (let i = 0; i < aqa.nTracks; i++) {
-        aqa.orbiter[userId][i] = [];
-        aqa.orbiterPivot[userId][i] = [];
-        aqa.orbiterPivot[userId][i] = new BABYLON.TransformNode("transformNode_"+userId+"_"+i);
-        aqa.orbiterPivot[userId][i].parent=parent;
+        orbiter[i] = [];
+        orbiter.pivot[i] = [];
+        orbiter.pivot[i] = new BABYLON.TransformNode("transformNode_"+userId+"_"+i);
+        orbiter.pivot[i].parent=parent;
 
-        aqa.orbitertrackVolume[userId][i] = .9;
-        aqa.orbitertrackMute[userId][i] = false;
-        aqa.orbitertrackCalc[userId][i] = false;
+        orbiter.trackVolume[i] = .9;
+        orbiter.trackMute[i] = false;
+        orbiter.trackCalc[i] = false;
         for (let j = 0; j < 16; j++) {
             /*
-            aqa.orbiter[userId][i][j] = BABYLON.MeshBuilder.CreateSphere("orbiter" + i, {
+            orbiter[i][j] = BABYLON.MeshBuilder.CreateSphere("orbiter" + i, {
                 diameter: 1
             }, scene);
             */
-            aqa.orbiter[userId][i][j] = BABYLON.MeshBuilder.CreateBox("orbiter" + i, {
+            orbiter[i][j] = BABYLON.MeshBuilder.CreateBox("orbiter" + i, {
                 width: 1, depth: 1, height: 1
             }, scene);
             
-            aqa.orbiter[userId][i][j].isVisible = true;
-            aqa.orbiter[userId][i][j].material = aqa.chanColor[i];
-            aqa.orbiter[userId][i][j].parent = aqa.orbiterPivot[userId][i];
+            orbiter[i][j].isVisible = true;
+            orbiter[i][j].material = aqa.chanColor[i];
+            orbiter[i][j].parent = orbiter.pivot[i];
         }
     }
+    
+    aqa.orbiter.set(userId,orbiter);
+    aqa.readyTrack.set(userId,[]);
+    aqa.readyAnalyzer.set(userId,[]);
 }
 
 var playTrack = function(userId, trackUrl, trackId) {
     console.log("play track " + userId + " url: " + trackUrl + " id: " + trackId );
+
+    let orbiter=aqa.orbiter.get(userId);
+    let readyTrack=aqa.readyTrack.get(userId);
+    let readyAnalyzer=aqa.readyAnalyzer.get(userId);
 
     BABYLON.CreateSoundAsync(trackUrl, trackUrl, {
         spatialEnabled: true,
         spatialMaxDistance: 20
     }).then(track => {
         console.log("track ready "+ trackId );
-
-        track.spatial.attach(aqa.orbiter[userId][trackId][0]);
-
-        if(aqa.orbitertrackMute[userId][trackId]==true) {
+        
+        track.spatial.attach(orbiter[trackId][0]);
+        
+        if(orbiter.trackMute[trackId]==true) {
             track.setVolume(0);
         } else {
-            track.setVolume(aqa.orbitertrackVolume[userId][trackId]);
+            track.setVolume(orbiter.trackVolume[trackId]);
         }
-
-        aqa.readyTrack[userId][trackId] = track;
+        
+        readyTrack[trackId] = track;
         
         if (aqa.syncTrackRunning === false) {
             aqa.syncTrackTimer();
         }
-
     }).catch(err => {
         console.error("cannot play sound:" + trackUrl + " " + err);
     });
@@ -68,46 +74,26 @@ var playTrack = function(userId, trackUrl, trackId) {
         analyzerEnabled: true
     }).then(bus => {
         bus.analyzer.fftSize=128;
-        aqa.orbiteranalyzer[userId][trackId] = bus;
-        aqa.readyAnalyzer[userId][trackId] = true;
+        readyAnalyzer[trackId] = bus;
+        
         console.log("analyzer bus ready: " + trackUrl);
-
-        aqa.orbitertrackObserver[userId][trackId] = scene.onBeforeRenderObservable.add(() => {
-            try {
-                console.log("orbitertrackObserver user "+userId+" trackId "+trackId);
-                const frequencies = bus.analyzer.getByteFrequencyData();
-                //const frequencies = aqa.orbiteranalyzer[userId][trackId].analyzer.getFloatFrequencyData();
-                //console.log("frequencies: "+frequencies);
-                for (let i = 0; i < 16; i++) {
-                    let scaling = frequencies[i]/255;
-                    if(i==0) {scaling=1;}
-                    aqa.orbiter[userId][trackId][i].scaling.x = scaling;
-                    aqa.orbiter[userId][trackId][i].scaling.y = scaling;
-                    aqa.orbiter[userId][trackId][i].scaling.z = scaling;
-                }
-            } catch(err) {
-                console.log("Analyzer error:" + err);
-            }
-        });
-
-        console.log("added analyzer observer:" + aqa.orbitertrackObserver[userId][trackId]);
-        console.log("analyzing sound:" + trackUrl);
+        
     }).catch(err => {
         console.error("cannot alanyze sound:" + trackUrl + " " + err);
     });
 };
 
-var triggerNewSound = function(userId,trackId) {
+var triggerNewSound = function(trackId) {
     var oReq = new XMLHttpRequest();
     oReq.addEventListener("load", function() {
         if (this.response.includes("Error")) {
             console.log("server error!!!");
         } else {
             const trackUrl=this.response + ".ogg";
-            aqa.orbitertrackUrl[userId][trackId]=trackUrl;
-            playTrack(userId, trackUrl, trackId);
+            aqa.myOrbiter.trackUrl[trackId]=trackUrl;
+            playTrack(aqa.sessionId, trackUrl, trackId);
             if(trackId<aqa.nTracks) {
-                sendTrackList(aqa.orbitertrackUrl[userId]);
+                sendTrackList(aqa.myOrbiter.trackUrl);
             }
         }
     });
@@ -118,7 +104,7 @@ var triggerNewSound = function(userId,trackId) {
     let len_selected = aqa.htmlGui.len();
     let len_real = Math.pow(2,len_selected);
 
-    console.log("trigger new sound userId " + userId + " trackId " + trackId + " quantize " + quantize_selected + " " + quantize_real );
+    console.log("trigger new sound trackId " + trackId + " quantize " + quantize_selected + " " + quantize_real );
     var queryId = trackId + "_" + aqa.tempo + "_" + Date.now();
     oReq.open("GET", aqa.baseUrl + "newclip"
     + "?id=" + queryId

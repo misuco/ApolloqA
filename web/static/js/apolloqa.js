@@ -42,8 +42,6 @@ aqa.mouseState = null;
 // multiuser-ws.js
 aqa.ws = null;
 aqa.otherUsers = new Map();
-aqa.nextUserId=1;
-aqa.user2sessionId = [aqa.sessionId];
 aqa.wsUrl = "ws://192.168.0.10:3038/"
 //aqa.wsUrl = "wss://ws.apolloqa.net/"
 
@@ -52,19 +50,12 @@ aqa.syncTrackTimer = null;
 aqa.syncTrackRunning = false;
 
 // objects.js
-aqa.orbiter = [[]];
-aqa.orbiterPivot = [[]];
-aqa.orbitertrack = [[]];
-aqa.orbitertrackUrl = [[]];
-aqa.orbiteranalyzer = [[]];
-aqa.orbitertrackVolume = [[]];
-aqa.orbitertrackMute = [[]];
-aqa.orbitertrackObserver = [[]];
-aqa.orbitertrackCalc = [[]];
+aqa.orbiter = new Map();
+aqa.myOrbiter = null;
 
 // syncTrack.js
-aqa.readyTrack = [[false,false,false,false]];
-aqa.readyAnalyzer = [[false,false,false,false]];
+aqa.readyTrack = new Map();
+aqa.readyAnalyzer = new Map();
 
 // animation.js
 aqa.startTime = Date.now();

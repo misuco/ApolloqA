@@ -55,33 +55,64 @@ aqa.syncTrackTimer = function() {
             mic_stop_button.style.background = "orange";
         }
 
-        let userCount=aqa.orbiter.length;
+        let userCount=aqa.orbiter.size;
         console.log("check ready tracks for user count "+userCount)
-        for(let userId=0;userId<userCount;userId++) {
-            let userTrackCount=aqa.readyTrack[userId].length;
+        
+        aqa.orbiter.forEach((orbiter, userId) => {
+            let readyTrack=aqa.readyTrack.get(userId);
+            let readyAnalyzer=aqa.readyAnalyzer.get(userId);
+            let userTrackCount=readyTrack.length;
             console.log("check userId "+userId+" track count "+userTrackCount)
-            for(let i=0;i<userTrackCount;i++) {
-                if(aqa.readyTrack[userId][i] && aqa.readyAnalyzer[userId][i]) {
-                    if (aqa.orbitertrack[userId][i]) {
-                        console.log("Cleanup track "+i);
-                        console.log("Cleanup analyzer observer:" + aqa.orbitertrackObserver[userId][i]);
-                        scene.onBeforeRenderObservable.remove(aqa.orbitertrackObserver[userId][i]);
-                        aqa.orbitertrack[userId][i].stop();
-                        aqa.orbitertrack[userId][i].dispose();
+            
+            for(let trackId=0;trackId<userTrackCount;trackId++) {
+                if(readyTrack[trackId] && readyAnalyzer[trackId]) {
+                    if (orbiter.track[trackId]) {
+                        console.log("Cleanup track "+trackId);
+                        console.log("Cleanup analyzer observer:" + orbiter.trackObserver[trackId]);
+                        scene.onBeforeRenderObservable.remove(orbiter.trackObserver[trackId]);
+                        orbiter.track[trackId].stop();
+                        orbiter.track[trackId].dispose();
                     }
-                    aqa.orbitertrack[userId][i]=aqa.readyTrack[userId][i];
-                    aqa.orbitertrack[userId][i].outBus=aqa.orbiteranalyzer[userId][i];
-                    aqa.orbitertrack[userId][i].play({
+                    if (orbiter.analyzer[trackId]) {
+                        orbiter.analyzer[trackId].dispose();
+                    }
+                    orbiter.analyzer[trackId]=readyAnalyzer[trackId];
+                    orbiter.track[trackId]=readyTrack[trackId];
+                    orbiter.track[trackId].outBus=orbiter.analyzer[trackId];
+                    orbiter.track[trackId].play({
                         loop: true
                     });
-                    aqa.readyTrack[userId][i]=false;
-                    aqa.readyAnalyzer[userId][i]=false;
-                    aqa.orbitertrackCalc[userId][i] = false;
-                    aqa.htmlGui.setCalcButtonColor(i,"green");
-                    console.log("playing track " + i);
+                    readyTrack[trackId]=false;
+                    readyAnalyzer[trackId]=false;
+                    
+                    orbiter.trackObserver[trackId] = scene.onBeforeRenderObservable.add(() => {
+                        try {
+                            //console.log("orbiter trackObserver user "+userId+" trackId "+i);
+                            //const frequencies = bus.analyzer.getByteFrequencyData();
+                            const frequencies = orbiter.analyzer[trackId].analyzer.getFloatFrequencyData();
+                            //console.log("frequencies: "+frequencies);
+                            for (let freqId = 0; freqId < 16; freqId++) {
+                                let scaling = frequencies[freqId]/255;
+                                if(freqId==0) {scaling=1;}
+                                orbiter[trackId][freqId].scaling.x = scaling;
+                                orbiter[trackId][freqId].scaling.y = scaling;
+                                orbiter[trackId][freqId].scaling.z = scaling;
+                            }
+                            console.log("Added analyzer observer:" + orbiter.trackObserver[trackId]);
+                        } catch(err) {
+                            console.log("Error adding analyzer observer:" + err);
+                        }
+                    });
+                    
+                    if(userId===aqa.sessionId) {
+                        orbiter.trackCalc[trackId] = false;
+                        aqa.htmlGui.setCalcButtonColor(trackId,"green");
+                    }
+                    
+                    console.log("playing track " + trackId + " for user " + userId);
                 }
             }
-        }
+        });
 
         // auto trigger next track calc
 
@@ -90,10 +121,10 @@ aqa.syncTrackTimer = function() {
             if(nextAutoTriger>3) {
                 nextAutoTriger=0;
             }
-            if(aqa.orbitertrackCalc[0][nextAutoTriger]===false) {
-                aqa.orbitertrackCalc[0][nextAutoTriger] = true;
+            if(aqa.myOrbiter.trackCalc[nextAutoTriger]===false) {
+                aqa.myOrbiter.trackCalc[nextAutoTriger] = true;
                 aqa.htmlGui.setCalcButtonColor(nextAutoTriger,"orange");
-                triggerNewSound(0,nextAutoTriger);
+                triggerNewSound(nextAutoTriger);
             }
         }
     }
