@@ -1,5 +1,9 @@
 [
     {
+        "name": "Sad Guitarist (Em Em Em Em)",
+        "chords": "Em Em Em Em"
+    },
+    {
         "name": "White keys up",
         "chords": "C D E F G A B C"
     },
@@ -18,9 +22,5 @@
     {
         "name": "Guitarists Dream (E E E E)",
         "chords": "E E E E"
-    },
-    {
-        "name": "Sad Guitarist (Em Em Em Em)",
-        "chords": "Em Em Em Em"
     }
 ]

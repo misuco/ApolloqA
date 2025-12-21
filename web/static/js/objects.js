@@ -9,7 +9,7 @@ function initObjects(userId,parent) {
     orbiter.trackMute = [];
     orbiter.trackObserver = [];
     orbiter.trackCalc = [];
-    
+
     for (let i = 0; i < aqa.nTracks; i++) {
         orbiter[i] = [];
         orbiter.pivot[i] = [];
@@ -28,13 +28,13 @@ function initObjects(userId,parent) {
             orbiter[i][j] = BABYLON.MeshBuilder.CreateBox("orbiter" + i, {
                 width: 1, depth: 1, height: 1
             }, scene);
-            
+
             orbiter[i][j].isVisible = true;
             orbiter[i][j].material = aqa.chanColor[i];
             orbiter[i][j].parent = orbiter.pivot[i];
         }
     }
-    
+
     aqa.orbiter.set(userId,orbiter);
     aqa.readyTrack.set(userId,[]);
     aqa.readyAnalyzer.set(userId,[]);
@@ -52,34 +52,35 @@ var playTrack = function(userId, trackUrl, trackId) {
         spatialMaxDistance: 20
     }).then(track => {
         console.log("track ready "+ trackId );
-        
+
         track.spatial.attach(orbiter[trackId][0]);
-        
+
         if(orbiter.trackMute[trackId]==true) {
             track.setVolume(0);
         } else {
             track.setVolume(orbiter.trackVolume[trackId]);
         }
-        
+
         readyTrack[trackId] = track;
-        
+
         if (aqa.syncTrackRunning === false) {
             aqa.syncTrackTimer();
         }
     }).catch(err => {
         console.error("cannot play sound:" + trackUrl + " " + err);
     });
-
+    
     BABYLON.CreateAudioBusAsync(trackUrl, {
         analyzerEnabled: true
     }).then(bus => {
         bus.analyzer.fftSize=128;
+
         readyAnalyzer[trackId] = bus;
-        
+
         console.log("analyzer bus ready: " + trackUrl);
-        
+
     }).catch(err => {
-        console.error("cannot alanyze sound:" + trackUrl + " " + err);
+        console.error("cannot analyze sound:" + trackUrl + " " + err);
     });
 };
 

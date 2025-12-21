@@ -20,6 +20,21 @@ class aqa_menu {
         this.menu_gen_3_button.addEventListener("click", () => {this.div_gen_3.hidden=!this.div_gen_3.hidden});
         this.menu_gen_4_button.addEventListener("click", () => {this.div_gen_4.hidden=!this.div_gen_4.hidden});
 
+        this.div_pan_1 = document.querySelector("#pan_1");
+        this.div_pan_2 = document.querySelector("#pan_2");
+        this.div_pan_3 = document.querySelector("#pan_3");
+        this.div_pan_4 = document.querySelector("#pan_4");
+
+        this.menu_pan_1_button = document.querySelector("#menu_pan_1");
+        this.menu_pan_2_button = document.querySelector("#menu_pan_2");
+        this.menu_pan_3_button = document.querySelector("#menu_pan_3");
+        this.menu_pan_4_button = document.querySelector("#menu_pan_4");
+
+        this.menu_pan_1_button.addEventListener("click", () => {this.div_pan_1.hidden=!this.div_pan_1.hidden});
+        this.menu_pan_2_button.addEventListener("click", () => {this.div_pan_2.hidden=!this.div_pan_2.hidden});
+        this.menu_pan_3_button.addEventListener("click", () => {this.div_pan_3.hidden=!this.div_pan_3.hidden});
+        this.menu_pan_4_button.addEventListener("click", () => {this.div_pan_4.hidden=!this.div_pan_4.hidden});
+
         this.menu_session_button = document.querySelector("#menu_session");
         this.div_session = document.querySelector("#config_session");
         this.menu_session_button.addEventListener("click", () => {this.div_session.hidden=!this.div_session.hidden});
@@ -88,10 +103,15 @@ class aqa_menu {
         this.rotate_pitch=[];
         for(let i=0;i<aqa.nTracks;i++) {
             this.radius[i] = document.querySelector("#radius_"+i);
+            this.radius[i].value=3.0;
             this.yaw[i] = document.querySelector("#yaw_"+i);
+            this.yaw[i].value = i*90;
             this.pitch[i] = document.querySelector("#pitch_"+i);
+            this.pitch[i].value = 180;
             this.rotate_yaw[i] = document.querySelector("#rotate_yaw_"+i);
+            this.rotate_yaw[i].value = i%2!=0 ? 0 : 50;
             this.rotate_pitch[i] = document.querySelector("#rotate_pitch_"+i);
+            this.rotate_pitch[i].value = i%2!=0 ? 0 : 50;
         }
         
         this.calc_button = [];
@@ -148,6 +168,7 @@ class aqa_menu {
                         opt.innerHTML=inst.name;
                         instruments[i].appendChild(opt);
                     });
+                    instruments[i].value=i;
                 }
             } else {
                 console.log("initIntrumentSelect server error!!!");

@@ -30,6 +30,12 @@ aqa.getRandomInt = function(max) {
 aqa.htmlGui={};     // guiHtml.js
 aqa.sessionId = aqa.uuidv4();
 
+// syncTrack.js
+aqa.labels=null;
+
+// initScene.js, syncTrack.js
+aqa.audioEngine;
+
 // camera.js
 aqa.spaceshipMesh = null;
 aqa.spaceshipPosition = null;
@@ -52,6 +58,7 @@ aqa.syncTrackRunning = false;
 // objects.js
 aqa.orbiter = new Map();
 aqa.myOrbiter = null;
+aqa.worldObjects = [];
 
 // syncTrack.js
 aqa.readyTrack = new Map();

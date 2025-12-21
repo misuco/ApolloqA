@@ -55,8 +55,12 @@ async function createScene() {
     });
     */
 
-    const audioEngine = await BABYLON.CreateAudioEngineAsync();
-    //await audioEngine.unlockAsync();
+    aqa.audioEngine = await BABYLON.CreateAudioEngineAsync({
+        volume: 0.9,
+        listenerAutoUpdate: true,
+        listenerEnabled: true,
+        resumeOnInteraction: true
+    });
     console.log("audioEngine ready")
 
     return scene;
@@ -70,7 +74,10 @@ async function boot() {
     console.log("boot: initColors");
     initColors();
     console.log("boot: initCamera");
+    
     await initCamera();
+    aqa.audioEngine.listener.attach(aqa.spaceshipMesh);
+    
     console.log("boot: initObjects");
     initObjects(aqa.sessionId,aqa.spaceshipMesh);
     aqa.myOrbiter=aqa.orbiter.get(aqa.sessionId);
@@ -87,14 +94,14 @@ async function boot() {
 
     //console.log("boot: initStarfield");
     //initStarfield();
-    
+
     console.log("boot: runRenderLoop");
     // Start a render loop
     // - basically, this will instruct BabylonJS to continuously re-render the scene
     engine.runRenderLoop(() => {
         scene.render();
     });
-    
+
 }
 
 boot();

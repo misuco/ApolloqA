@@ -39,8 +39,14 @@ function initAnimation() {
                 let radius = alignment.radius;
                 
                 for (let j = 0; j < 16; j++) {
-                    orbiter[i][j].position.x = j / 4 * .5;
-                    orbiter[i][j].position.y = j % 4 * .5;
+                    if(j>0) {
+                        /*
+                        orbiter[i][j].position.x = ((j / 4)-2) * .5;
+                        orbiter[i][j].position.y = ((j % 4)-2) * .5;
+                        */
+                        orbiter[i][j].position.x = (Math.sin((j-1) * 2 * Math.PI/15));
+                        orbiter[i][j].position.y = (Math.cos((j-1) * 2 * Math.PI/15));
+                    }
                     orbiter[i][j].position.z = radius;
                     orbiter.pivot[i].rotation.y = yaw_rad;
                     orbiter.pivot[i].rotation.x = pitch_rad;
