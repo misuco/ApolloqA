@@ -81,7 +81,7 @@ function getSpaceshipInputFromMouse() {
 // The following values can be tweaked until they "feel right"
 
 // Our maximum acceleration (units per second per second)
-const MaxThrust = 20;
+const MaxThrust = 5;
 // Our maximum turn speed (radians per second)
 const TurnSpeed = 5;
 // The drag coefficient; roughly, how much velocity we will
@@ -129,8 +129,8 @@ async function initCamera() {
     console.log("spaceship animationGroup size "+result.animationGroups.length);
 
     aqa.spaceshipPosition = new BABYLON.Vector3(0,0,0);
-    aqa.spaceshipController = new BABYLON.PhysicsCharacterController(aqa.spaceshipPosition, {capsuleHeight: 1, capsuleRadius: 1}, scene);
-    aqa.spaceshipGravity = new BABYLON.Vector3(0.1,0.1,0.1);
+    //aqa.spaceshipController = new BABYLON.PhysicsCharacterController(aqa.spaceshipPosition, {capsuleHeight: 1, capsuleRadius: 1}, scene);
+    //aqa.spaceshipGravity = new BABYLON.Vector3(0.1,0.1,0.1);
 
     // To allow working with rotationQuaternion, which is
     // null by default, we need to give it a value
@@ -151,6 +151,7 @@ async function initCamera() {
     // Now that aqa.chaseCameraPosition and aqa.chaseCameraLookAt are set, the
     // chase camera code can will it's thing (see code above)
 
+    /*
     //After physics update, compute and set new velocity, update the character controller state
     scene.onAfterPhysicsObservable.add((_) => {
         if (scene.deltaTime == undefined) return;
@@ -171,6 +172,7 @@ async function initCamera() {
 
         //console.log("onAfterPhysicsObservable Q:" + aqa.spaceshipMesh.rotationQuaternion + " Q2E:" + aqa.spaceshipMesh.rotationQuaternion.toRotationMatrix() + " " + inputDirection.z + " dt: " + dt + " pos: " + aqa.spaceshipController.getPosition());
     });
+    */
 
 
     // We use the onPointerObservable event to capture mouse drag info into
@@ -209,7 +211,9 @@ async function initCamera() {
             return;
         }
 
+        /*
         aqa.spaceshipMesh.position.copyFrom(aqa.spaceshipController.getPosition());
+        */
 
         // Compute the "time slice" in seconds; we need to know this so
         // we can apply the correct amount of movement
@@ -234,6 +238,7 @@ async function initCamera() {
             // Apply the rotation to our current rotation
             aqa.spaceshipMesh.rotationQuaternion.multiplyInPlace(turn);
         }
+        /*
         else if (aqa.autoplay) {
             // Convert Yaw and Pitch to a rotation in quaternion form
             const turn = Quaternion.RotationYawPitchRoll(
@@ -244,31 +249,29 @@ async function initCamera() {
             // Apply the rotation to our current rotation
             aqa.spaceshipMesh.rotationQuaternion.multiplyInPlace(turn);
         }
-
-        // If we have input, compute acceleration, otherwise it's zero
-        //const acceleration = input
-        //? aqa.spaceshipMesh.forward.scale(input.thrust * MaxThrust * deltaSecs)
-        //: Vector3.Zero();
-
+        */
+        
+        // If we have autoplay, constant acceleration
+        // If we have input, compute acceleration
+        // otherwise it's zero
+        const acceleration = 
+        aqa.autoplay ? aqa.spaceshipMesh.forward.scale(MaxThrust / 2 * deltaSecs) :
+        input ? aqa.spaceshipMesh.forward.scale(input.thrust * MaxThrust * deltaSecs)
+        : Vector3.Zero();
+        
         // Now apply the various physics forces to move the spaceship
 
         // Apply acceleration to velocity
-        //velocity.addInPlace(acceleration);
+        velocity.addInPlace(acceleration);
         // Apply drag to dampen velocity
-        //velocity.scaleInPlace(1 - DragCoefficient * deltaSecs);
+        velocity.scaleInPlace(1 - DragCoefficient * deltaSecs);
 
 
         // Apply velocity to position
-        //aqa.spaceshipMesh.position.addInPlace(velocity.scale(deltaSecs));
+        aqa.spaceshipMesh.position.addInPlace(velocity.scale(deltaSecs));
 
         //console.log("spaceship pos: " + aqa.spaceshipMesh.position);
 
-        /*
-        scene.audioListenerPositionProvider = () => {
-        // Returns a static position
-        return spaceshipMesh.absolutePosition;
-        };
-        */
     });
 
     // Use the onBeforeRenderObservable event to move the

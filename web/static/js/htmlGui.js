@@ -187,6 +187,10 @@ class aqa_menu {
         this.menu_gen_2_button.hidden=this.menu_hidden;
         this.menu_gen_3_button.hidden=this.menu_hidden;
         this.menu_gen_4_button.hidden=this.menu_hidden;
+        this.menu_pan_1_button.hidden=this.menu_hidden;
+        this.menu_pan_2_button.hidden=this.menu_hidden;
+        this.menu_pan_3_button.hidden=this.menu_hidden;
+        this.menu_pan_4_button.hidden=this.menu_hidden;
     }
 
     setCalcButtonColor(i,c) {

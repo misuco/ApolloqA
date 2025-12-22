@@ -77,7 +77,10 @@ aqa.syncTrackTimer = function() {
                             diameter: 1.5
                         }, scene);
 
-                        worldObject.position=orbiter[trackId][0].getAbsolutePosition();
+                        const worldObjectPosition = orbiter[trackId][0].getAbsolutePosition();
+                        worldObject.position.x=worldObjectPosition.x;
+                        worldObject.position.y=worldObjectPosition.y;
+                        worldObject.position.z=worldObjectPosition.z;
                         worldObject.track=orbiter.track[trackId];
                         worldObject.track.spatial.attach(worldObject);
                         worldObject.track.outBus=aqa.audioEngine.defaultMainBus;
@@ -97,7 +100,7 @@ aqa.syncTrackTimer = function() {
                             rect1.transformCenterX = 0;
                             rect1.transformCenterY = 1;
                             rect1.background = "grey";
-                            rect1.alpha = 0.7;
+                            rect1.alpha = 0.2;
                             //rect1.scaleX = 0;
                             //rect1.scaleY = 0;
                             rect1.cornerRadius = 30

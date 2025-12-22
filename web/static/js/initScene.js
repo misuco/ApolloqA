@@ -43,11 +43,13 @@ async function createScene() {
     const sunLight = new DirectionalLight("sun light", new Vector3(1, -1, -1));
     sunLight.intensity = 5;
 
+    /*
     const havokInstance = await HavokPhysics();
     const hk = new BABYLON.HavokPlugin(true, havokInstance);
     var gravityVector = new BABYLON.Vector3(0, 0, 0);
     scene.enablePhysics(gravityVector, hk);
     console.log("physics created");
+    */
 
     /*
     scene.debugLayer.show({
@@ -75,6 +77,9 @@ async function boot() {
     initColors();
     console.log("boot: initCamera");
     
+    console.log("boot: initStarfield");
+    initStarfield();
+    
     await initCamera();
     aqa.audioEngine.listener.attach(aqa.spaceshipMesh);
     
@@ -91,9 +96,6 @@ async function boot() {
 
     console.log("boot: initMultiuser");
     initMultiuser();
-
-    //console.log("boot: initStarfield");
-    //initStarfield();
 
     console.log("boot: runRenderLoop");
     // Start a render loop
