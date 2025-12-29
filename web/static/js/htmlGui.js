@@ -4,6 +4,12 @@ class aqa_menu {
 
         this.display_header = document.querySelector("#display_header");
         this.display_net_status = document.querySelector("#display_net_status");
+        
+        this.range_speed = document.querySelector("#range_speed");
+        this.range_speed.addEventListener("input", () => {aqa.speed=event.target.value;});
+        
+        this.range_camera = document.querySelector("#range_camera");
+        this.range_camera.addEventListener("input", () => {aqa.chaseCameraPosition.position.z=event.target.value*-1;});
 
         this.div_gen_1 = document.querySelector("#config_gen_0");
         this.div_gen_2 = document.querySelector("#config_gen_1");

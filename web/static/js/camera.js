@@ -255,7 +255,7 @@ async function initCamera() {
         // If we have input, compute acceleration
         // otherwise it's zero
         const acceleration = 
-        aqa.autoplay ? aqa.spaceshipMesh.forward.scale(MaxThrust / 2 * deltaSecs) :
+        aqa.speed>0 ? aqa.spaceshipMesh.forward.scale(MaxThrust * aqa.speed * deltaSecs) :
         input ? aqa.spaceshipMesh.forward.scale(input.thrust * MaxThrust * deltaSecs)
         : Vector3.Zero();
         

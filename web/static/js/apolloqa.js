@@ -44,6 +44,7 @@ aqa.spaceshipGravity = null;
 aqa.chaseCameraPosition = null;
 aqa.chaseCameraLookAt = null;
 aqa.mouseState = null;
+aqa.speed = 0;
 
 // multiuser-ws.js
 aqa.ws = null;
