@@ -35,6 +35,7 @@ aqa.labels=null;
 
 // initScene.js, syncTrack.js
 aqa.audioEngine;
+aqa.instruments=[];
 
 // camera.js
 aqa.spaceshipMesh = null;

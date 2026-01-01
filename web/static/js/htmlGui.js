@@ -166,14 +166,16 @@ class aqa_menu {
         const http_req = new XMLHttpRequest();
         http_req.addEventListener("load", function() {
             if (this.response) {
-                for(let i=0;i<4;i++) {
-                    const response_data=JSON.parse(this.response);
-                    response_data.forEach((inst,n) => {
+                aqa.instruments=JSON.parse(this.response);
+                aqa.instruments.forEach((inst,n) => {
+                    for(let i=0;i<4;i++) {
                         let opt=document.createElement('option');
                         opt.value=n;
                         opt.innerHTML=inst.name;
                         instruments[i].appendChild(opt);
-                    });
+                    }
+                });
+                for(let i=0;i<4;i++) {
                     instruments[i].value=i;
                 }
             } else {
@@ -204,8 +206,9 @@ class aqa_menu {
     }
 
     triggerCalc(i) {
-        this.setCalcButtonColor(i,"orange");
-        triggerNewSound(i);
+        //this.setCalcButtonColor(i,"orange");
+        //triggerNewSound(i);
+        generateNewSound();
     }
 
     incBpmValue() {
