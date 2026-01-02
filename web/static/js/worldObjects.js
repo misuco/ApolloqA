@@ -1,29 +1,48 @@
-function newSoundMesh(x,y,z,url) {
+function newSoundMesh(x,y,z,trackUrl) {
     console.log("newSoundMesh")
     
-    let worldObject = BABYLON.MeshBuilder.CreateSphere("worldObject", {
+    let worldObject = {};
+    worldObject.trackUrl=trackUrl;
+    
+    let mesh = BABYLON.MeshBuilder.CreateSphere("worldObject", {
         diameter: 1.5
     }, scene);
 
-    worldObject.position.x=x;
-    worldObject.position.y=y;
-    worldObject.position.z=z;
-
-    BABYLON.CreateSoundAsync(url, url, {
+    mesh.position.x=x;
+    mesh.position.y=y;
+    mesh.position.z=z;
+    
+    worldObject.mesh = mesh;
+    
+    BABYLON.CreateSoundAsync(trackUrl, trackUrl, {
         spatialEnabled: true,
         spatialMaxDistance: 20
     }).then(track => {
-        console.log("track ready "+ url );
-        track.spatial.attach(worldObject);
+        const currentTime = track.engine.currentTime;
+        const nextCycleTime = (Math.floor(currentTime / aqa.cycleTime) + 1)*aqa.cycleTime
+        const waitTime = nextCycleTime - currentTime;
+        console.log("track ready "+ trackUrl + " at " + currentTime + " next cycle " + nextCycleTime + " wait " + waitTime );
+        track.spatial.attach(worldObject.mesh);
         track.play({
-            loop: true
+            loop: true,
+            waitTime: waitTime
         });
-        generateNewSound();
+        worldObject.track=track;
+        //generateNewSound();
     }).catch(err => {
-        console.error("cannot play sound:" + url + " " + err);
-        generateNewSound();
+        console.error("cannot play sound:" + trackUrl + " " + err);
+        //generateNewSound();
     });
-
+    
+    BABYLON.CreateAudioBusAsync(trackUrl, {
+        analyzerEnabled: true
+    }).then(bus => {
+        bus.analyzer.fftSize=128;
+        worldObject.analyzer = bus;
+        console.log("analyzer bus ready: " + trackUrl);
+    }).catch(err => {
+        console.error("cannot analyze sound:" + trackUrl + " " + err);
+    });
 }
 
 var generateNewSound = function() {
@@ -35,7 +54,7 @@ var generateNewSound = function() {
             const trackUrl=this.response + ".ogg";
             let randX = aqa.spaceshipMesh.position.x + Math.random() * 20 - 10;
             let randY = aqa.spaceshipMesh.position.y + Math.random() * 20 - 10;
-            let randZ = aqa.spaceshipMesh.position.z + 20;
+            let randZ = aqa.spaceshipMesh.position.z + Math.random() * 10;
             let soundMesh = newSoundMesh(randX,randY,randZ,trackUrl);
         }
     });
@@ -52,7 +71,12 @@ var generateNewSound = function() {
     const sf2Json = aqa.instruments[sf2Nr];
     const sf2File = sf2Json.soundfont;
     const instrumentPresCount = sf2Json.presets.length;
-    const presetJson = sf2Json.presets[aqa.getRandomInt(instrumentPresCount)];
+    if(instrumentPresCount<=0) {
+        console.log("Instrument preset count <=0");
+        return;
+    }
+    
+    const presetJson = sf2Json.presets[aqa.getRandomInt(instrumentPresCount-1)];
     
     console.log("presetJson.name " + presetJson.name + " presetJson.nr " + presetJson.nr + " presetJson.bank " + presetJson.bank);
     console.log("trigger new sound trackId " + trackId + " quantize " + quantize_selected + " " + quantize_real );

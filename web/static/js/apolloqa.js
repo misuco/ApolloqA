@@ -72,8 +72,11 @@ aqa.startTime = Date.now();
 aqa.nickname=nickname;
 aqa.uploadId=0;
 aqa.nTracks=4;
-aqa.tempo=140;
+
+aqa.tempo=120;
+aqa.cycleTime=aqa.tempo / 60;
 aqa.cycleNr=0;
+
 aqa.recTrackId=0;
 aqa.recArmed=false;
 aqa.stopArmed=false;

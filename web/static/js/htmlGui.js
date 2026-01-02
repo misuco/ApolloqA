@@ -227,6 +227,7 @@ class aqa_menu {
 
     updateBpmValue(newTempo) {
         aqa.tempo=newTempo;
+        aqa.cycleTime=aqa.tempo / 60;
         this.display_bpm.textContent=newTempo;
     }
 
