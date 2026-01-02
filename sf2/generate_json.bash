@@ -15,7 +15,7 @@ else
     INVALID_BANKS+="$sf2file *** "
     continue
 fi
-for presetNr in $(sf2dump $sf2file 2>&1 | grep "Bank: 0" | grep Preset:); do
+for presetNr in $(sf2dump $sf2file 2>&1 | grep Preset:); do
     printf "$COMMA2"
     echo $presetNr | awk '{split($0,a,/[\:,]|[(]Pres/);gsub(/[%"]/,"",a[1]);gsub(/^[ \t]+|[ \t]+$/,"",a[1]);gsub(/^[ \t]+|[ \t]+$/,"",a[3]);gsub(/^[ \t]+|[ \t]+$/,"",a[5]);printf "\t\t\t{\"name\":\""a[1]"\",\"nr\":\""a[3]"\",\"bank\":\""a[5]"\"}" }'
     COMMA2=",\n"
