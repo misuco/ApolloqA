@@ -44,7 +44,6 @@ wsServer.on('connection', (ws,req) => {
   // Message event handler
   ws.on('message', (message, isBinary) => {
       const msgAsString = message.toString('utf-8');
-      //const msgObject = JSON.parse(msgAsString) as Message;
       const m = JSON.parse(msgAsString);
       const t=Date.now();
 
