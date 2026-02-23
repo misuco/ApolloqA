@@ -1,18 +1,38 @@
 {
-  "name": "ApolloqA-Web",
-  "private": true,
-  "version": "1.0.1",
-  "description": "Collaborative sound platform",
-  "repository": "-",
-  "license": "GNU/GPL",
-  "dependencies": {
-    "child_process": "x",
-    "express": "x",
-    "fs": "0.0.1-security",
-    "multiparty": "^4.2.3"
-  },
+  "name": "web-ts",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
   "scripts": {
-    "prestart": "npm install",
-    "start": "node server.js"
+    "build": "tsc",
+    "start": "node dist/server.js",
+    "dev": "nodemon --watch 'src/**/*.ts' --exec 'ts-node' src/server.ts",
+    "lint": "eslint 'src/**/*.ts'",
+    "test": "jest",
+    "test:watch": "jest --watch"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "dotenv": "^17.2.3",
+    "express": "^5.2.1",
+    "ws": "^8.16.0"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.6",
+    "@types/jest": "^30.0.0",
+    "@types/multiparty": "^4.2.1",
+    "@types/node": "^25.1.0",
+    "@types/ws": "^8.16.0",
+    "eslint": "^9.39.2",
+    "jest": "^30.2.0",
+    "multiparty": "^4.2.3",
+    "nodemon": "^3.1.11",
+    "prettier": "^3.8.1",
+    "ts-jest": "^29.4.6",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3"
   }
 }

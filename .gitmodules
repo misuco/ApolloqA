@@ -1,0 +1,3 @@
+[submodule "web/static"]
+	path = web/static
+	url = git@github.com:misuco/ApolloqA-Frontend.git

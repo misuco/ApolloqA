@@ -1,0 +1,7 @@
+CRUD-API
+
+ES6-Modules
+
+curl -X POST http://localhost:3000/api/items -H Content-Type: application/json -d {"name": "Sample Item 2"}
+
+http://localhost:3000/api/items
