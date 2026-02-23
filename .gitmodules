@@ -1,3 +1,6 @@
 [submodule "web/static"]
 	path = web/static
 	url = git@github.com:misuco/ApolloqA-Frontend.git
+[submodule "sf2"]
+	path = sf2
+	url = git@github.com:misuco/SF2_SoundFonts.git
