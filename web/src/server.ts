@@ -3,39 +3,26 @@ import config from './config/config';
 import { WebSocketServer, WebSocket } from 'ws';
 import * as fs from 'fs';
 
-app.listen(config.port, () => {
-  console.log(`Server running on port ${config.port}`);
-});
+type WorldTrack = {
+    x: number
+    y: number
+    z: number
+    trackUrl: string
+    trackName: string
+    creator: string
+}
 
 // Create WebSocket server
 const wsServer = new WebSocketServer({port: config.port_ws});
 
-const clients = new Map();
-const clientTrackLists = new Map();
-const clientSockets = new Map();
+const worldTrackList = new Map();
 
-const pastClients = new Map();
-const pastTrackLists = new Map();
+const clients = new Map();
+const clientSockets = new Map();
 
 // Prepare session dir
 if(fs.existsSync("sessions")) {console.log("Found sessions dir");}
 else {fs.mkdirSync("sessions"); console.log("Made sessions dir");}
-
-// Read past clients
-var files = fs.readdirSync('sessions/');
-console.log("Reading past clients");
-files.forEach(file => {
-    //console.log(file);
-    const trackListFile=`sessions/${file}/trackList.json`;
-    if(fs.existsSync(trackListFile)) {
-        const trackList = fs.readFileSync(trackListFile);
-        if(trackList) {
-            const client = JSON.parse(fs.readFileSync(`sessions/${file}/client.json`,'utf-8'));
-            console.log("active tracklist by "+client.nickname);
-            pastClients.set(file,client);
-        }
-    }
-});
 
 // Connection event handler
 wsServer.on('connection', (ws,req) => {
@@ -57,7 +44,14 @@ wsServer.on('connection', (ws,req) => {
           }
           if(m.trackList) {
               console.log('Received trackList: '+m.trackList);
-              clientTrackLists.set(m.sessionId,m.trackList);
+
+              let track: WorldTrack = m.trackList[1];
+
+              worldTrackList.set(track.trackUrl,track);
+              console.log('Set trackList: '+track.trackUrl);
+
+              fs.writeFileSync('worldTrackList.json', JSON.stringify(Array.from(worldTrackList.entries()),null,'\t'));
+
               clientSockets.forEach((socket,key) => {
                   if(key!==m.sessionId) {
                       console.log("forwarding trackList to "+key);
@@ -82,9 +76,10 @@ wsServer.on('connection', (ws,req) => {
   console.log('Sending clients list');
   ws.send(JSON.stringify(Array.from(clients.entries())));
 
-  // - list of past clients
-  console.log('Sending past clients list');
-  ws.send('{"pastClients":'+JSON.stringify(Array.from(pastClients.entries()))+'}');
+  // - list of clients
+  console.log('Sending world track list');
+  ws.send(JSON.stringify({"sessionId":"","trackList":Array.from(worldTrackList.entries())}));
+  //ws.send(JSON.stringify(Array.from(worldTrackList.entries())));
 
 });
 
@@ -100,27 +95,9 @@ let removeInactiveClients = function() {
             else { fs.mkdirSync(sessionDir);console.log("Cerated sessions dir "+sessionDir); }
             console.log("Storing "+JSON.stringify(clients.get(key)));
             fs.writeFileSync(sessionDir+'/client.json', JSON.stringify(clients.get(key)));
-            const trackList=clientTrackLists.get(key);
-            if(trackList){
-                console.log("Storing "+JSON.stringify(trackList));
-                fs.writeFileSync(sessionDir+'/trackList.json', JSON.stringify(trackList));
-            }
-
-            // add to past clients list
-            pastClients.set(key,clients.get(key));
-
-            // update the other clients
-            const pastClientsUpdate=new Map();
-            pastClientsUpdate.set(key,clients.get(key))
 
             clientSockets.delete(key);
-            clientSockets.forEach((socket,socketKey) => {
-                console.log("past client update to "+socketKey);
-                socket.send('{"pastClients":'+JSON.stringify(Array.from(pastClientsUpdate.entries()))+'}');
-            });
-
             clients.delete(key);
-            clientTrackLists.delete(key);
             console.log("deleted session "+key);
         }
     });
@@ -128,3 +105,8 @@ let removeInactiveClients = function() {
 }
 
 setTimeout(removeInactiveClients, 1000);
+
+// start server
+app.listen(config.port, () => {
+  console.log(`Server running on port ${config.port}`);
+});
