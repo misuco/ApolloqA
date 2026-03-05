@@ -22,6 +22,11 @@ git submodule init
 git submodule update
 ```
 
+### prepare node
+```
+npm install -D typescript ts-node @types/node @types/express nodemon eslint prettier
+```
+
 ### run dev mode
 ```
 cd web
