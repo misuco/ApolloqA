@@ -45,7 +45,8 @@ wsServer.on('connection', (ws,req) => {
           if(m.trackList) {
               console.log('Received trackList: '+m.trackList);
 
-              let track: WorldTrack = m.trackList[1];
+              let trackListItem=m.trackList[0];
+              let track: WorldTrack = trackListItem[1];
 
               worldTrackList.set(track.trackUrl,track);
               console.log('Set trackList: '+track.trackUrl);
