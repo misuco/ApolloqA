@@ -10,16 +10,16 @@ export const createClip = (req: express.Request, res: express.Response, next: Ne
     let query = JSON.stringify(req.query);
     console.log("got newclip " + query);
 
-    let result = execSync(`mkdir -p ${config.web_path}/loops/${req.query.sessionId}`);
+    let result = execSync(`mkdir -p ${config.web_path}/loops/${req.query.worldId}`);
 
-    fs.writeFileSync(config.web_path+'/loops/'+req.query.sessionId+'/'+req.query.id+'.json', query);
+    fs.writeFileSync(config.web_path+'/loops/'+req.query.worldId+'/'+req.query.id+'.json', query);
     result=execSync(config.bin_path_midigen
         + ' -d '+config.web_path+'/data'
-        + ' -f '+config.web_path+'/loops/'+req.query.sessionId+'/'+req.query.id
+        + ' -f '+config.web_path+'/loops/'+req.query.worldId+'/'+req.query.id
         + ' -s '+config.sf2_path );
     console.log("------------------------------------------------------------------------------");
     console.log("request result :");
     console.log("--> "+result);
     console.log("------------------------------------------------------------------------------");
-    res.send("loops/" + req.query.sessionId + "/" + req.query.id);
+    res.send("loops/" + req.query.worldId + "/" + req.query.id);
 };

@@ -7,7 +7,7 @@ export let items: Item[] = [];
 
 
 export interface FormFields {
-  sessionId: string[];
+  worldId: string[];
   nickname: string[];
   uploadId: string[];
 }

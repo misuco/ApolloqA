@@ -28,7 +28,7 @@ got post localhost
     "priority":"u=4"
   }
 
-  got form fields {"sessionId":["8fac28b6-6bc3-4025-bc3a-8f2eb65bdffa"],"uploadId":["3"],"nickname":["Coco"]}
+  got form fields {"worldId":["8fac28b6-6bc3-4025-bc3a-8f2eb65bdffa"],"uploadId":["3"],"nickname":["Coco"]}
   got form files {"file":[{"fieldName":"file","originalFilename":"recording.ogg","path":"/tmp/vL5QFoFh8noRor26XeWAIrpA.ogg","headers":{"content-disposition":"form-data; name=\"file\"; filename=\"recording.ogg\"","content-type":"application/octet-stream"},"size":163}]}
 
 */
@@ -43,19 +43,19 @@ export const createUpload = (req: express.Request, res: express.Response, next: 
       return;
     }
 
-    if(fields.sessionId === undefined) {return;}
+    if(fields.worldId === undefined) {return;}
     if(fields.nickname === undefined) {return;}
     if(fields.uploadId === undefined) {return;}
     if(files.file === undefined) {return;}
 
-    const sessionId = fields.sessionId;
+    const worldId = fields.worldId;
     const nickname = fields.nickname;
     const uploadId = fields.uploadId;
 
     const upload = files.file[0].path;
 
-    const result = execSync(`mkdir -p ${config.web_path}/loops/${sessionId}`);
-    fs.copyFileSync(upload, `${config.web_path}/loops/${sessionId}/u${uploadId}.ogg`);
+    const result = execSync(`mkdir -p ${config.web_path}/loops/${worldId}`);
+    fs.copyFileSync(upload, `${config.web_path}/loops/${worldId}/u${uploadId}.ogg`);
 
   });
   res.send('{"status":"received"}');
