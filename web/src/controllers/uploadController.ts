@@ -1,5 +1,4 @@
 import { Request, Response, NextFunction } from 'express';
-import { FormFields, FormFiles  } from '../models/item';
 import config from '../config/config';
 
 import * as multiparty from 'multiparty';

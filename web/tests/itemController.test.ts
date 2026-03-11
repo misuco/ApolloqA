@@ -1,8 +1,8 @@
 import { Request, Response } from 'express';
-import { getItems } from '../src/controllers/itemController';
+import { getWorldObjects } from '../src/controllers/itemController';
 import { items } from '../src/models/item';
 
-describe('Item Controller', () => {
+describe('WorldObject Controller', () => {
   it('should return an empty array when no items exist', () => {
     // Create mock objects for Request, Response, and NextFunction
     const req = {} as Request;
@@ -14,7 +14,7 @@ describe('Item Controller', () => {
     items.length = 0;
 
     // Execute our controller function
-    getItems(req, res, jest.fn());
+    getWorldObjects(req, res, jest.fn());
 
     // Expect that res.json was called with an empty array
     expect(res.json).toHaveBeenCalledWith([]);

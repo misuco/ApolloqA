@@ -1,17 +1,9 @@
 import app from './app';
 import config from './config/config';
 import { WebSocketServer, WebSocket } from 'ws';
-import * as fs from 'fs';
+import fs from 'node:fs';
 import { execSync } from 'child_process';
-
-type WorldTrack = {
-    x: number
-    y: number
-    z: number
-    trackUrl: string
-    trackName: string
-    creator: string
-}
+import { WorldObject } from './models/worldObject';
 
 // Create WebSocket server
 const wsServer = new WebSocketServer({port: config.port_ws});
@@ -25,6 +17,15 @@ const clientSockets = new Map();
 if(fs.existsSync("sessions")) {console.log("Found sessions dir");}
 else {fs.mkdirSync("sessions"); console.log("Made sessions dir");}
 
+// Init worldTrackList
+fs.readdirSync(config.web_path+'/loops').forEach(worldId => {
+    let configFileName=config.web_path+'/loops/'+worldId+"/worldTrackList.json";
+    if(fs.existsSync(configFileName)) {
+        const data = fs.readFileSync(configFileName, 'utf8');
+        worldTrackList.set(worldId,new Map(JSON.parse(data)));
+    }
+});
+
 // Connection event handler
 wsServer.on('connection', (ws,req) => {
   console.log('New client connected from '+req.socket.remoteAddress);
@@ -33,39 +34,24 @@ wsServer.on('connection', (ws,req) => {
   ws.on('message', (message, isBinary) => {
       const msgAsString = message.toString('utf-8');
       const m = JSON.parse(msgAsString);
-      const t=Date.now();
-
-      //console.log('Received msg: '+msgAsString);
-
-      if(m.sessionId) {
-          //console.log('Received msg sessionId: '+m.sessionId);
-          if(clientSockets.has(m.sessionId)===false) {
-              console.log("Adding client socket for "+m.sessionId);
-              clientSockets.set(m.sessionId,ws);
-          } else {
-              m.t=t;
-              clients.set(m.sessionId,m);
-          }
-      }
+      //const t=Date.now();
 
       if(m.trackList) {
           console.log('Received trackList: '+m.trackList);
 
-          let trackListItem=m.trackList[0];
-          let track: WorldTrack = trackListItem[1];
+          let track: WorldObject = m.trackList[0];
 
           if(worldTrackList.has(m.worldId)===false) {
               worldTrackList.set(m.worldId,new Map());
           }
 
           let worldMap = worldTrackList.get(m.worldId);
-          worldMap.set(track.trackUrl,track);
+          worldMap.set(track.url,track);
 
-          // worldTrackList.set(track.trackUrl,track);
-          console.log('Set trackList: '+track.trackUrl);
+          console.log('Set trackList: '+track.url);
 
           let result = execSync(`mkdir -p ${config.web_path}/loops/${m.worldId}`);
-          fs.writeFileSync(config.web_path+'/loops/'+m.worldId+'/worldTrackList.json', JSON.stringify(Array.from(worldMap.entries()),null,'\t'));
+          fs.writeFileSync(config.web_path+'/loops/'+m.worldId+'/worldTrackList.json', JSON.stringify(Array.from(worldMap.values()),null,'\t'));
 
           clientSockets.forEach((socket,key) => {
               if(key!==m.sessionId) {
@@ -73,9 +59,25 @@ wsServer.on('connection', (ws,req) => {
                   socket.send(JSON.stringify(m));
               }
           });
-      }
+      } else if(m.sessionId) {
+            //console.log('Received msg sessionId: '+m.sessionId);
+            if(clientSockets.has(m.sessionId)) {
+                m.t=Date.now();
+                clients.set(m.sessionId,m);
+            } else {
+                console.log("Adding client socket for "+m.sessionId);
+                clientSockets.set(m.sessionId,ws);
 
-      ws.send(JSON.stringify(Array.from(clients.entries())));
+                // - list of clients
+                let worldId = m.worldId;
+                let worldMap = worldTrackList.get(worldId);
+                console.log('Sending world track list '+worldId);
+                if(worldMap) {
+                    ws.send(JSON.stringify({"sessionId":"","worldId":worldId,"trackList":Array.from(worldMap.values())}));
+                }
+            }
+          ws.send(JSON.stringify(Array.from(clients.entries())));
+      }
   });
 
   // Close event handler
@@ -87,10 +89,6 @@ wsServer.on('connection', (ws,req) => {
   // - list of clients
   console.log('Sending clients list');
   ws.send(JSON.stringify(Array.from(clients.entries())));
-
-  // - list of clients
-  console.log('Sending world track list');
-  //ws.send(JSON.stringify({"sessionId":"","trackList":Array.from(worldTrackList.entries())}));
 
 });
 

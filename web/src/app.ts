@@ -1,5 +1,5 @@
 import express from 'express';
-import itemRoutes from './routes/itemRoutes';
+import worldObjectRoutes from './routes/worldObjectRoutes';
 import uploadRoutes from './routes/uploadRoutes';
 import clipgenRoutes from './routes/clipgenRoutes';
 import { errorHandler } from './middlewares/errorHandler';
@@ -10,7 +10,7 @@ app.use(express.json());
 app.use(express.static('static'));
 
 // Routes
-app.use('/api/items', itemRoutes);
+app.use('/api/worldObjects', worldObjectRoutes);
 app.use('/upload', uploadRoutes);
 app.use('/clipgen', clipgenRoutes);
 
