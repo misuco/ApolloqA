@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
-import { getWorldObjects } from '../src/controllers/itemController';
-import { items } from '../src/models/item';
+import { getWorldObjects } from '../src/controllers/worldObjectController';
+import { worldObjects } from '../src/models/worldObject';
 
 describe('WorldObject Controller', () => {
   it('should return an empty array when no items exist', () => {
@@ -11,7 +11,7 @@ describe('WorldObject Controller', () => {
     } as unknown as Response;
 
     // Ensure that our in-memory store is empty
-    items.length = 0;
+    worldObjects.length = 0;
 
     // Execute our controller function
     getWorldObjects(req, res, jest.fn());
