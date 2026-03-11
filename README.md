@@ -35,7 +35,7 @@ npm run dev
 ```
 -> Open in local webbrowser http://localhost:3000
 
-### add own sf2 files were changed
+### add own sf2 files
 ```
 apt-get install gigtools #(sf2dump)
 cd sf2
