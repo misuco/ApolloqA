@@ -37,7 +37,7 @@ npm run dev
 
 ### add own sf2 files
 ```
-apt-get install gigtools #(sf2dump)
+apt-get install gigtools # sf2dump
 cd sf2
 ./generate_json.bash > ../web/static/data/instruments.json
 ```
