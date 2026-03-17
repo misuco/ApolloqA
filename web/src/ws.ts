@@ -8,6 +8,7 @@ import { WorldObject } from './models/worldObject';
 const wsServer = new WebSocketServer({port: config.port_ws});
 
 const worldObjects = new Map();
+const worldConfigs = new Map();
 const clients = new Map();
 const clientSockets = new Map();
 
@@ -28,6 +29,15 @@ export default function initWs() {
             const dataJson = JSON.parse(data);
             console.log("exists: "+dataJson);
             worldObjects.set(worldId,new Map(dataJson));
+        }
+
+        configFileName=config.web_path+'/loops/'+worldId+"/worldConfig.json";
+        console.log(configFileName);
+        if(fs.existsSync(configFileName)) {
+            const data = fs.readFileSync(configFileName, 'utf8');
+            const dataJson = JSON.parse(data);
+            console.log("exists: "+dataJson);
+            worldConfigs.set(worldId,dataJson);
         }
     });
 
@@ -80,8 +90,18 @@ export default function initWs() {
                     if(worldMap) {
                         ws.send(JSON.stringify({"sessionId":"","worldId":worldId,"trackList":Array.from(worldMap.values())}));
                     }
+
+                    let worldConfig = worldConfigs.get(worldId);
+                    console.log('Sending world config list '+worldConfig);
+                    if(worldConfig) {
+                        ws.send(JSON.stringify(worldConfig));
+                    }
                 }
               ws.send(JSON.stringify(Array.from(clients.entries())));
+          } else if(m.chords) {
+              let result = execSync(`mkdir -p ${config.web_path}/loops/${m.worldId}`);
+              worldConfigs.set(m.worldId,m);
+              fs.writeFileSync(config.web_path+'/loops/'+m.worldId+'/worldConfig.json', JSON.stringify(m, null,'\t'));
           }
       });
 
