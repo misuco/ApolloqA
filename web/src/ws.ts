@@ -49,7 +49,6 @@ export default function initWs() {
       ws.on('message', (message, isBinary) => {
           const msgAsString = message.toString('utf-8');
           const m = JSON.parse(msgAsString);
-          //const t=Date.now();
 
           if(m.trackList) {
               console.log('Received trackList: '+m.trackList);
