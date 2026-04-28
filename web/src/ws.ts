@@ -22,31 +22,35 @@ export default function initWs() {
     let dir=fs.readdirSync(config.web_path+'/loops');
     console.log(dir);
     dir.forEach((worldId,i) => {
-        let configFileName=config.web_path+'/loops/'+worldId+"/worldObjects.json";
-        console.log(configFileName);
+        try {
+            let configFileName=config.web_path+'/loops/'+worldId+"/worldObjects.json";
+            console.log(configFileName);
 
-        if(fs.existsSync(configFileName)) {
-            const data = fs.readFileSync(configFileName, 'utf8');
-            const dataJson = JSON.parse(data);
-            console.log("exists: "+JSON.stringify(dataJson));
-            let dataMap = new Map();
-            dataJson.forEach( (worldObject : WorldObject ) => {
-                console.log(" - add worldObject " + worldObject.url + " " +worldObject);
-                dataMap.set(worldObject.url,worldObject);
-            });
-            worldObjects.set(worldId,dataMap);
-            console.log("created worldObject: "+worldObjects.get(worldId));
-            console.log("from map: "+JSON.stringify(dataMap));
-        }
+            if(fs.existsSync(configFileName)) {
+                const data = fs.readFileSync(configFileName, 'utf8');
+                const dataJson = JSON.parse(data);
+                console.log("exists: "+JSON.stringify(dataJson));
+                let dataMap = new Map();
+                dataJson.forEach( (worldObject : WorldObject ) => {
+                    console.log(" - add worldObject " + worldObject.url + " " +worldObject);
+                    dataMap.set(worldObject.url,worldObject);
+                });
+                worldObjects.set(worldId,dataMap);
+                console.log("created worldObject: "+worldObjects.get(worldId));
+                console.log("from map: "+JSON.stringify(dataMap));
+            }
 
-        configFileName=config.web_path+'/loops/'+worldId+"/worldConfig.json";
-        console.log(configFileName);
-        if(fs.existsSync(configFileName)) {
-            const data = fs.readFileSync(configFileName, 'utf8');
-            const dataJson = JSON.parse(data);
-            console.log("exists: "+dataJson);
-            worldConfigs.set(worldId,dataJson);
-            console.log("created worldConfigs: "+JSON.stringify(worldConfigs.get(worldId)));
+            configFileName=config.web_path+'/loops/'+worldId+"/worldConfig.json";
+            console.log(configFileName);
+            if(fs.existsSync(configFileName)) {
+                const data = fs.readFileSync(configFileName, 'utf8');
+                const dataJson = JSON.parse(data);
+                console.log("exists: "+dataJson);
+                worldConfigs.set(worldId,dataJson);
+                console.log("created worldConfigs: "+JSON.stringify(worldConfigs.get(worldId)));
+            }
+        } catch(exception) {
+            console.log("Invalid config file for " + worldId + " " + exception);
         }
     });
 
