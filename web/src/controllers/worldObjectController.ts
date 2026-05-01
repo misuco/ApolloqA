@@ -6,8 +6,8 @@ import * as express from 'express';
 export const createWorldObject = (req: Request, res: Response, next: NextFunction) => {
   try {
     console.log("createWorldObject "+req.body);
-    const { url, name, creator, x, y, z } = req.body;
-    const newWorldObject: WorldObject = { url, name, creator, x, y, z };
+    const { url, name, creator, mesh, x, y, z, follow, angleX, angleY, angleZ, radiusL, radiusF, radiusR, radiusB, rotate } = req.body;
+    const newWorldObject: WorldObject = { url, name, creator, mesh, x, y, z, follow, angleX, angleY, angleZ, radiusL, radiusF, radiusR, radiusB, rotate };
     worldObjects.push(newWorldObject);
     res.status(201).json(newWorldObject);
   } catch (error) {
