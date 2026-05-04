@@ -11,6 +11,7 @@ const worldObjects = new Map();
 const worldConfigs = new Map();
 const clients = new Map();
 const clientSockets = new Map();
+const clientIps = new Map();
 
 export default function initWs() {
 
@@ -57,6 +58,7 @@ export default function initWs() {
     // Connection event handler
     wsServer.on('connection', (ws,req) => {
       console.log('New client connected from '+req.socket.remoteAddress);
+      const ip=req.socket.remoteAddress;
 
       // Message event handler
       ws.on('message', (message, isBinary) => {
@@ -94,6 +96,7 @@ export default function initWs() {
                 } else {
                     console.log("Adding client socket for "+m.sessionId);
                     clientSockets.set(m.sessionId,ws);
+                    clientIps.set(m.sessionId,ip);
 
                     // - list of clients
                     let worldId = m.worldId;
@@ -143,10 +146,16 @@ function removeInactiveClients() {
             let sessionDir="sessions/"+key;
             if(fs.existsSync(sessionDir)) { console.log("Found sessions dir "+sessionDir); }
             else { fs.mkdirSync(sessionDir);console.log("Cerated sessions dir "+sessionDir); }
-            console.log("Storing "+JSON.stringify(clients.get(key)));
-            fs.writeFileSync(sessionDir+'/client.json', JSON.stringify(clients.get(key)));
+
+            let client=clients.get(key);
+            let socket=clientSockets.get(key);
+            client.ip = clientIps.get(key);
+            let jsonString = JSON.stringify(client);
+            console.log("Storing "+jsonString);
+            fs.writeFileSync(sessionDir+'/client.json', jsonString);
 
             clientSockets.delete(key);
+            clientIps.delete(key);
             clients.delete(key);
             console.log("deleted session "+key);
         }
